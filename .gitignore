@@ -1,0 +1,12 @@
+.DS_STORE
+node_modules
+package-lock.json
+
+*.js
+!rollup.config.*
+
+lib
+tsconfig.buildinfo
+.rollup.tscache
+
+yarn-error.log

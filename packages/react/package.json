@@ -1,0 +1,24 @@
+{
+  "name": "@fml/react",
+  "private": true,
+  "version": "0.0.1",
+  "description": "react bindings for @fml",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evanbb/fml.git"
+  },
+  "keywords": [],
+  "author": "Evan Bremer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/evanbb/fml/issues"
+  },
+  "homepage": "https://github.com/evanbb/fml#readme",
+  "peerDependencies": {
+    "react": "^17.0.1",
+    "@fml/core": "*"
+  }
+}
