@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "noEmitOnError": true,
+    "paths": {
+      "@fml/*": [
+        "./*/src"
+      ]
+    },
+    "skipLibCheck": true,
+    "strict": true
+  }
+}
