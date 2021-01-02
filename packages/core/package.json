@@ -1,6 +1,6 @@
 {
   "name": "@evanbb/fml-core",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "core utilities and typings for fml",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
