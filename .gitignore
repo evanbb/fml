@@ -10,3 +10,4 @@ tsconfig.buildinfo
 .rollup.tscache
 
 yarn-error.log
+lerna-debug.log
