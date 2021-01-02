@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rollup -c",
-    "publish:all": "lerna version minor && lerna publish"
+    "publish:all": "lerna version patch && lerna publish"
   },
   "workspaces": [
     "packages/*"
