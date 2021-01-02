@@ -12,7 +12,7 @@ export default fs.readdirSync('packages').map(dir => ({
       name: 'rollup-plugin-copy-types',
       async writeBundle() {
         if (fs.existsSync(`packages/${dir}/src/types.ts`)) {
-          fs.copyFileSync(`packages/${dir}/src/types.ts`, `packages/${dir}/lib/index.d.ts`)
+          fs.copyFileSync(`packages/${dir}/src/types.ts`, `packages/${dir}/index.d.ts`)
         }
       }
     }
