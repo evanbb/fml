@@ -1,6 +1,6 @@
 {
   "name": "@evanbb/fml-react",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "react bindings for fml",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/evanbb/fml#readme",
   "devDependencies": {
-    "@evanbb/fml-core": "^0.0.6"
+    "@evanbb/fml-core": "^0.0.7"
   },
   "peerDependencies": {
     "@evanbb/fml-core": "*",
