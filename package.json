@@ -5,7 +5,9 @@
   "description": "monorepo for fml",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "prebuild": "rm -rf packages/*/lib",
     "build": "rollup -c",
+    "prepublish:all": "npm run build",
     "publish:all": "lerna version patch && lerna publish --force-publish=*"
   },
   "publishConfig": {
