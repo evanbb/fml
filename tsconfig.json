@@ -2,7 +2,7 @@
   "compilerOptions": {
     "noEmitOnError": true,
     "paths": {
-      "@fml/*": [
+      "@evanbb/*": [
         "./*/src"
       ]
     },
