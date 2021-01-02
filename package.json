@@ -8,7 +8,7 @@
     "prebuild": "rm -rf packages/*/lib",
     "build": "rollup -c",
     "prepublish:all": "npm run build",
-    "publish:all": "lerna version patch --yes --force-publish=* && lerna publish from-package --yes"
+    "publish:all": "lerna version patch --yes --force-publish=* && lerna publish from-package --force-publish=* --yes"
   },
   "publishConfig": {
     "access": "public"
