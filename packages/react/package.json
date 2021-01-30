@@ -3,7 +3,8 @@
   "version": "0.0.12",
   "description": "react bindings for fml",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "start-storybook"
   },
   "repository": {
     "type": "git",
@@ -12,6 +13,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "browser": "lib/index.js",
   "files": [
     "lib",
     "index.d.ts"
@@ -24,7 +28,10 @@
   },
   "homepage": "https://github.com/evanbb/fml#readme",
   "devDependencies": {
-    "@evanbb/fml-core": "^0.0.12"
+    "@evanbb/fml-core": "^0.0.12",
+    "@storybook/react": "^6.1.15",
+    "@storybook/addon-essentials": "^6.1.15",
+    "react-dom": "^17.0.1"
   },
   "peerDependencies": {
     "@evanbb/fml-core": "*",

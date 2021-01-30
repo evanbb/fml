@@ -2,6 +2,7 @@
 
 interface FormElementConfigBase<TValue> {
   label: string;
+  defaultValue?: TValue;
   validators?: ValidatorConfiguration<TValue>[];
 }
 
@@ -123,15 +124,20 @@ interface FieldConfigurationBase<TValue> extends FormElementConfigBase<TValue> {
   control: ControlsFor<TValue>;
 }
 
+export type FieldConfigurationForControl<
+  TValue,
+  TControl
+> = TControl extends keyof FieldAdditionalConfiguration<TValue>
+  ? FieldConfigurationBase<TValue> &
+      FieldAdditionalConfiguration<TValue>[TControl]
+  : FieldConfigurationBase<TValue>;
+
 export type FieldConfiguration<
   TValue
 > = FieldConfigurationBase<TValue> extends infer U
   ? U extends FieldConfigurationBase<TValue>
     ? U['control'] extends infer TControl
-      ? TControl extends keyof FieldAdditionalConfiguration<TValue>
-        ? FieldConfigurationBase<TValue> &
-            FieldAdditionalConfiguration<TValue>[TControl]
-        : FieldConfigurationBase<TValue>
+      ? FieldConfigurationForControl<TValue, TControl>
       : never
     : never
   : never;
