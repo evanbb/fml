@@ -4,9 +4,12 @@
   "version": "0.0.1",
   "description": "monorepo for fml",
   "scripts": {
+    "start": "npm run start:react",
+    "start:react": "npm run watch & cd packages/react && npm start",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prebuild": "rm -rf packages/*/lib",
     "build": "rollup -c",
+    "watch": "rollup -c -w",
     "prepublish:all": "npm run build",
     "publish:all": "lerna version patch --yes --force-publish=* && lerna publish from-package --force-publish=* --yes"
   },
@@ -28,7 +31,7 @@
   },
   "homepage": "https://github.com/evanbb/fml#readme",
   "dependencies": {
-    "@rollup/plugin-typescript": "^8.1.0",
+    "@rollup/plugin-typescript": "^8.1.1",
     "husky": "^4.3.8",
     "jest": "^26.6.3",
     "lerna": "^3.22.1",
