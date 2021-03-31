@@ -9,7 +9,7 @@ import { FmlFormConfiguration } from '@evanbb/fml-core/src/types';
 import { useRef, useState, useEffect, useCallback, useMemo, memo } from 'react';
 import FmlComponent, { FmlComponentProps } from './common/FmlComponent';
 import { useFmlComponent } from './common/hooks';
-import { ValidationMessages } from './ValidationMessages';
+import ValidationMessages from './ValidationMessages';
 
 interface CollectionItem<TValue> {
   value: TValue;

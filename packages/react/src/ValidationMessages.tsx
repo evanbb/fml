@@ -2,7 +2,7 @@ interface ValidationMessagesProps {
   validationMessages: string[];
 }
 
-export function ValidationMessages({
+export default function ValidationMessages({
   validationMessages,
 }: ValidationMessagesProps) {
   return (

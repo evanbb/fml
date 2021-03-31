@@ -3,13 +3,13 @@ import {
   FmlFieldConfiguration,
   FmlFieldConfigurationForControl,
 } from '@evanbb/fml-core';
-import { memo, useEffect } from 'react';
+import { memo } from 'react';
 import {
   FmlComponentProps,
   FmlFormComponentProps,
 } from './common/FmlComponent';
 import { useFmlComponent } from './common/hooks';
-import { ValidationMessages } from './ValidationMessages';
+import ValidationMessages from './ValidationMessages';
 
 type FieldMap<TValue> = {
   [Key in keyof FmlControlDataType<TValue>]: React.ComponentType<

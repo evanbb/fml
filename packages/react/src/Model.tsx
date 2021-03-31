@@ -3,7 +3,6 @@ import {
   FmlModelConfiguration,
   FmlValidationStatus,
   FmlValueStateChangeHandler,
-  noop,
 } from '@evanbb/fml-core';
 import type { Noop } from '@evanbb/fml-core';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
@@ -12,7 +11,7 @@ import FmlComponent, {
   FmlFormComponentProps,
 } from './common/FmlComponent';
 import { useFmlComponent } from './common/hooks';
-import { ValidationMessages } from './ValidationMessages';
+import ValidationMessages from './ValidationMessages';
 import { FmlValueState } from '@evanbb/fml-core/src/types';
 
 type ValueStateModelProps<TValue> = {

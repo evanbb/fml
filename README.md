@@ -1,4 +1,4 @@
-# FML - *F*ields, *M*odels, *L*ists
+# **FML**: **F**ields, **M**odels, **L**ists
 
 A moderately opinionated library for building model-driven forms for web UIs.
 
@@ -8,7 +8,7 @@ This library is intended to make building forms for web UIs stupid easy and 100%
 
 It's "experimental" right now, but is stable enough to use. Feedback very welcome! Open issues and offer feedback!
 
-Track progress towards a 1.0 release [here](/projects).
+Track progress towards a 1.0 release [here](https://github.com/evanbb/fml/projects).
 
 ## Overview
 
@@ -52,8 +52,13 @@ interface Contact {
 ```
 ## Contributing
 
-DO IT! Start by looking for and/or opening [issues](/issues) for tracking. I don't have much for contribution guidelines right now, but please follow a few best practices:
+DO IT! 🚀
+
+Start by looking for and/or opening [issues](https://github.com/evanbb/fml/issues) for tracking. I don't have much for contribution guidelines right now, but please follow a few best practices:
 * TypeScript
   * Prefer `interface` over `type` aliases wherever possible. This is what allows extension of core types.
-  * Prefer `function` over `() => { }`. Call me old school. I like the terseness of arrow functions, but we aren't dealing with `this` at all. If someone wants to change bindings for their use case, I see no reason to outright prevent that.
   * Prefer `const` over `let`, and don't use `var` in code. When compiling, `var` will be emitted to avoid TDZ management performance hit, but code should adhere to stricter variable declaration.
+* React
+  * Function components with hooks only, please
+  * Prefer a single, default `export` for components in a `PascalCasedFile.tsx`, named `export`s for everything else in a `camelCasedFile.ts`
+  * Write stories and tests for what you build/fix/whatever
