@@ -11,4 +11,3 @@ tsconfig.buildinfo
 
 yarn-error.log
 lerna-debug.log
-index.d.ts

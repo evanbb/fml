@@ -17,8 +17,7 @@
   "module": "lib/index.js",
   "browser": "lib/index.js",
   "files": [
-    "lib",
-    "index.d.ts"
+    "lib"
   ],
   "keywords": [],
   "author": "Evan Bremer",

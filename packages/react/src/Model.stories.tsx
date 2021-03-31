@@ -1,5 +1,4 @@
-import { ModelConfiguration } from '@evanbb/fml-core';
-import { FmlContextProvider } from './common/FmlContext';
+import { FmlModelConfiguration, noop } from '@evanbb/fml-core';
 import Model from './Model';
 
 interface MyModel {
@@ -7,7 +6,7 @@ interface MyModel {
   lastName: string;
 }
 
-const config: ModelConfiguration<MyModel> = {
+const config: FmlModelConfiguration<MyModel> = {
   label: 'My model',
   schema: {
     firstName: {
@@ -22,9 +21,7 @@ const config: ModelConfiguration<MyModel> = {
 };
 
 export const ExampleModel = () => (
-  <FmlContextProvider value={{ currentFormPath: 'myModel' }}>
-    <Model config={config} />
-  </FmlContextProvider>
+  <Model config={config} controlId='test' onChange={noop} onFocus={noop} />
 );
 
 export default {

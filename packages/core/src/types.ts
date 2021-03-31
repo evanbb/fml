@@ -1,52 +1,87 @@
 //#region common
 
-interface FormElementConfigBase<TValue> {
-  label: string;
-  defaultValue?: TValue;
-  validators?: ValidatorConfiguration<TValue>[];
+export interface Noop {
+  (): void;
 }
 
-type DataTypes = {
-  [Key in keyof ControlDataType<any>]: ControlDataType<any>[Key];
-}[keyof ControlDataType<any>];
+export type FmlValidationStatus = 'pending' | 'valid' | 'invalid' | 'unknown';
 
-export type FormConfig<TValue> = [TValue] extends [DataTypes]
-  ? FieldConfiguration<TValue>
-  : TValue extends ReadonlyArray<infer TCollection>
-  ? ListConfiguration<TCollection>
-  : TValue extends {}
-  ? ModelConfiguration<TValue>
+export interface FmlValueState<TValue> {
+  value: TValue;
+  validity: FmlValidationStatus;
+}
+
+export interface FmlValueStateChangeHandler<TValue> {
+  (change: FmlValueState<TValue>): void;
+}
+
+interface FmlFormControlConfigBase<TValue> {
+  label: string;
+  defaultValue?: TValue;
+  validators?: FmlValidatorConfiguration<TValue>[];
+}
+
+type FmlDataTypesForControls = {
+  [Key in keyof FmlControlDataType<any>]: FmlControlDataType<any>[Key];
+}[keyof FmlControlDataType<any>];
+
+export type FmlFormConfiguration<TValue> = [TValue] extends [
+  FmlDataTypesForControls | undefined,
+]
+  ? FmlFieldConfiguration<TValue>
+  : TValue extends ReadonlyArray<infer TCollection> | undefined
+  ? FmlListConfiguration<TCollection>
+  : TValue extends {} | undefined
+  ? FmlModelConfiguration<TValue>
   : never;
 
 //#endregion
 
 //#region validation
 
-export interface Validator<TValue> {
+export interface FmlValidator<TValue> {
   (value: TValue): boolean | Promise<boolean>;
 }
 
-export interface ValidatorFactory<
+export type FmlControlValidatorReturnTypes =
+  | string
+  | string[]
+  | undefined
+  | void
+  | Promise<string | string[] | undefined | void>;
+
+export interface FmlControlValidator<TValue> {
+  (value: TValue): FmlControlValidatorReturnTypes;
+}
+
+export interface FmlValidatorFactory<
   TValue = any,
   TArgs extends ReadonlyArray<any> = []
 > {
-  (...params: TArgs): Validator<TValue>;
+  (...params: TArgs): FmlValidator<TValue>;
 }
 
-export interface KnownValidators {
-  required: ValidatorFactory;
-  minLength: ValidatorFactory<{ length: number }, [minLength: number]>;
-  maxLength: ValidatorFactory<{ length: number }, [maxLength: number]>;
-  between: ValidatorFactory<number, [range: { min: number; max: number }]>;
-  greaterThan: ValidatorFactory<number, [minimum: number]>;
-  lessThan: ValidatorFactory<number, [maximum: number]>;
-  before: ValidatorFactory<Date, [before: Date]>;
-  after: ValidatorFactory<Date, [after: Date]>;
-  within: ValidatorFactory<Date, [dateRange: { after: Date; before: Date }]>;
+export interface FmlKnownValidators {
+  required: FmlValidatorFactory;
+  minLength: FmlValidatorFactory<
+    string | { length: number },
+    [minLength: number]
+  >;
+  maxLength: FmlValidatorFactory<
+    string | { length: number },
+    [maxLength: number]
+  >;
+  between: FmlValidatorFactory<number, [range: { min: number; max: number }]>;
+  greaterThan: FmlValidatorFactory<number, [minimum: number]>;
+  lessThan: FmlValidatorFactory<number, [maximum: number]>;
+  before: FmlValidatorFactory<Date, [before: Date]>;
+  after: FmlValidatorFactory<Date, [after: Date]>;
+  within: FmlValidatorFactory<Date, [dateRange: { after: Date; before: Date }]>;
+  [more: string]: FmlValidatorFactory<any, any>;
 }
 
-type ValidValidatorKeysFor<TValue> = keyof {
-  [Key in keyof KnownValidators as KnownValidators[Key] extends ValidatorFactory<
+type FmlValidValidatorKeysFor<TValue> = keyof {
+  [Key in keyof FmlKnownValidators as FmlKnownValidators[Key] extends FmlValidatorFactory<
     infer TValidatorValue,
     infer _
   >
@@ -56,15 +91,15 @@ type ValidValidatorKeysFor<TValue> = keyof {
     : never]: Key;
 };
 
-export type ValidatorConfiguration<TValue> = {
+export type FmlValidatorConfiguration<TValue> = {
   message: string;
-  validator: ValidValidatorKeysFor<TValue>;
+  validator: FmlValidValidatorKeysFor<TValue>;
 } extends {
   message: string;
   validator: infer Validator;
 }
-  ? Validator extends keyof KnownValidators
-    ? [] extends Parameters<KnownValidators[Validator]>
+  ? Validator extends keyof FmlKnownValidators
+    ? [] extends Parameters<FmlKnownValidators[Validator]>
       ? {
           message: string;
           validator: Validator;
@@ -72,18 +107,16 @@ export type ValidatorConfiguration<TValue> = {
       : {
           message: string;
           validator: Validator;
-          args: Parameters<KnownValidators[Validator]>;
+          args: Parameters<FmlKnownValidators[Validator]>;
         }
     : never
   : never;
-
-export type ValidationStatus = 'pending' | 'valid' | 'invalid';
 
 //#endregion
 
 //#region fields
 
-export interface ControlDataType<TValue> {
+export interface FmlControlDataType<TValue> {
   checkbox: boolean;
   date: Date;
   datetime: Date;
@@ -99,45 +132,49 @@ export interface ControlDataType<TValue> {
   toggle: boolean;
 }
 
-export type ControlsFor<TValue> = keyof {
-  [Key in keyof ControlDataType<TValue> as ControlDataType<TValue>[Key] extends never
+export type FmlControlsFor<TValue> = keyof {
+  [Key in keyof FmlControlDataType<TValue> as FmlControlDataType<TValue>[Key] extends never
     ? never
-    : ControlDataType<TValue>[Key] extends TValue
+    : FmlControlDataType<TValue>[Key] extends TValue
     ? Key
     : never]: true;
 };
 
-export interface SelectConfiguration<TValue extends string>
-  extends FormElementConfigBase<ControlDataType<TValue>['select']> {
+export interface FmlSelectConfiguration<TValue extends string>
+  extends FmlFormControlConfigBase<FmlControlDataType<TValue>['select']> {
   options: Record<TValue, string>;
 }
 
-interface FieldAdditionalConfiguration<TValue> {
+interface FmlFieldAdditionalConfiguration<TValue> {
   select: TValue extends string
     ? string extends TValue
       ? never
-      : SelectConfiguration<TValue>
+      : FmlSelectConfiguration<TValue>
     : never;
 }
 
-interface FieldConfigurationBase<TValue> extends FormElementConfigBase<TValue> {
-  control: ControlsFor<TValue>;
+interface FmlFieldConfigurationBase<TValue>
+  extends FmlFormControlConfigBase<TValue> {
+  control: FmlControlsFor<TValue>;
+  // we want to require this property be explicitly set at the field level, but it
+  // can remain set to undefined if it makes sense for that type of field
+  defaultValue: TValue | undefined;
 }
 
-export type FieldConfigurationForControl<
+export type FmlFieldConfigurationForControl<
   TValue,
   TControl
-> = TControl extends keyof FieldAdditionalConfiguration<TValue>
-  ? FieldConfigurationBase<TValue> &
-      FieldAdditionalConfiguration<TValue>[TControl]
-  : FieldConfigurationBase<TValue>;
+> = TControl extends keyof FmlFieldAdditionalConfiguration<TValue>
+  ? FmlFieldConfigurationBase<TValue> &
+      FmlFieldAdditionalConfiguration<TValue>[TControl]
+  : FmlFieldConfigurationBase<TValue>;
 
-export type FieldConfiguration<
+export type FmlFieldConfiguration<
   TValue
-> = FieldConfigurationBase<TValue> extends infer U
-  ? U extends FieldConfigurationBase<TValue>
+> = FmlFieldConfigurationBase<TValue> extends infer U
+  ? U extends FmlFieldConfigurationBase<TValue>
     ? U['control'] extends infer TControl
-      ? FieldConfigurationForControl<TValue, TControl>
+      ? FmlFieldConfigurationForControl<TValue, TControl>
       : never
     : never
   : never;
@@ -146,18 +183,18 @@ export type FieldConfiguration<
 
 //#region models
 
-export interface ModelConfiguration<TValue>
-  extends FormElementConfigBase<TValue> {
-  schema: { [Key in keyof TValue]: FormConfig<TValue[Key]> };
+export interface FmlModelConfiguration<TValue>
+  extends FmlFormControlConfigBase<TValue> {
+  schema: { [Key in keyof TValue]: FmlFormConfiguration<TValue[Key]> };
 }
 
 //#endregion
 
 //#region lists
 
-export interface ListConfiguration<TValue>
-  extends FormElementConfigBase<TValue> {
-  itemSchema: FormConfig<TValue>;
+export interface FmlListConfiguration<TValue>
+  extends FmlFormControlConfigBase<TValue[]> {
+  itemSchema: FmlFormConfiguration<TValue>;
 }
 
 //#endregion

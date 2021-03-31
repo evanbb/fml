@@ -16,8 +16,7 @@
     "access": "public"
   },
   "files": [
-    "lib",
-    "index.d.ts"
+    "lib"
   ],
   "keywords": [],
   "author": "Evan Bremer",

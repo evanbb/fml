@@ -1,8 +1,7 @@
-import { ListConfiguration } from '@evanbb/fml-core';
-import { FmlContextProvider } from './common/FmlContext';
+import { FmlListConfiguration, noop } from '@evanbb/fml-core';
 import List from './List';
 
-const config: ListConfiguration<string> = {
+const config: FmlListConfiguration<string> = {
   label: 'A bunch of strings',
   itemSchema: {
     label: 'The string value',
@@ -11,9 +10,12 @@ const config: ListConfiguration<string> = {
 };
 
 export const ListOfStrings = () => (
-  <FmlContextProvider value={{ currentFormPath: 'myList' }}>
-    <List<string> config={config} />
-  </FmlContextProvider>
+  <List<string>
+    config={config}
+    controlId='test'
+    onChange={noop}
+    onFocus={noop}
+  />
 );
 
 export default {

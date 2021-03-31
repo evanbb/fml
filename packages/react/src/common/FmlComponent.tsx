@@ -1,37 +1,69 @@
 import {
-  FieldConfiguration,
-  FormConfig,
-  ListConfiguration,
-  ModelConfiguration,
+  FmlFieldConfiguration,
+  FmlFormConfiguration,
+  FmlListConfiguration,
+  FmlModelConfiguration,
+  FmlValueStateChangeHandler,
+  Noop,
 } from '@evanbb/fml-core';
+import { memo, useEffect } from 'react';
 import Field from '../Field';
 import List from '../List';
 import Model from '../Model';
 
-function isFieldConfig<TValue>(config): config is FieldConfiguration<TValue> {
-  return !!(config as FieldConfiguration<TValue>).control;
+function isFieldProps<TValue>(
+  config: unknown,
+): config is FmlComponentProps<TValue, FmlFieldConfiguration<TValue>> {
+  return Boolean(
+    (config as FmlComponentProps<TValue, FmlFieldConfiguration<TValue>>).config
+      .control,
+  );
 }
 
-function isListConfig<TValue>(config): config is ListConfiguration<TValue> {
-  return !!(config as ListConfiguration<TValue>).itemSchema;
+function isListProps<TValue>(
+  props: unknown,
+): props is FmlComponentProps<TValue[], FmlListConfiguration<TValue>> {
+  return Boolean(
+    (props as FmlComponentProps<TValue[], FmlListConfiguration<TValue>>).config
+      .itemSchema,
+  );
 }
 
-function isModelConfig<TValue>(config): config is ModelConfiguration<TValue> {
-  return !!(config as ModelConfiguration<TValue>).schema;
+function isModelProps<TValue>(
+  config: unknown,
+): config is FmlComponentProps<TValue, FmlModelConfiguration<TValue>> {
+  return Boolean(
+    (config as FmlComponentProps<TValue, FmlModelConfiguration<TValue>>).config
+      .schema,
+  );
 }
 
-interface FmlComponentProps<TValue> {
-  config: FormConfig<TValue>;
+export interface FmlComponentProps<TValue, TConfigurationType> {
+  config: TConfigurationType;
+  onFocus: Noop;
+  onChange: FmlValueStateChangeHandler<TValue>;
+  controlId: string;
 }
 
-export default function FmlComponent<TValue>({
-  config,
-}: FmlComponentProps<TValue>) {
-  return isFieldConfig(config) ? (
-    <Field config={config} />
-  ) : isListConfig(config) ? (
-    <List config={config} />
-  ) : isModelConfig(config) ? (
-    <Model config={config} />
-  ) : null;
+export interface FmlFormComponentProps<TValue>
+  extends FmlComponentProps<TValue, FmlFormConfiguration<TValue>> {}
+
+function FmlComponent<TValue, TConfigurationType>(
+  props: FmlComponentProps<TValue, TConfigurationType>,
+) {
+  return isFieldProps<TValue>(props) ? (
+    <Field {...props} />
+  ) : isListProps<TValue>(props) ? (
+    <List {...props} />
+  ) : isModelProps<TValue>(props) ? (
+    <Model {...props} />
+  ) : (
+    (console.warn(
+      'unrecognized component configuration - rendering null because i dont know any better',
+      props,
+    ),
+    null)
+  );
 }
+
+export default memo(FmlComponent) as typeof FmlComponent;

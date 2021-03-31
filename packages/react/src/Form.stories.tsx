@@ -1,27 +1,41 @@
-import { Meta } from '@storybook/react';
-import { FormConfig } from '@evanbb/fml-core';
+import { FmlFormConfiguration } from '@evanbb/fml-core';
 import Form from './Form';
 
 interface ExampleShape {
-  stringProperty: string;
+  stringProperty?: string;
+  boolProperty?: boolean;
+  dateProperty: Date;
   collectionProperty: string[];
   objectProperty: {
     property: string;
   };
 }
 
-const defaultConfig: FormConfig<ExampleShape> = {
+const defaultConfig: FmlFormConfiguration<ExampleShape> = {
   label: 'This is an example',
   schema: {
     stringProperty: {
       label: 'A string property',
       control: 'text',
+      defaultValue: '',
+    },
+    boolProperty: {
+      label: 'A string property',
+      control: 'checkbox',
+      defaultValue: false,
+    },
+    dateProperty: {
+      label: 'A date property',
+      control: 'date',
+      defaultValue: undefined,
     },
     collectionProperty: {
       label: 'A collection of strings property',
       itemSchema: {
         label: 'Value of this string',
         control: 'text',
+        validators: [],
+        defaultValue: '',
       },
     },
     objectProperty: {
@@ -30,21 +44,28 @@ const defaultConfig: FormConfig<ExampleShape> = {
         property: {
           label: `The object's property`,
           control: 'text',
+          validators: [{ message: 'Oh no!', validator: 'required' }],
+          defaultValue: '',
         },
       },
     },
   },
 };
 
+const logit = (x: any, e: React.FormEvent<HTMLFormElement>) => (
+  e.preventDefault(), console.log(x)
+);
+
 export const ExampleForm = () => {
-  return <Form config={defaultConfig} formName='example' />;
+  return <Form onSubmit={logit} config={defaultConfig} formName='example' />;
 };
 
 export const StupidForm = () => {
   return (
     <Form<string>
-      config={{ label: 'lllllll', control: 'text' }}
-      formName='stringValue'
+      onSubmit={logit}
+      config={{ label: 'stupid text', control: 'text', defaultValue: '' }}
+      formName='stupidform'
     />
   );
 };
@@ -52,9 +73,10 @@ export const StupidForm = () => {
 export const SillyForm = () => {
   return (
     <Form<string[]>
+      onSubmit={logit}
       config={{
         label: 'lllllll',
-        itemSchema: { label: 'sss', control: 'text' },
+        itemSchema: { label: 'sss', control: 'text', defaultValue: '' },
       }}
       formName='stringValue'
     />

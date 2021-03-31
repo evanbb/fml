@@ -1,64 +1,51 @@
-import { FormConfig } from '@evanbb/fml-core';
-import { useRef } from 'react';
+import { FmlFormConfiguration, FmlValueState } from '@evanbb/fml-core';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
 import FmlComponent from './common/FmlComponent';
-import { FmlContextProvider, FmlContextShape } from './common/FmlContext';
 
-interface FormProps<TModel> {
-  config: FormConfig<TModel>;
-  formName: string;
+interface submitCallback<TModel> {
+  (model: TModel, event: FormEvent<HTMLFormElement>): void;
 }
 
-export default function Form<TModel>({ config, formName }: FormProps<TModel>) {
-  const value = useRef<FmlContextShape>({ currentFormPath: formName });
+interface FormProps<TModel> {
+  config: FmlFormConfiguration<TModel>;
+  formName: string;
+  onSubmit: submitCallback<TModel>;
+  defaultValue?: TModel;
+}
+
+export default function Form<TModel>({
+  config,
+  formName,
+  onSubmit,
+}: FormProps<TModel>) {
+  const [submitEnabled, setSubmitEnabled] = useState(false);
+
+  const [value, setValue] = useState<FmlValueState<typeof config.defaultValue>>(
+    { value: config.defaultValue, validity: 'unknown' },
+  );
+  const [hasBeenTouched, setHasBeenTouched] = useState(false);
+
+  const changeHandler = useCallback((change) => {
+    setValue(change);
+  }, []);
+  const focusHandler = useCallback(() => setHasBeenTouched(true), []);
+  const { validity, value: innerValue } = value;
+
+  // only runs when validity changes to reduce some churn
+  useEffect(() => {
+    setSubmitEnabled(validity === 'valid');
+  }, [validity]);
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-
-        const result = Array.from(
-          new FormData(e.currentTarget).entries(),
-        ).reduce((aggregate, entry) => {
-          const path = entry[0];
-          const value = entry[1];
-
-          const segments = path.split('[').map((s) => s.replace(']', ''));
-
-          console.log('PATH: ', path);
-
-          let currentPointer: any = aggregate;
-
-          segments.forEach((segment, idx) => {
-            if (idx === segments.length - 1) {
-              currentPointer[segment] = value;
-              return;
-            }
-
-            const nextValueArrayIndex = parseInt(segments[idx + 1], 10);
-
-            if (!currentPointer[segment]) {
-              currentPointer[segment] = !isNaN(nextValueArrayIndex) ? [] : {};
-            }
-
-            currentPointer = currentPointer[segment];
-          });
-
-          for (const segment of segments) {
-            console.log(segment);
-          }
-
-          console.log('/PATH: ', path);
-
-          return aggregate;
-        }, {});
-
-        console.log(JSON.stringify(result, null, 2));
-      }}
-    >
-      <FmlContextProvider value={value.current}>
-        <FmlComponent config={config} />
-      </FmlContextProvider>
-      <input type='submit' />
+    <form onSubmit={(e) => onSubmit(innerValue as TModel, e)}>
+      <FmlComponent
+        key={`${formName}-component`}
+        config={config}
+        onChange={changeHandler}
+        onFocus={focusHandler}
+        controlId={formName}
+      />
+      <input type='submit' disabled={!submitEnabled} />
     </form>
   );
 }

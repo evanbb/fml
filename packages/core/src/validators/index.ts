@@ -1,12 +1,17 @@
-import type { KnownValidators } from '../types';
+import type {
+  FmlKnownValidators,
+  FmlControlValidator,
+  FmlValidatorConfiguration,
+  FmlValidatorFactory,
+} from '../types';
 
-export const required: KnownValidators['required'] = function required() {
+const required: FmlKnownValidators['required'] = function required() {
   return function (value) {
     return !!value;
   };
 };
 
-export const minLength: KnownValidators['minLength'] = function minLength(
+const minLength: FmlKnownValidators['minLength'] = function minLength(
   minLength,
 ) {
   return function (value) {
@@ -14,7 +19,7 @@ export const minLength: KnownValidators['minLength'] = function minLength(
   };
 };
 
-export const maxLength: KnownValidators['maxLength'] = function maxLength(
+const maxLength: FmlKnownValidators['maxLength'] = function maxLength(
   maxLength,
 ) {
   return function (value) {
@@ -22,19 +27,19 @@ export const maxLength: KnownValidators['maxLength'] = function maxLength(
   };
 };
 
-export const before: KnownValidators['before'] = function before(beforeDate) {
+const before: FmlKnownValidators['before'] = function before(beforeDate) {
   return function (value) {
     return value.valueOf() < beforeDate.valueOf();
   };
 };
 
-export const after: KnownValidators['after'] = function after(afterDate) {
+const after: FmlKnownValidators['after'] = function after(afterDate) {
   return function (value) {
     return value.valueOf() > afterDate.valueOf();
   };
 };
 
-export const within: KnownValidators['within'] = function within({
+const within: FmlKnownValidators['within'] = function within({
   before,
   after,
 }) {
@@ -45,7 +50,7 @@ export const within: KnownValidators['within'] = function within({
   };
 };
 
-export const greaterThan: KnownValidators['greaterThan'] = function greaterThan(
+const greaterThan: FmlKnownValidators['greaterThan'] = function greaterThan(
   min,
 ) {
   return function (value) {
@@ -53,22 +58,31 @@ export const greaterThan: KnownValidators['greaterThan'] = function greaterThan(
   };
 };
 
-export const lessThan: KnownValidators['lessThan'] = function lessThan(max) {
+const lessThan: FmlKnownValidators['lessThan'] = function lessThan(max) {
   return function (value) {
     return value <= max;
   };
 };
 
-export const between: KnownValidators['between'] = function between({
-  min,
-  max,
-}) {
+const between: FmlKnownValidators['between'] = function between({ min, max }) {
   return function (value) {
     return value >= min && value <= max;
   };
 };
 
-export const Validators: KnownValidators = {
+interface ValidatorRegistration<TValue, TArgs extends ReadonlyArray<any>> {
+  name: string;
+  factory: FmlValidatorFactory<TValue, TArgs>;
+}
+
+export function registerValidator<TValue, TArgs extends ReadonlyArray<any>>({
+  name,
+  factory,
+}: ValidatorRegistration<TValue, TArgs>) {
+  validators[name] = factory;
+}
+
+const validators: FmlKnownValidators = {
   required,
   minLength,
   maxLength,
@@ -79,3 +93,24 @@ export const Validators: KnownValidators = {
   lessThan,
   between,
 };
+
+export const Validators: Readonly<FmlKnownValidators> = validators;
+
+export function createValidator<TValue>(
+  config: FmlValidatorConfiguration<TValue>,
+): FmlControlValidator<TValue> {
+  // get the appropriate validator factory for this data type
+  const factory = Validators[config.validator];
+
+  // create the validator function by applying the factory
+  const func = (factory as any).apply(undefined, (config as any).args);
+
+  // result is an async function that calls the validator above (which may be async itself) with the current value
+  return async function (value: TValue) {
+    const valid = await func(value);
+
+    if (!valid) {
+      return config.message;
+    }
+  };
+}
