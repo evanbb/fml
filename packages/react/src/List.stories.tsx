@@ -1,4 +1,4 @@
-import { FmlListConfiguration, noop } from '@evanbb/fml-core';
+import { FmlListConfiguration, noop } from '@fml/core';
 import List from './List';
 
 const config: FmlListConfiguration<string> = {
@@ -6,6 +6,7 @@ const config: FmlListConfiguration<string> = {
   itemSchema: {
     label: 'The string value',
     control: 'text',
+    defaultValue: '',
   },
 };
 
@@ -18,7 +19,9 @@ export const ListOfStrings = () => (
   />
 );
 
-export default {
+const stories = {
   title: 'Stories/List',
   component: List,
 };
+
+export default stories;

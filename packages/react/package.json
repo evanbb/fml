@@ -1,6 +1,6 @@
 {
-  "name": "@evanbb/fml-react",
-  "version": "0.0.12",
+  "name": "@fml/react",
+  "version": "0.0.1",
   "description": "react bindings for fml",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -27,13 +27,25 @@
   },
   "homepage": "https://github.com/evanbb/fml#readme",
   "devDependencies": {
-    "@evanbb/fml-core": "^0.0.12",
-    "@storybook/react": "^6.1.15",
+    "@fml/core": "*",
     "@storybook/addon-essentials": "^6.1.15",
+    "@storybook/react": "^6.1.15",
+    "@typescript-eslint/eslint-plugin": "^4.0.0",
+    "@typescript-eslint/parser": "^4.0.0",
+    "babel-eslint": "^10.0.0",
+    "eslint": "^7.5.0",
+    "eslint-config-react-app": "^6.0.0",
+    "eslint-plugin-flowtype": "^5.2.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jest": "^24.0.0",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
+    "eslint-plugin-react": "^7.20.3",
+    "eslint-plugin-react-hooks": "^4.0.8",
+    "eslint-plugin-testing-library": "^3.9.0",
     "react-dom": "^17.0.1"
   },
   "peerDependencies": {
-    "@evanbb/fml-core": "*",
+    "@fml/core": "*",
     "react": "^17.0.1"
   }
 }

@@ -1,4 +1,4 @@
-import { noop } from '@evanbb/fml-core';
+import { noop } from '@fml/core';
 import Field from './Field';
 
 function wrapInContext(element: React.ReactElement) {
@@ -19,19 +19,21 @@ export const CheckboxExample = () => (
           validator: 'required',
         },
       ],
+      defaultValue: false,
     }}
   />
 );
 
 export const DateExample = () =>
   wrapInContext(
-    <Field<Date>
+    <Field<Date | undefined>
       controlId='test'
       onChange={noop}
       onFocus={noop}
       config={{
         label: 'A date',
         control: 'date',
+        defaultValue: undefined,
       }}
     />,
   );
@@ -44,6 +46,7 @@ export const DateTimeExample = () =>
       config={{
         label: 'A date',
         control: 'datetime',
+        defaultValue: new Date(),
       }}
     />,
   );
@@ -56,6 +59,7 @@ export const HiddenExample = () =>
       config={{
         label: 'A hidden value',
         control: 'hidden',
+        defaultValue: '',
       }}
     />,
   );
@@ -71,6 +75,7 @@ export const NumberExample = () =>
         validators: [
           { validator: 'required', message: 'This is required, dawg' },
         ],
+        defaultValue: 0,
       }}
     />,
   );
@@ -84,6 +89,7 @@ export const SelectExample = () =>
         label: 'A few options',
         control: 'select',
         options: { a: 'Option A', b: 'Option B', c: 'Option C' },
+        defaultValue: 'b',
       }}
     />,
   );
@@ -93,7 +99,7 @@ export const TextInputExample = () =>
       controlId='test'
       onChange={noop}
       onFocus={noop}
-      config={{ label: 'Text input', control: 'text' }}
+      config={{ label: 'Text input', control: 'text', defaultValue: '' }}
     />,
   );
 export const TextAreaInputExample = () =>
@@ -102,7 +108,7 @@ export const TextAreaInputExample = () =>
       controlId='test'
       onChange={noop}
       onFocus={noop}
-      config={{ label: 'Text area', control: 'textarea' }}
+      config={{ label: 'Text area', control: 'textarea', defaultValue: '' }}
     />,
   );
 export const ToggleExample = () =>
@@ -111,11 +117,13 @@ export const ToggleExample = () =>
       controlId='test'
       onChange={noop}
       onFocus={noop}
-      config={{ label: 'A checkbox', control: 'toggle' }}
+      config={{ label: 'A checkbox', control: 'toggle', defaultValue: false }}
     />,
   );
 
-export default {
+const stories = {
   title: 'Stories/Fields',
   component: Field,
 };
+
+export default stories;

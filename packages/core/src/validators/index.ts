@@ -70,15 +70,15 @@ const between: FmlKnownValidators['between'] = function between({ min, max }) {
   };
 };
 
-interface ValidatorRegistration<TValue, TArgs extends ReadonlyArray<any>> {
+interface ValidatorRegistration<TValue, TArgs extends ReadonlyArray<never>> {
   name: string;
   factory: FmlValidatorFactory<TValue, TArgs>;
 }
 
-export function registerValidator<TValue, TArgs extends ReadonlyArray<any>>({
+export function registerValidator<TValue, TArgs extends ReadonlyArray<never>>({
   name,
   factory,
-}: ValidatorRegistration<TValue, TArgs>) {
+}: ValidatorRegistration<TValue, TArgs>): void {
   validators[name] = factory;
 }
 
@@ -97,13 +97,13 @@ const validators: FmlKnownValidators = {
 export const Validators: Readonly<FmlKnownValidators> = validators;
 
 export function createValidator<TValue>(
-  config: FmlValidatorConfiguration<TValue>,
+  config: FmlValidatorConfiguration<TValue> & { args: [] },
 ): FmlControlValidator<TValue> {
   // get the appropriate validator factory for this data type
   const factory = Validators[config.validator];
 
   // create the validator function by applying the factory
-  const func = (factory as any).apply(undefined, (config as any).args);
+  const func = factory(...config.args);
 
   // result is an async function that calls the validator above (which may be async itself) with the current value
   return async function (value: TValue) {

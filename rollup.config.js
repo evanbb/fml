@@ -1,5 +1,6 @@
 import fs from 'fs'
 import typescript from 'rollup-plugin-ts'
+import eslint from '@rollup/plugin-eslint'
 
 export default fs.readdirSync('packages').map(dir => ({
   input: `packages/${dir}/src/index.ts`,
@@ -7,6 +8,7 @@ export default fs.readdirSync('packages').map(dir => ({
     dir: `packages/${dir}/lib`
   },
   plugins: [
+    eslint(),
     typescript()
   ]
 }))

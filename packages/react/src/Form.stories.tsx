@@ -1,4 +1,4 @@
-import { FmlFormConfiguration } from '@evanbb/fml-core';
+import { FmlFormConfiguration } from '@fml/core';
 import Form from './Form';
 
 interface ExampleShape {
@@ -52,9 +52,10 @@ const defaultConfig: FmlFormConfiguration<ExampleShape> = {
   },
 };
 
-const logit = (x: any, e: React.FormEvent<HTMLFormElement>) => (
-  e.preventDefault(), console.log(x)
-);
+const logit = (x: any, e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  console.log(x);
+};
 
 export const ExampleForm = () => {
   return <Form onSubmit={logit} config={defaultConfig} formName='example' />;
@@ -83,7 +84,9 @@ export const SillyForm = () => {
   );
 };
 
-export default {
+const stories = {
   title: 'Stories/Form',
   component: Form,
 };
+
+export default stories;

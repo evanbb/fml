@@ -3,8 +3,8 @@ import {
   FmlModelConfiguration,
   FmlValidationStatus,
   FmlValueStateChangeHandler,
-} from '@evanbb/fml-core';
-import type { Noop } from '@evanbb/fml-core';
+} from '@fml/core';
+import type { Noop } from '@fml/core';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import FmlComponent, {
   FmlComponentProps,
@@ -12,7 +12,7 @@ import FmlComponent, {
 } from './common/FmlComponent';
 import { useFmlComponent } from './common/hooks';
 import ValidationMessages from './ValidationMessages';
-import { FmlValueState } from '@evanbb/fml-core/src/types';
+import { FmlValueState } from '@fml/core/src/types';
 
 type ValueStateModelProps<TValue> = {
   [Key in keyof TValue]: FmlValueState<TValue[Key]>;
@@ -46,7 +46,7 @@ function useModelTransform<TValue>(
       });
     });
     return result;
-  }, []);
+  }, [innerModel.value, props.config.schema]);
 
   const modelToInnerValue = useCallback<
     (model: ValueStateModel<TValue>) => [TValue, Set<FmlValidationStatus>]
@@ -115,7 +115,7 @@ function useModelTransform<TValue>(
         ? 'unknown'
         : 'pending',
     });
-  }, [model]);
+  }, [model, modelToInnerValue, updateInnerModel]);
 
   return {
     updateProperty,
@@ -141,9 +141,12 @@ function ModelProperty<TModel, TPropertyValue>({
   schema,
   update,
 }: ModelPropertyProps<TModel, TPropertyValue>) {
-  const changeHandler = useCallback((change: FmlValueState<TPropertyValue>) => {
-    update(propertyName)(change);
-  }, []);
+  const changeHandler = useCallback(
+    (change: FmlValueState<TPropertyValue>) => {
+      update(propertyName)(change);
+    },
+    [propertyName, update],
+  );
 
   return (
     <FmlComponent

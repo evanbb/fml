@@ -1,4 +1,5 @@
 export * from './types';
 export * from './validators';
 
-export function noop() {}
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+export function noop(): void {}

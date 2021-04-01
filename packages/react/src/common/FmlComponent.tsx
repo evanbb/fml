@@ -5,8 +5,8 @@ import {
   FmlModelConfiguration,
   FmlValueStateChangeHandler,
   Noop,
-} from '@evanbb/fml-core';
-import { memo, useEffect } from 'react';
+} from '@fml/core';
+import { memo } from 'react';
 import Field from '../Field';
 import List from '../List';
 import Model from '../Model';

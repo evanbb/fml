@@ -2,7 +2,7 @@ import {
   FmlControlDataType,
   FmlFieldConfiguration,
   FmlFieldConfigurationForControl,
-} from '@evanbb/fml-core';
+} from '@fml/core';
 import { memo } from 'react';
 import {
   FmlComponentProps,
@@ -12,7 +12,7 @@ import { useFmlComponent } from './common/hooks';
 import ValidationMessages from './ValidationMessages';
 
 type FieldMap<TValue> = {
-  [Key in keyof FmlControlDataType<TValue>]: React.ComponentType<
+  [Key in keyof FmlControlDataType<TValue> as Capitalize<Key>]: React.ComponentType<
     {
       config: FmlFieldConfigurationForControl<TValue, Key>;
     } & FmlComponentProps<
@@ -28,7 +28,7 @@ function getControl<TValue>(
   FmlComponentProps<TValue, FmlFieldConfiguration<TValue>>
 > {
   const map: FieldMap<TValue> = {
-    checkbox: (props) => {
+    Checkbox: (props) => {
       const {
         onChange,
         onFocus,
@@ -60,7 +60,7 @@ function getControl<TValue>(
         </>
       );
     },
-    date: (props) => {
+    Date: (props) => {
       const {
         onChange,
         onFocus,
@@ -90,7 +90,7 @@ function getControl<TValue>(
         </>
       );
     },
-    datetime: (props) => {
+    Datetime: (props) => {
       const {
         onChange,
         onFocus,
@@ -120,7 +120,7 @@ function getControl<TValue>(
         </>
       );
     },
-    hidden: (props) => {
+    Hidden: (props) => {
       if (!props.config.defaultValue) {
         console.warn(
           'no default value set for hidden field - it will always be empty! :(',
@@ -134,7 +134,7 @@ function getControl<TValue>(
         <input type='hidden' name={controlId} id={controlId} value={value} />
       );
     },
-    number: (props) => {
+    Number: (props) => {
       const {
         onChange,
         onFocus,
@@ -164,7 +164,7 @@ function getControl<TValue>(
         </>
       );
     },
-    select: (props) => {
+    Select: (props) => {
       const {
         onChange,
         onFocus,
@@ -201,7 +201,7 @@ function getControl<TValue>(
         </>
       );
     },
-    text: (props) => {
+    Text: (props) => {
       const {
         onChange,
         onFocus,
@@ -230,7 +230,7 @@ function getControl<TValue>(
         </>
       );
     },
-    textarea: (props) => {
+    Textarea: (props) => {
       const {
         onChange,
         onFocus,
@@ -261,10 +261,15 @@ function getControl<TValue>(
         </>
       );
     },
-    toggle: (props) => <>a toggle</>,
+    Toggle: (props) => <>a toggle</>,
   };
 
-  const result = map[props.config.control];
+  const { control } = props.config;
+  const capitalized = `${control
+    .substring(0, 1)
+    .toUpperCase()}${control.substring(1)}` as Capitalize<keyof typeof map>;
+
+  const result = map[capitalized];
 
   return (result as unknown) as React.ComponentType<
     FmlComponentProps<TValue, FmlFieldConfiguration<TValue>>

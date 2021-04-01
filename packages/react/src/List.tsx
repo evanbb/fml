@@ -4,9 +4,9 @@ import {
   FmlValueState,
   FmlValueStateChangeHandler,
   Noop,
-} from '@evanbb/fml-core';
-import { FmlFormConfiguration } from '@evanbb/fml-core/src/types';
-import { useRef, useState, useEffect, useCallback, useMemo, memo } from 'react';
+} from '@fml/core';
+import { FmlFormConfiguration } from '@fml/core/src/types';
+import { useRef, useState, useEffect, useCallback, memo } from 'react';
 import FmlComponent, { FmlComponentProps } from './common/FmlComponent';
 import { useFmlComponent } from './common/hooks';
 import ValidationMessages from './ValidationMessages';
@@ -19,10 +19,13 @@ interface CollectionItem<TValue> {
 
 function useListItemId() {
   const currentId = useRef<number>(Number.MIN_SAFE_INTEGER);
-
-  return {
+  const newIdRef = useRef<{
+    newId: () => number;
+  }>({
     newId: () => currentId.current++,
-  };
+  });
+
+  return newIdRef.current;
 }
 
 function useListItemTransform<TValue>(
@@ -60,7 +63,7 @@ function useListItemTransform<TValue>(
         validity: 'unknown',
       },
     ]);
-  }, []);
+  }, [props.config.itemSchema.defaultValue, newId]);
 
   const remove = useCallback((fmlListId: number) => {
     updateCollection((coll) => {
@@ -108,7 +111,7 @@ function useListItemTransform<TValue>(
         ? 'unknown'
         : 'pending',
     });
-  }, [collection]);
+  }, [collection, updateList]);
 
   return {
     validationMessages,

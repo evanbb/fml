@@ -1,5 +1,5 @@
 {
-  "name": "@evanbb/fml-root",
+  "name": "@fml/root",
   "private": true,
   "version": "0.0.1",
   "description": "monorepo for fml",
@@ -31,6 +31,7 @@
   },
   "homepage": "https://github.com/evanbb/fml#readme",
   "dependencies": {
+    "@rollup/plugin-eslint": "^8.0.1",
     "@rollup/plugin-typescript": "^8.1.1",
     "husky": "^4.3.8",
     "jest": "^26.6.3",
@@ -48,8 +49,7 @@
   },
   "lint-staged": {
     "packages/**/*.{tsx,ts,js}": [
-      "prettier --config .prettierrc --write",
-      "git add"
+      "prettier --config .prettierrc --write"
     ]
   },
   "devDependencies": {

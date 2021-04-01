@@ -22,8 +22,8 @@ interface FmlFormControlConfigBase<TValue> {
 }
 
 type FmlDataTypesForControls = {
-  [Key in keyof FmlControlDataType<any>]: FmlControlDataType<any>[Key];
-}[keyof FmlControlDataType<any>];
+  [Key in keyof FmlControlDataType<never>]: FmlControlDataType<never>[Key];
+}[keyof FmlControlDataType<never>];
 
 export type FmlFormConfiguration<TValue> = [TValue] extends [
   FmlDataTypesForControls | undefined,
@@ -31,7 +31,7 @@ export type FmlFormConfiguration<TValue> = [TValue] extends [
   ? FmlFieldConfiguration<TValue>
   : TValue extends ReadonlyArray<infer TCollection> | undefined
   ? FmlListConfiguration<TCollection>
-  : TValue extends {} | undefined
+  : TValue extends unknown | undefined
   ? FmlModelConfiguration<TValue>
   : never;
 
@@ -55,8 +55,8 @@ export interface FmlControlValidator<TValue> {
 }
 
 export interface FmlValidatorFactory<
-  TValue = any,
-  TArgs extends ReadonlyArray<any> = []
+  TValue = unknown,
+  TArgs extends ReadonlyArray<unknown> = []
 > {
   (...params: TArgs): FmlValidator<TValue>;
 }
@@ -77,13 +77,14 @@ export interface FmlKnownValidators {
   before: FmlValidatorFactory<Date, [before: Date]>;
   after: FmlValidatorFactory<Date, [after: Date]>;
   within: FmlValidatorFactory<Date, [dateRange: { after: Date; before: Date }]>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [more: string]: FmlValidatorFactory<any, any>;
 }
 
 type FmlValidValidatorKeysFor<TValue> = keyof {
   [Key in keyof FmlKnownValidators as FmlKnownValidators[Key] extends FmlValidatorFactory<
     infer TValidatorValue,
-    infer _
+    never
   >
     ? TValidatorValue extends TValue
       ? Key
@@ -122,7 +123,11 @@ export interface FmlControlDataType<TValue> {
   datetime: Date;
   hidden: string;
   number: number;
-  select: TValue extends string
+  select: TValue extends [string]
+    ? string extends TValue[0]
+      ? never
+      : TValue[0]
+    : TValue extends string
     ? string extends TValue
       ? never
       : TValue
@@ -140,16 +145,16 @@ export type FmlControlsFor<TValue> = keyof {
     : never]: true;
 };
 
-export interface FmlSelectConfiguration<TValue extends string>
+export interface FmlSelectConfiguration<TValue extends [string]>
   extends FmlFormControlConfigBase<FmlControlDataType<TValue>['select']> {
-  options: Record<TValue, string>;
+  options: Record<TValue[0], string>;
 }
 
 interface FmlFieldAdditionalConfiguration<TValue> {
-  select: TValue extends string
+  select: [TValue] extends [string]
     ? string extends TValue
       ? never
-      : FmlSelectConfiguration<TValue>
+      : FmlSelectConfiguration<[TValue]>
     : never;
 }
 
@@ -158,7 +163,7 @@ interface FmlFieldConfigurationBase<TValue>
   control: FmlControlsFor<TValue>;
   // we want to require this property be explicitly set at the field level, but it
   // can remain set to undefined if it makes sense for that type of field
-  defaultValue: TValue | undefined;
+  defaultValue: undefined extends TValue ? TValue | undefined : TValue;
 }
 
 export type FmlFieldConfigurationForControl<
