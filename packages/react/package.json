@@ -30,6 +30,7 @@
     "@fml/core": "*",
     "@storybook/addon-essentials": "^6.1.15",
     "@storybook/react": "^6.1.15",
+    "@types/react": "^17.0.0",
     "@typescript-eslint/eslint-plugin": "^4.0.0",
     "@typescript-eslint/parser": "^4.0.0",
     "babel-eslint": "^10.0.0",
@@ -42,6 +43,7 @@
     "eslint-plugin-react": "^7.20.3",
     "eslint-plugin-react-hooks": "^4.0.8",
     "eslint-plugin-testing-library": "^3.9.0",
+    "react": "^17.0.1",
     "react-dom": "^17.0.1"
   },
   "peerDependencies": {
