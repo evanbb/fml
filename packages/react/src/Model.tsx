@@ -121,6 +121,7 @@ function useModelTransform<TValue>(
     updateProperty,
     validationMessages,
     onFocus,
+    validity: innerModel.validity,
   };
 }
 
@@ -165,11 +166,12 @@ function Model<TValue>(
     updateProperty,
     validationMessages,
     onFocus,
+    validity,
   } = useModelTransform<TValue>(props);
 
   return (
     <fieldset>
-      <legend>{props.config.label}</legend>
+      <legend data-fml-validity={validity}>{props.config.label}</legend>
       <ValidationMessages validationMessages={validationMessages} />
       {Object.keys(props.config.schema).map((key) => {
         const k = key as keyof TValue;

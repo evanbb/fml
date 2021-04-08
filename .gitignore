@@ -11,3 +11,5 @@ tsconfig.buildinfo
 
 yarn-error.log
 lerna-debug.log
+
+coverage

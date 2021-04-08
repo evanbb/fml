@@ -11,7 +11,7 @@ import {
 import { useFmlComponent } from './common/hooks';
 import ValidationMessages from './ValidationMessages';
 
-type FieldMap<TValue> = {
+export type FieldMap<TValue> = {
   [Key in keyof FmlControlDataType<TValue> as Capitalize<Key>]: React.ComponentType<
     {
       config: FmlFieldConfigurationForControl<TValue, Key>;
@@ -34,14 +34,18 @@ function getControl<TValue>(
         onFocus,
         onBlur,
         validationMessages,
+        value: { validity },
       } = useFmlComponent<boolean>(props);
 
       const { label } = props.config;
       const { controlId } = props;
+      
 
       return (
         <>
-          <label htmlFor={controlId}>{label}:</label>
+          <label data-fml-validity={validity} htmlFor={controlId}>
+            {label}
+          </label>
           <input
             type='checkbox'
             name={controlId}
@@ -66,12 +70,16 @@ function getControl<TValue>(
         onFocus,
         onBlur,
         validationMessages,
+        value: { validity },
       } = useFmlComponent<Date>(props);
       const { label } = props.config;
       const { controlId } = props;
+      
       return (
         <>
-          <label htmlFor={controlId}>{label}:</label>
+          <label data-fml-validity={validity} htmlFor={controlId}>
+            {label}
+          </label>
           <input
             type='date'
             name={controlId}
@@ -96,12 +104,16 @@ function getControl<TValue>(
         onFocus,
         onBlur,
         validationMessages,
+        value: { validity },
       } = useFmlComponent<Date>(props);
       const { label } = props.config;
       const { controlId } = props;
+      
       return (
         <>
-          <label htmlFor={controlId}>{label}: </label>
+          <label data-fml-validity={validity} htmlFor={controlId}>
+            {label}
+          </label>
           <input
             type='datetime-local'
             name={controlId}
@@ -121,17 +133,19 @@ function getControl<TValue>(
       );
     },
     Hidden: (props) => {
-      if (!props.config.defaultValue) {
-        console.warn(
-          'no default value set for hidden field - it will always be empty! :(',
-        );
-      }
       const {
-        value: { value },
+        value: { value, validity },
       } = useFmlComponent<string>(props);
       const { controlId } = props;
+      
       return (
-        <input type='hidden' name={controlId} id={controlId} value={value} />
+        <input
+          data-fml-validity={validity}
+          type='hidden'
+          name={controlId}
+          id={controlId}
+          value={value}
+        />
       );
     },
     Number: (props) => {
@@ -140,12 +154,16 @@ function getControl<TValue>(
         onFocus,
         onBlur,
         validationMessages,
+        value: { validity },
       } = useFmlComponent<number>(props);
       const { label } = props.config;
       const { controlId } = props;
+      
       return (
         <>
-          <label htmlFor={controlId}>{label}:</label>
+          <label data-fml-validity={validity} htmlFor={controlId}>
+            {label}
+          </label>
           <input
             type='number'
             name={controlId}
@@ -170,14 +188,18 @@ function getControl<TValue>(
         onFocus,
         onBlur,
         validationMessages,
+        value: { validity },
       } = useFmlComponent<string>(
         (props as unknown) as FmlFormComponentProps<string>,
       );
       const { label, options } = props.config;
       const { controlId } = props;
+      
       return (
         <>
-          <label htmlFor={controlId}>{label}:</label>
+          <label data-fml-validity={validity} htmlFor={controlId}>
+            {label}
+          </label>
           <select
             name={controlId}
             id={controlId}
@@ -207,13 +229,18 @@ function getControl<TValue>(
         onFocus,
         onBlur,
         validationMessages,
+        value: { validity },
       } = useFmlComponent<string>(props);
       const { label } = props.config;
       const { controlId } = props;
+      
       return (
         <>
-          <label htmlFor={controlId}>{label}:</label>
+          <label data-fml-validity={validity} htmlFor={controlId}>
+            {label}
+          </label>
           <input
+            type='text'
             name={controlId}
             id={controlId}
             defaultValue={props.config.defaultValue}
@@ -236,14 +263,18 @@ function getControl<TValue>(
         onFocus,
         onBlur,
         validationMessages,
+        value: { validity },
       } = useFmlComponent<string>(props);
 
       const { label } = props.config;
       const { controlId } = props;
+      
 
       return (
         <>
-          <label htmlFor={controlId}>{label}:</label>
+          <label data-fml-validity={validity} htmlFor={controlId}>
+            {label}
+          </label>
           <textarea
             name={controlId}
             id={controlId}
@@ -261,7 +292,43 @@ function getControl<TValue>(
         </>
       );
     },
-    Toggle: (props) => <>a toggle</>,
+    Toggle: (props) => {
+      const {
+        onChange,
+        onFocus,
+        onBlur,
+        validationMessages,
+        value: { validity },
+      } = useFmlComponent<boolean>(props);
+
+      const { label } = props.config;
+      const { controlId } = props;
+
+      
+
+      return (
+        <>
+          <label data-fml-validity={validity} htmlFor={controlId}>
+            {label}
+          </label>
+          <input
+            type='checkbox'
+            name={controlId}
+            id={controlId}
+            onChange={(e) =>
+              onChange({
+                value: e.target.checked,
+                validity: 'pending',
+              })
+            }
+            onBlur={onBlur}
+            onFocus={onFocus}
+            defaultChecked={props.config.defaultValue}
+          />
+          <ValidationMessages validationMessages={validationMessages} />
+        </>
+      );
+    },
   };
 
   const { control } = props.config;

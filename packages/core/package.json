@@ -9,9 +9,9 @@
     "type": "git",
     "url": "git+https://github.com/evanbb/fml.git"
   },
-  "main": "lib/index.js",
-  "module": "lib/index.js",
-  "browser": "lib/index.js",
+  "main": "lib/index.cjs.js",
+  "module": "lib/index.es.js",
+  "browser": "lib/index.es.js",
   "publishConfig": {
     "access": "public"
   },
@@ -29,5 +29,5 @@
     "@typescript-eslint/eslint-plugin": "^4.20.0",
     "@typescript-eslint/parser": "^4.20.0"
   },
-  "types": "lib/index.d.ts"
+  "types": "lib/index.es.d.ts"
 }

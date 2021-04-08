@@ -120,6 +120,7 @@ function useListItemTransform<TValue>(
     remove,
     update,
     onFocus,
+    validity: list.validity
   };
 }
 
@@ -130,6 +131,7 @@ interface ListItemProps<TValue> {
   itemSchema: FmlFormConfiguration<TValue>;
   listControlId: string;
   onFocus: Noop;
+  defaultValue: TValue
 }
 
 function ListItemComponent<TValue>({
@@ -139,7 +141,25 @@ function ListItemComponent<TValue>({
   itemSchema,
   listControlId,
   onFocus,
+  defaultValue
 }: ListItemProps<TValue>) {
+  /**
+   * if the list's config defaultValue is [1, 2, 3], we want each list
+   * item's default value to reflect the corresponding value in the list,
+   * not the default value from the itemSchema
+   * 
+   * if nothing is provided, use the defaultValue from the itemSchema config
+   * and let the component figure it out
+   * 
+   * once it is set, though, we let the component maintain its own state, so 
+   * no need to ever update this piece of information
+   */
+  const [actualConfig] = useState({
+    ...itemSchema,
+    defaultValue: typeof defaultValue === 'undefined'
+      ? itemSchema.defaultValue
+      : defaultValue
+  })
   const changeHandler = useCallback(
     (change: FmlValueState<TValue>) => update(fmlListId)(change),
     [update, fmlListId],
@@ -156,7 +176,7 @@ function ListItemComponent<TValue>({
   return (
     <li>
       <FmlComponent
-        config={itemSchema}
+        config={actualConfig}
         onChange={changeHandler}
         onFocus={onFocus}
         controlId={`${listControlId}[${fmlListId}]`}
@@ -176,6 +196,7 @@ function List<TValue>(
     remove,
     onFocus,
     validationMessages,
+    validity
   } = useListItemTransform(props);
 
   const labelId = `${props.controlId}-label`;
@@ -183,17 +204,18 @@ function List<TValue>(
   return (
     <div role='group' aria-labelledby={labelId}>
       <ValidationMessages validationMessages={validationMessages} />
-      <label id={labelId}>{props.config.label}</label>
+      <label data-fml-validity={validity} id={labelId}>{props.config.label}</label>
       <ul>
-        {collection.map(({ fmlListId }) => (
+        {collection.map(({ value, fmlListId }) => (
           <ListItemComponent<TValue>
             key={fmlListId}
             fmlListId={fmlListId}
             update={update}
             remove={remove}
             listControlId={props.controlId}
-            itemSchema={props.config.itemSchema as FmlFormConfiguration<TValue>}
+            itemSchema={{...props.config.itemSchema as FmlFormConfiguration<TValue>}}
             onFocus={onFocus}
+            defaultValue={value}
           />
         ))}
         <li>

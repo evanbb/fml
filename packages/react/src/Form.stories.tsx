@@ -58,7 +58,14 @@ const logit = (x: any, e: React.FormEvent<HTMLFormElement>) => {
 };
 
 export const ExampleForm = () => {
-  return <Form onSubmit={logit} config={defaultConfig} formName='example' />;
+  return (
+    <Form
+      onSubmit={logit}
+      config={defaultConfig}
+      formName='example'
+      submitText='Submit me!'
+    />
+  );
 };
 
 export const StupidForm = () => {
@@ -67,6 +74,7 @@ export const StupidForm = () => {
       onSubmit={logit}
       config={{ label: 'stupid text', control: 'text', defaultValue: '' }}
       formName='stupidform'
+      submitText='Submit me!'
     />
   );
 };
@@ -80,6 +88,7 @@ export const SillyForm = () => {
         itemSchema: { label: 'sss', control: 'text', defaultValue: '' },
       }}
       formName='stringValue'
+      submitText='Submit me!'
     />
   );
 };

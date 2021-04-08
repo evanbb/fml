@@ -10,13 +10,14 @@ interface FormProps<TModel> {
   config: FmlFormConfiguration<TModel>;
   formName: string;
   onSubmit: submitCallback<TModel>;
-  defaultValue?: TModel;
+  submitText: string
 }
 
 export default function Form<TModel>({
   config,
   formName,
   onSubmit,
+  submitText
 }: FormProps<TModel>) {
   const [value, setValue] = useState<FmlValueState<typeof config.defaultValue>>(
     { value: config.defaultValue, validity: 'unknown' },
@@ -34,7 +35,7 @@ export default function Form<TModel>({
         onFocus={focusHandler}
         controlId={formName}
       />
-      <input type='submit' disabled={validity !== 'valid'} />
+      <input value={submitText} type='submit' disabled={validity !== 'valid'} />
     </form>
   );
 }

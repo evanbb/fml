@@ -2,9 +2,9 @@ import { FmlListConfiguration, noop } from '@fml/core';
 import List from './List';
 
 const config: FmlListConfiguration<string> = {
-  label: 'A bunch of strings',
+  label: 'list',
   itemSchema: {
-    label: 'The string value',
+    label: 'list item',
     control: 'text',
     defaultValue: '',
   },

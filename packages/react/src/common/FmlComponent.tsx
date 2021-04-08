@@ -57,13 +57,7 @@ function FmlComponent<TValue, TConfigurationType>(
     <List {...props} />
   ) : isModelProps<TValue>(props) ? (
     <Model {...props} />
-  ) : (
-    (console.warn(
-      'unrecognized component configuration - rendering null because i dont know any better',
-      props,
-    ),
-    null)
-  );
+  ) : null;
 }
 
 export default memo(FmlComponent) as typeof FmlComponent;

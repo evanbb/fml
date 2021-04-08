@@ -4,9 +4,18 @@ import eslint from '@rollup/plugin-eslint'
 
 export default fs.readdirSync('packages').map(dir => ({
   input: `packages/${dir}/src/index.ts`,
-  output: {
-    dir: `packages/${dir}/lib`
-  },
+  output: [
+    {
+      dir: `packages/${dir}/lib`,
+      entryFileNames: '[name].es.js',
+      format: 'es'
+    },
+    {
+      dir: `packages/${dir}/lib`,
+      entryFileNames: '[name].cjs.js',
+      format: 'cjs'
+    }
+  ],
   plugins: [
     eslint(),
     typescript()

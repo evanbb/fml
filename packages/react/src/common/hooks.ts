@@ -11,6 +11,7 @@ import { FmlFormComponentProps } from './FmlComponent';
 interface UseFmlComponentOutput<TValue> {
   onChange: FmlValueStateChangeHandler<TValue>;
   onFocus: Noop;
+  hasBeenTouched: boolean;
   onBlur: Noop;
   value: FmlValueState<TValue>;
   validationMessages: string[];
@@ -19,18 +20,19 @@ interface UseFmlComponentOutput<TValue> {
 export function useFmlComponent<TValue>(
   props: FmlFormComponentProps<TValue>,
 ): UseFmlComponentOutput<TValue> {
+  const { blurHandler, hasBeenBlurred } = useFmlComponentBlur();
   const { currentValue, setCurrentValue } = useFmlComponentState<TValue>(props);
-  const { focusHandler } = useFmlComponentFocus(props);
+  const { focusHandler, hasBeenTouched } = useFmlComponentFocus(props);
 
-  const {
-    validationMessages,
-    changeHandler,
-    doValidation,
-  } = useFmlComponentChange(props, currentValue, setCurrentValue);
-
-  const { blurHandler } = useFmlComponentBlur(currentValue, doValidation);
+  const { validationMessages, changeHandler } = useFmlComponentChange(
+    props,
+    currentValue,
+    setCurrentValue,
+    hasBeenBlurred,
+  );
 
   return {
+    hasBeenTouched,
     onChange: changeHandler,
     onFocus: focusHandler,
     onBlur: blurHandler,
@@ -81,22 +83,12 @@ function useFmlComponentFocus<TValue>({
   };
 }
 
-function useFmlComponentBlur<TValue>(
-  { value }: UseFmlComponentState<TValue>,
-  doValidation: (value: FmlValueState<TValue>) => void,
-) {
+function useFmlComponentBlur() {
   const [hasBeenBlurred, setHasBeenBlurred] = useState<boolean>(false);
 
   const blurHandler = useCallback(() => {
     setHasBeenBlurred(true);
-  }, [setHasBeenBlurred]);
-
-  // the first time a user blurs but hasn't changed it, trigger validation
-  useEffect(() => {
-    if (hasBeenBlurred && value.validity === 'unknown') {
-      doValidation(value);
-    }
-  }, [hasBeenBlurred, value, doValidation]);
+  }, []);
 
   return {
     blurHandler,
@@ -104,48 +96,57 @@ function useFmlComponentBlur<TValue>(
   };
 }
 
-function useFmlComponentValidationPromiseCounter() {
-  const numRef = useRef<number>(Number.MIN_SAFE_INTEGER);
+function usePreviousValue<T>(latestValue: T) {
+  const ref = useRef<T>();
 
-  const ref = useRef<{
-    current: () => number;
-    next: () => number;
-  }>({
-    current: () => numRef.current,
-    next: () => ++numRef.current,
-  });
+  useEffect(() => {
+    ref.current = latestValue;
+  }, [latestValue]);
 
   return ref.current;
 }
 
 function useFmlComponentChange<TValue>(
-  { onChange, config, controlId }: FmlFormComponentProps<TValue>,
+  { onChange, config }: FmlFormComponentProps<TValue>,
   componentState: UseFmlComponentState<TValue>,
   setComponentState: React.Dispatch<
     React.SetStateAction<UseFmlComponentState<TValue>>
   >,
+  hasBeenBlurred: boolean,
 ) {
-  const {
-    current: getCurrentPromiseReference,
-    next: nextPromiseReferenceFactory,
-  } = useFmlComponentValidationPromiseCounter();
   const validatorFuncs = useFmlValidators<TValue>(
     config.validators as FmlValidatorConfiguration<TValue>[],
   );
 
   const { value: stateValue, validationMessages } = componentState;
 
-  const doValidation = useCallback(
-    async (valueState: FmlValueState<TValue>) => {
-      const newReference = nextPromiseReferenceFactory();
+  const changeHandler = useCallback(
+    (change: FmlValueState<TValue>) => {
+      setComponentState((state) => ({
+        ...state,
+        value: change,
+      }));
+    },
+    [setComponentState],
+  );
 
+  const wasAlreadyBlurred = usePreviousValue(hasBeenBlurred);
+  const firstTimeBlurring = hasBeenBlurred && !wasAlreadyBlurred;
+
+  const previousStateValue = usePreviousValue(stateValue.value);
+  const stateChanged = previousStateValue !== stateValue.value;
+
+  useEffect(() => {
+    let inflight = true;
+
+    async function validate() {
       const validationResults = await Promise.all(
-        validatorFuncs.map((validator) => validator(valueState.value)),
+        validatorFuncs.map((validator) => validator(stateValue.value)),
       );
       const messages = validationResults.flat().filter(Boolean) as string[];
 
       // another promise was kicked off before this one resolved - just bail
-      if (getCurrentPromiseReference() !== newReference) {
+      if (!inflight) {
         return;
       }
 
@@ -158,39 +159,32 @@ function useFmlComponentChange<TValue>(
           validationMessages: messages,
         };
       });
-    },
-    [
-      getCurrentPromiseReference,
-      nextPromiseReferenceFactory,
-      setComponentState,
-      validatorFuncs,
-    ],
-  );
+    }
 
-  const changeHandler = useCallback(
-    (change: FmlValueState<TValue>) => {
-      const shouldValidate = change.validity === 'pending';
+    if (stateValue.validity === 'pending' && stateChanged) {
+      validate();
+    } else if (firstTimeBlurring) {
+      // fire validation the first time the user blurs from the field
+      validate();
+    }
 
-      setComponentState((state) => ({
-        ...state,
-        value: change,
-      }));
-
-      if (!shouldValidate) {
-        return;
-      }
-
-      doValidation(change);
-    },
-    [doValidation, setComponentState],
-  );
+    return () => {
+      inflight = false;
+    };
+  }, [
+    stateChanged,
+    firstTimeBlurring,
+    stateValue,
+    validatorFuncs,
+    setComponentState,
+  ]);
 
   // any time value changes, inform parent
   useEffect(() => {
     onChange(stateValue);
   }, [stateValue, onChange]);
 
-  return { validationMessages, changeHandler, doValidation };
+  return { validationMessages, changeHandler };
 }
 
 function useFmlValidators<TValue>(

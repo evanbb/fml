@@ -2,6 +2,7 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "alwaysStrict": true,
+    "baseUrl": ".",
     "declaration": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",
@@ -10,13 +11,24 @@
       "dom.iterable",
       "esnext"
     ],
+    "moduleResolution": "node",
     "noEmitOnError": true,
+    "noImplicitReturns": true,
     "paths": {
-      "@evanbb/*": [
-        "./*/src"
+      "@fml/*": [
+        "packages/*/src"
       ]
     },
     "skipLibCheck": true,
-    "strict": true
-  }
+    "strict": true,
+    "target": "esnext"
+  },
+  "references": [
+    {
+      "path": "packages/core"
+    },
+    {
+      "path": "packages/react"
+    },
+  ]
 }
