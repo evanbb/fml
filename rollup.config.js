@@ -4,6 +4,7 @@ import eslint from '@rollup/plugin-eslint'
 
 export default fs.readdirSync('packages').map(dir => ({
   input: `packages/${dir}/src/index.ts`,
+  external: mid => /^@fml\//gi.test(mid),
   output: [
     {
       dir: `packages/${dir}/lib`,
