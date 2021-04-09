@@ -1,34 +1,17 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "alwaysStrict": true,
     "baseUrl": ".",
-    "declaration": true,
-    "esModuleInterop": true,
-    "jsx": "react-jsx",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "moduleResolution": "node",
-    "noEmitOnError": true,
-    "noImplicitReturns": true,
-    "paths": {
-      "@fml/*": [
-        "packages/*/src"
-      ]
-    },
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "esnext"
+    "outDir": "lib",
+    "emitDeclarationOnly": false,
+    "noEmit": true
   },
   "references": [
-    {
-      "path": "packages/core"
-    },
-    {
-      "path": "packages/react"
-    },
+    { "path": "packages/core" },
+    { "path": "packages/react" }
+  ],
+  "exclude": [
+    "packages/*/src/**/*.test.*",
+    "packages/*/src/**/*.stories.*"
   ]
 }

@@ -1,6 +1,8 @@
+/**
+ * @jest-environment jsdom
+ */
 import { waitFor, render } from '@testing-library/react';
 import userEvents from '@testing-library/user-event';
-import { noop } from '@fml/core';
 import List from './List';
 
 async function waitForValid(listLabel: HTMLElement) {
@@ -14,16 +16,13 @@ it('renders items in the list', async () => {
     <List<string>
       config={{
         label: 'My list',
-        itemSchema: {
+        itemConfig: {
           control: 'text',
           label: 'List item',
           defaultValue: '',
         },
         defaultValue: ['first', 'second', 'third'],
       }}
-      controlId='test'
-      onChange={noop}
-      onFocus={noop}
     />,
   );
 
@@ -37,15 +36,12 @@ it('adds items to the list', async () => {
     <List<string>
       config={{
         label: 'My list',
-        itemSchema: {
+        itemConfig: {
           control: 'text',
           label: 'List item',
           defaultValue: '',
         },
       }}
-      controlId='test'
-      onChange={noop}
-      onFocus={noop}
     />,
   );
 
@@ -68,16 +64,13 @@ it('removes items from the list, maintaining order', async () => {
     <List<string>
       config={{
         label: 'My list',
-        itemSchema: {
+        itemConfig: {
           control: 'text',
           label: 'List item',
           defaultValue: '',
         },
         defaultValue: ['first', 'second', 'third'],
       }}
-      controlId='test'
-      onChange={noop}
-      onFocus={noop}
     />,
   );
 
@@ -105,16 +98,13 @@ it('updates items in the list', async () => {
     <List<string>
       config={{
         label: 'My list',
-        itemSchema: {
+        itemConfig: {
           control: 'text',
           label: 'List item',
           defaultValue: '',
         },
         defaultValue: ['first', 'second', 'third'],
       }}
-      controlId='test'
-      onChange={noop}
-      onFocus={noop}
     />,
   );
 
@@ -160,17 +150,14 @@ it('bubbles validity from list items', async () => {
     <List<string>
       config={{
         label: 'My list',
-        itemSchema: {
+        itemConfig: {
           control: 'text',
           label: 'List item',
           defaultValue: '',
-          validators: [{ validator: 'required', message: 'this is required' }],
+          validators: [['required', 'this is required']],
         },
         defaultValue: ['first', 'second', 'third'],
       }}
-      controlId='test'
-      onChange={noop}
-      onFocus={noop}
     />,
   );
 
@@ -228,22 +215,19 @@ it('bubbles validity from list items', async () => {
   expect(listLabel.getAttribute('data-fml-validity')).toBe('valid');
 });
 
-it('uses provided value as default for list item, falling back to defaultValue configured in itemSchema', async () => {
+it('uses provided value as default for list item, falling back to defaultValue configured in itemConfig', async () => {
   /** defined default */
   const { getAllByLabelText, getByText, unmount } = render(
     <List<string>
       config={{
         label: 'My list',
-        itemSchema: {
+        itemConfig: {
           control: 'text',
           label: 'List item',
           defaultValue: 'default value',
         },
         defaultValue: ['first', 'second', 'third'],
       }}
-      controlId='test'
-      onChange={noop}
-      onFocus={noop}
     />,
   );
 
@@ -270,25 +254,20 @@ it('uses provided value as default for list item, falling back to defaultValue c
   unmount();
 
   /** undefined default */
-  const {
-    getAllByLabelText: getAllByLabelText2,
-    getByText: getByText2,
-  } = render(
-    <List<string>
-      config={{
-        label: 'My list',
-        itemSchema: {
-          control: 'text',
-          label: 'List item',
-          defaultValue: undefined,
-        },
-        defaultValue: ['first', 'second', 'third'],
-      }}
-      controlId='test'
-      onChange={noop}
-      onFocus={noop}
-    />,
-  );
+  const { getAllByLabelText: getAllByLabelText2, getByText: getByText2 } =
+    render(
+      <List<string>
+        config={{
+          label: 'My list',
+          itemConfig: {
+            control: 'text',
+            label: 'List item',
+            defaultValue: undefined,
+          },
+          defaultValue: ['first', 'second', 'third'],
+        }}
+      />,
+    );
 
   const listLabel2 = getByText2('My list');
   const addButton2 = getByText2('+');

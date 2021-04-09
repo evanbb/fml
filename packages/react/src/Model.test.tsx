@@ -1,4 +1,6 @@
-import { noop } from '@fml/core';
+/**
+ * @jest-environment jsdom
+ */
 import { render, waitFor } from '@testing-library/react';
 import userEvents from '@testing-library/user-event';
 import Model from './Model';
@@ -30,7 +32,7 @@ it('renders appropriate components for each property', async () => {
           },
           bar: {
             label: 'Bar',
-            itemSchema: {
+            itemConfig: {
               control: 'number',
               defaultValue: undefined,
               label: 'Number',
@@ -48,9 +50,6 @@ it('renders appropriate components for each property', async () => {
           },
         },
       }}
-      controlId='test'
-      onChange={noop}
-      onFocus={noop}
     />,
   );
 
@@ -81,16 +80,11 @@ it('bubbles up validation errors', async () => {
             control: 'text',
             defaultValue: 'valid value',
             label: 'Foo',
-            validators: [
-              {
-                validator: 'required',
-                message: 'required srsly',
-              },
-            ],
+            validators: [['required', 'required srsly']],
           },
           bar: {
             label: 'Bar',
-            itemSchema: {
+            itemConfig: {
               control: 'number',
               defaultValue: undefined,
               label: 'Number',
@@ -108,9 +102,6 @@ it('bubbles up validation errors', async () => {
           },
         },
       }}
-      controlId='test'
-      onChange={noop}
-      onFocus={noop}
     />,
   );
 
@@ -139,9 +130,9 @@ it('bubbles up validation errors', async () => {
    */
   expect(modelLegend.getAttribute('data-fml-validity')).toBe('unknown');
 
-  userEvents.type(fooLabel, '{selectall}{backspace}')
+  userEvents.type(fooLabel, '{selectall}{backspace}');
 
-  expect(fooLabel.getAttribute('data-fml-validity')).toBe('pending')
+  expect(fooLabel.getAttribute('data-fml-validity')).toBe('pending');
 
   // foo is invalid...
   await waitFor(() =>
@@ -152,10 +143,10 @@ it('bubbles up validation errors', async () => {
   await waitFor(() =>
     expect(modelLegend.getAttribute('data-fml-validity')).toBe('invalid'),
   );
-  
-  userEvents.type(fooLabel, 'all fixed up')
 
-  expect(fooLabel.getAttribute('data-fml-validity')).toBe('pending')
+  userEvents.type(fooLabel, 'all fixed up');
+
+  expect(fooLabel.getAttribute('data-fml-validity')).toBe('pending');
 
   // foo is now valid...
   await waitFor(() =>

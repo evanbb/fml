@@ -1,4 +1,4 @@
-import { FmlModelConfiguration, noop } from '@fml/core';
+import { FmlModelConfiguration } from '@fml/core';
 import Model from './Model';
 
 interface MyModel {
@@ -22,12 +22,10 @@ const config: FmlModelConfiguration<MyModel> = {
   },
 };
 
-export const ExampleModel = () => (
-  <Model config={config} controlId='test' onChange={noop} onFocus={noop} />
-);
+export const ExampleModel = () => <Model config={config} />;
 
 const stories = {
-  title: 'Stories/Model',
+  title: 'Stories/Fml/Model',
   component: Model,
 };
 

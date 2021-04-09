@@ -1,20 +1,23 @@
 import {
-  FmlListConfiguration,
-  FmlValidationStatus,
+  FmlControlConfigurationBase,  FmlValidityStatus,
   FmlValueState,
   FmlValueStateChangeHandler,
-  Noop,
+  FmlConfiguration,
+  FmlControlConfiguration,
+  FmlListConfiguration,
 } from '@fml/core';
-import { FmlFormConfiguration } from '@fml/core/src/types';
+import { FmlContextProvider, useFmlContext } from './common/FmlControlContext';
+import { useFmlControl } from './common/useFmlControl';
 import { useRef, useState, useEffect, useCallback, memo } from 'react';
-import FmlComponent, { FmlComponentProps } from './common/FmlComponent';
-import { useFmlComponent } from './common/hooks';
+import FmlComponent, {
+  getControlConfig,
+} from './common/FmlComponent';
 import ValidationMessages from './ValidationMessages';
 
 interface CollectionItem<TValue> {
   value: TValue;
   fmlListId: number;
-  validity: FmlValidationStatus;
+  validity: FmlValidityStatus;
 }
 
 function useListItemId() {
@@ -28,26 +31,20 @@ function useListItemId() {
   return newIdRef.current;
 }
 
-function useListItemTransform<TValue>(
-  props: FmlComponentProps<TValue[], FmlListConfiguration<TValue>>,
-) {
+function useListItemTransform<TValue>(props: ListProps<TValue>) {
   const {
-    onChange: updateList,
-    onFocus,
+    changeHandler: updateList,
+    focusHandler: onFocus,
     value: list,
     validationMessages,
-  } = useFmlComponent<TValue[]>({
-    ...props,
-    config: {
-      ...props.config,
-      defaultValue: props.config.defaultValue || [],
-    },
-  });
+  } = useFmlControl<TValue[]>(
+    props.config as FmlControlConfiguration<TValue[]>,
+  );
 
   const { newId } = useListItemId();
 
   const [collection, updateCollection] = useState<CollectionItem<TValue>[]>(
-    list.value.map((item) => ({
+    (list.value || []).map((item) => ({
       value: item,
       fmlListId: newId(),
       validity: 'unknown',
@@ -58,12 +55,19 @@ function useListItemTransform<TValue>(
     updateCollection((coll) => [
       ...coll,
       {
-        value: props.config.itemSchema.defaultValue as TValue,
+        value: getControlConfig(
+          (getControlConfig(props.config) as FmlListConfiguration<TValue>)
+            .itemConfig,
+        ).defaultValue as TValue,
         fmlListId: newId(),
         validity: 'unknown',
       },
     ]);
-  }, [props.config.itemSchema.defaultValue, newId]);
+  }, [
+    (getControlConfig(props.config) as FmlControlConfiguration<TValue[]>)
+      .itemConfig,
+    newId,
+  ]);
 
   const remove = useCallback((fmlListId: number) => {
     updateCollection((coll) => {
@@ -99,7 +103,7 @@ function useListItemTransform<TValue>(
       validity: item.validity,
     }));
 
-    const validities = new Set<FmlValidationStatus>(
+    const validities = new Set<FmlValidityStatus>(
       listItems.map((item) => item.validity),
     );
 
@@ -120,46 +124,49 @@ function useListItemTransform<TValue>(
     remove,
     update,
     onFocus,
-    validity: list.validity
+    validity: list.validity,
   };
 }
 
 interface ListItemProps<TValue> {
   fmlListId: number;
+  elementIndex: number;
   update: (fmlListId: number) => FmlValueStateChangeHandler<TValue>;
   remove: (fmlListId: number) => void;
-  itemSchema: FmlFormConfiguration<TValue>;
-  listControlId: string;
-  onFocus: Noop;
-  defaultValue: TValue
+  itemConfig: FmlConfiguration<TValue>;
+  onFocus: () => void;
+  defaultValue: TValue;
 }
 
 function ListItemComponent<TValue>({
   fmlListId,
   update,
   remove,
-  itemSchema,
-  listControlId,
-  onFocus,
-  defaultValue
+  itemConfig,
+  defaultValue,
+  elementIndex,
 }: ListItemProps<TValue>) {
   /**
    * if the list's config defaultValue is [1, 2, 3], we want each list
    * item's default value to reflect the corresponding value in the list,
    * not the default value from the itemSchema
-   * 
+   *
    * if nothing is provided, use the defaultValue from the itemSchema config
    * and let the component figure it out
-   * 
-   * once it is set, though, we let the component maintain its own state, so 
+   *
+   * once it is set, though, we let the component maintain its own state, so
    * no need to ever update this piece of information
+   *
+   * TODO: fix this for lists with items in layouts
    */
-  const [actualConfig] = useState({
-    ...itemSchema,
-    defaultValue: typeof defaultValue === 'undefined'
-      ? itemSchema.defaultValue
-      : defaultValue
-  })
+
+  const [actualConfig] = useState<FmlControlConfigurationBase<TValue>>({
+    ...getControlConfig(itemConfig),
+    defaultValue:
+      typeof defaultValue === 'undefined'
+        ? getControlConfig<TValue>(itemConfig).defaultValue
+        : defaultValue,
+  });
   const changeHandler = useCallback(
     (change: FmlValueState<TValue>) => update(fmlListId)(change),
     [update, fmlListId],
@@ -175,20 +182,24 @@ function ListItemComponent<TValue>({
 
   return (
     <li>
-      <FmlComponent
-        config={actualConfig}
+      <FmlContextProvider<TValue>
         onChange={changeHandler}
-        onFocus={onFocus}
-        controlId={`${listControlId}[${fmlListId}]`}
-      />
+        localControlId={String(elementIndex)}
+      >
+        <FmlComponent<TValue>
+          config={actualConfig as FmlConfiguration<TValue>}
+        />
+      </FmlContextProvider>
       <button onClick={removeHandler}>-</button>
     </li>
   );
 }
 
-function List<TValue>(
-  props: FmlComponentProps<TValue[], FmlListConfiguration<TValue>>,
-) {
+export interface ListProps<TValue> {
+  config: FmlListConfiguration<TValue>;
+}
+
+function List<TValue>(props: ListProps<TValue>) {
   const {
     collection,
     update,
@@ -196,26 +207,30 @@ function List<TValue>(
     remove,
     onFocus,
     validationMessages,
-    validity
+    validity,
   } = useListItemTransform(props);
 
-  const labelId = `${props.controlId}-label`;
+  const { controlId } = useFmlContext();
+
+  const labelId = `${controlId}-label`;
 
   return (
     <div role='group' aria-labelledby={labelId}>
+      <label data-fml-validity={validity} id={labelId}>
+        {props.config.label}
+      </label>
       <ValidationMessages validationMessages={validationMessages} />
-      <label data-fml-validity={validity} id={labelId}>{props.config.label}</label>
       <ul>
-        {collection.map(({ value, fmlListId }) => (
+        {collection.map(({ value, fmlListId }, elementIndex) => (
           <ListItemComponent<TValue>
             key={fmlListId}
             fmlListId={fmlListId}
             update={update}
             remove={remove}
-            listControlId={props.controlId}
-            itemSchema={{...props.config.itemSchema as FmlFormConfiguration<TValue>}}
+            itemConfig={props.config.itemConfig}
             onFocus={onFocus}
             defaultValue={value}
+            elementIndex={elementIndex}
           />
         ))}
         <li>

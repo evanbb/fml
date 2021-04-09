@@ -1,18 +1,16 @@
 import {
-  FmlFormConfiguration,
+  FmlConfiguration,
   FmlModelConfiguration,
-  FmlValidationStatus,
+  FmlValidityStatus,
   FmlValueStateChangeHandler,
+  FmlValueState,
+  FmlControlConfiguration,
 } from '@fml/core';
-import type { Noop } from '@fml/core';
+import { FmlContextProvider } from './common/FmlControlContext';
+import { useFmlControl } from './common/useFmlControl';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import FmlComponent, {
-  FmlComponentProps,
-  FmlFormComponentProps,
-} from './common/FmlComponent';
-import { useFmlComponent } from './common/hooks';
+import FmlComponent from './common/FmlComponent';
 import ValidationMessages from './ValidationMessages';
-import { FmlValueState } from '@fml/core/src/types';
 
 type ValueStateModelProps<TValue> = {
   [Key in keyof TValue]: FmlValueState<TValue[Key]>;
@@ -20,18 +18,16 @@ type ValueStateModelProps<TValue> = {
 
 type ValueStateModel<TValue> = {
   value: ValueStateModelProps<TValue>;
-  validity: FmlValidationStatus;
+  validity: FmlValidityStatus;
 };
 
-function useModelTransform<TValue>(
-  props: FmlComponentProps<TValue, FmlModelConfiguration<TValue>>,
-) {
+function useModelTransform<TValue>(props: ModelProps<TValue>) {
   const {
-    onChange: updateInnerModel,
+    changeHandler: updateInnerModel,
     validationMessages,
-    onFocus,
+    focusHandler: onFocus,
     value: innerModel,
-  } = useFmlComponent<TValue>(props as FmlFormComponentProps<TValue>);
+  } = useFmlControl<TValue>(props.config as FmlControlConfiguration<TValue>);
 
   const initialModel = useMemo<ValueStateModelProps<TValue>>(() => {
     const result = {} as ValueStateModelProps<TValue>;
@@ -49,10 +45,10 @@ function useModelTransform<TValue>(
   }, [innerModel.value, props.config.schema]);
 
   const modelToInnerValue = useCallback<
-    (model: ValueStateModel<TValue>) => [TValue, Set<FmlValidationStatus>]
+    (model: ValueStateModel<TValue>) => [TValue, Set<FmlValidityStatus>]
   >((model: ValueStateModel<TValue>) => {
     const result = {} as TValue;
-    const validities = new Set<FmlValidationStatus>();
+    const validities = new Set<FmlValidityStatus>();
     Object.entries(model.value).forEach((entry) => {
       const key = entry[0] as keyof TValue;
       type PropertyType = TValue[typeof key];
@@ -70,37 +66,36 @@ function useModelTransform<TValue>(
   });
 
   const updateProperty = useCallback(
-    (property: keyof TValue) => (
-      change: FmlValueState<TValue[typeof property]>,
-    ) => {
-      updateModel((mod) => {
-        const newValue = {
-          ...mod.value,
-          [property]: change,
-        };
+    (property: keyof TValue) =>
+      (change: FmlValueState<TValue[typeof property]>) => {
+        updateModel((mod) => {
+          const newValue = {
+            ...mod.value,
+            [property]: change,
+          };
 
-        // all the model's validities for properties other than the one that changed
-        const validities = Object.keys(mod.value)
-          .filter((key) => key !== property)
-          .reduce((set, validity) => {
-            set.add(validity);
-            return set;
-          }, new Set<string>());
+          // all the model's validities for properties other than the one that changed
+          const validities = Object.keys(mod.value)
+            .filter((key) => key !== property)
+            .reduce((set, validity) => {
+              set.add(validity);
+              return set;
+            }, new Set<string>());
 
-        validities.add(change.validity);
+          validities.add(change.validity);
 
-        const newValidity = validities.has('invalid')
-          ? 'invalid'
-          : validities.has('unknown') || validities.has('pending')
-          ? 'unknown'
-          : 'pending';
+          const newValidity = validities.has('invalid')
+            ? 'invalid'
+            : validities.has('unknown') || validities.has('pending')
+            ? 'unknown'
+            : 'pending';
 
-        return {
-          value: newValue,
-          validity: newValidity,
-        };
-      });
-    },
+          return {
+            value: newValue,
+            validity: newValidity,
+          };
+        });
+      },
     [],
   );
 
@@ -129,15 +124,11 @@ interface ModelPropertyProps<TModel, TPropertyValue> {
   update: (
     propertyName: keyof TModel,
   ) => FmlValueStateChangeHandler<TPropertyValue>;
-  schema: FmlFormConfiguration<TPropertyValue>;
-  modelControlId: string;
-  onFocus: Noop;
+  schema: FmlConfiguration<TPropertyValue>;
   propertyName: keyof TModel;
 }
 
 function ModelProperty<TModel, TPropertyValue>({
-  modelControlId,
-  onFocus,
   propertyName,
   schema,
   update,
@@ -150,40 +141,37 @@ function ModelProperty<TModel, TPropertyValue>({
   );
 
   return (
-    <FmlComponent
+    <FmlContextProvider<TPropertyValue>
+      localControlId={propertyName as string}
       onChange={changeHandler}
-      onFocus={onFocus}
-      controlId={`${modelControlId}[${propertyName}]`}
-      config={schema}
-    />
+    >
+      <FmlComponent config={schema} />
+    </FmlContextProvider>
   );
 }
 
-function Model<TValue>(
-  props: FmlComponentProps<TValue, FmlModelConfiguration<TValue>>,
-) {
-  const {
-    updateProperty,
-    validationMessages,
-    onFocus,
-    validity,
-  } = useModelTransform<TValue>(props);
+export interface ModelProps<TValue> {
+  config: FmlModelConfiguration<TValue>;
+}
+
+function Model<TValue>(props: ModelProps<TValue>) {
+  const { updateProperty, validationMessages, validity } =
+    useModelTransform<TValue>(props);
+  const config = props.config as FmlModelConfiguration<TValue>;
 
   return (
     <fieldset>
-      <legend data-fml-validity={validity}>{props.config.label}</legend>
+      <legend data-fml-validity={validity}>{config.label}</legend>
       <ValidationMessages validationMessages={validationMessages} />
-      {Object.keys(props.config.schema).map((key) => {
+      {Object.keys(config.schema).map((key) => {
         const k = key as keyof TValue;
         type PropertyType = TValue[typeof k];
         return (
           <ModelProperty<TValue, PropertyType>
             key={k as string}
-            schema={props.config.schema[k]}
+            schema={config.schema[k]}
             propertyName={k}
-            onFocus={onFocus}
             update={updateProperty}
-            modelControlId={props.controlId}
           />
         );
       })}

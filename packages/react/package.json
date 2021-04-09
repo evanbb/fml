@@ -1,9 +1,8 @@
 {
   "name": "@fml/react",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "react bindings for fml",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "start-storybook"
   },
   "repository": {
@@ -13,9 +12,18 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "lib/index.cjs.js",
-  "module": "lib/index.es.js",
-  "browser": "lib/index.es.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./lib/index.es.js",
+      "require": "./lib/index.cjs.js"
+    },
+    "./package.json": "./package.json",
+    "./*": {
+      "import": "./lib/*/index.es.js",
+      "require": "./lib/*/index.cjs.js"
+    }
+  },
   "files": [
     "lib"
   ],
@@ -27,35 +35,43 @@
   },
   "homepage": "https://github.com/evanbb/fml#readme",
   "devDependencies": {
-    "@babel/preset-react": "^7.13.13",
-    "@fml/core": "^0.0.1",
-    "@storybook/addon-essentials": "^6.1.15",
-    "@storybook/react": "^6.1.15",
-    "@testing-library/dom": "^7.30.3",
-    "@testing-library/react": "^11.2.6",
+    "@babel/preset-react": "^7.14.5",
+    "@fml/core": "*",
+    "@storybook/addon-essentials": "^6.3.2",
+    "@storybook/react": "^6.3.2",
+    "@testing-library/dom": "^8.1.0",
+    "@testing-library/react": "^12.0.0",
     "@testing-library/user-event": "^13.1.1",
-    "@types/react": "^17.0.0",
-    "@typescript-eslint/eslint-plugin": "^4.0.0",
-    "@typescript-eslint/parser": "^4.0.0",
-    "babel-eslint": "^10.0.0",
-    "eslint": "^7.5.0",
+    "@testing-library/react-hooks": "^7.0.1",
+    "@types/react": "^17.0.13",
+    "@typescript-eslint/eslint-plugin": "^4.28.1",
+    "@typescript-eslint/parser": "^4.28.1",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.29.0",
     "eslint-config-react-app": "^6.0.0",
-    "eslint-plugin-flowtype": "^5.2.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jest": "^24.0.0",
-    "eslint-plugin-jsx-a11y": "^6.3.1",
-    "eslint-plugin-react": "^7.20.3",
-    "eslint-plugin-react-hooks": "^4.0.8",
-    "eslint-plugin-testing-library": "^3.9.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "eslint-plugin-flowtype": "^5.8.0",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-jest": "^24.3.6",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-react": "^7.24.0",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "eslint-plugin-testing-library": "^4.6.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "peerDependencies": {
-    "@fml/core": "*",
-    "react": "^17.0.1"
+    "@fml/core": "0.0.2",
+    "react": "^17.0.2"
   },
-  "types": "lib/index.es.d.ts",
-  "dependencies": {
-    "@testing-library/react-hooks": "^5.1.1"
+  "typesVersions": {
+    "*": {
+      "lib/index.*": [
+        "lib/index.d.ts"
+      ],
+      "*": [
+        "lib/*",
+        "lib/*/index.d.ts"
+      ]
+    }
   }
 }

@@ -1,17 +1,23 @@
 {
   "name": "@fml/core",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "core utilities and typings for fml",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/evanbb/fml.git"
   },
-  "main": "lib/index.cjs.js",
-  "module": "lib/index.es.js",
-  "browser": "lib/index.es.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./lib/index.es.js",
+      "require": "./lib/index.cjs.js"
+    },
+    "./package.json": "./package.json",
+    "./*": {
+      "import": "./lib/*/index.es.js",
+      "require": "./lib/*/index.cjs.js"
+    }
+  },
   "publishConfig": {
     "access": "public"
   },
@@ -26,8 +32,18 @@
   },
   "homepage": "https://github.com/evanbb/fml#readme",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.20.0",
-    "@typescript-eslint/parser": "^4.20.0"
+    "@typescript-eslint/eslint-plugin": "^4.28.1",
+    "@typescript-eslint/parser": "^4.28.1"
   },
-  "types": "lib/index.es.d.ts"
+  "typesVersions": {
+    "*": {
+      "lib/index.*": [
+        "lib/index.d.ts"
+      ],
+      "*": [
+        "lib/*",
+        "lib/*/index.d.ts"
+      ]
+    }
+  }
 }

@@ -1,60 +1,71 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  FmlControlConfiguration,
   FmlValidatorConfiguration,
+  FmlValidityStatus,
   FmlValueState,
   FmlValueStateChangeHandler,
-  createValidator,
+  instantiateValidator,
 } from '@fml/core';
-import type { Noop } from '@fml/core';
-import { FmlFormComponentProps } from './FmlComponent';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useFmlContext } from './FmlControlContext';
 
-interface UseFmlComponentOutput<TValue> {
-  onChange: FmlValueStateChangeHandler<TValue>;
-  onFocus: Noop;
-  hasBeenTouched: boolean;
-  onBlur: Noop;
-  value: FmlValueState<TValue>;
-  validationMessages: string[];
-}
+export function useFmlControl<TValue>(config: FmlControlConfiguration<TValue>) {
+  const {
+    controlId,
+    onBlur: contextOnBlur,
+    onFocus: contextOnFocus,
+    onChange,
+  } = useFmlContext();
 
-export function useFmlComponent<TValue>(
-  props: FmlFormComponentProps<TValue>,
-): UseFmlComponentOutput<TValue> {
-  const { blurHandler, hasBeenBlurred } = useFmlComponentBlur();
-  const { currentValue, setCurrentValue } = useFmlComponentState<TValue>(props);
-  const { focusHandler, hasBeenTouched } = useFmlComponentFocus(props);
+  const { blurHandler, hasBeenBlurred } = useFmlComponentBlur(contextOnBlur);
+  const { currentValue, setCurrentValue } = useFmlComponentState<TValue>(
+    config.defaultValue as TValue,
+    (config.validators ?? []) as FmlValidatorConfiguration<TValue>[],
+  );
+  const { focusHandler } = useFmlComponentFocus(contextOnFocus);
 
-  const { validationMessages, changeHandler } = useFmlComponentChange(
-    props,
+  const { validationMessages, changeHandler } = useFmlComponentChange<TValue>(
+    (config.validators ?? []) as FmlValidatorConfiguration<TValue>[],
+    onChange,
     currentValue,
     setCurrentValue,
     hasBeenBlurred,
   );
 
   return {
-    hasBeenTouched,
-    onChange: changeHandler,
-    onFocus: focusHandler,
-    onBlur: blurHandler,
+    controlId,
+    changeHandler,
+    focusHandler,
+    blurHandler,
     value: currentValue.value,
     validationMessages,
   };
 }
 
-interface UseFmlComponentState<TValue> {
-  value: FmlValueState<TValue>;
-  validationMessages: string[];
+function useFmlComponentBlur(contextOnBlur: () => void) {
+  const [hasBeenBlurred, setHasBeenBlurred] = useState<boolean>(false);
+
+  const blurHandler = useCallback(() => {
+    setHasBeenBlurred(true);
+    contextOnBlur();
+  }, [contextOnBlur]);
+
+  return {
+    blurHandler,
+    hasBeenBlurred,
+  };
 }
 
-function useFmlComponentState<TValue>(props: FmlFormComponentProps<TValue>) {
-  const [currentValue, setCurrentValue] = useState<
-    UseFmlComponentState<TValue>
-  >({
+function useFmlComponentState<TValue>(
+  defaultValue: TValue,
+  validators: FmlValidatorConfiguration<TValue>[],
+) {
+  const [currentValue, setCurrentValue] = useState({
     value: {
-      value: props.config.defaultValue as TValue,
-      validity: props.config.validators?.length ? 'unknown' : 'valid',
+      value: defaultValue,
+      validity: validators?.length ? 'unknown' : ('valid' as FmlValidityStatus),
     },
-    validationMessages: [],
+    validationMessages: [] as string[],
   });
 
   return {
@@ -63,9 +74,7 @@ function useFmlComponentState<TValue>(props: FmlFormComponentProps<TValue>) {
   };
 }
 
-function useFmlComponentFocus<TValue>({
-  onFocus,
-}: FmlFormComponentProps<TValue>) {
+function useFmlComponentFocus(onFocus: () => void) {
   const [hasBeenTouched, setHasBeenTouched] = useState<boolean>(false);
 
   const focusHandler = useCallback(() => setHasBeenTouched(true), []);
@@ -83,40 +92,22 @@ function useFmlComponentFocus<TValue>({
   };
 }
 
-function useFmlComponentBlur() {
-  const [hasBeenBlurred, setHasBeenBlurred] = useState<boolean>(false);
-
-  const blurHandler = useCallback(() => {
-    setHasBeenBlurred(true);
-  }, []);
-
-  return {
-    blurHandler,
-    hasBeenBlurred,
-  };
-}
-
-function usePreviousValue<T>(latestValue: T) {
-  const ref = useRef<T>();
-
-  useEffect(() => {
-    ref.current = latestValue;
-  }, [latestValue]);
-
-  return ref.current;
-}
-
 function useFmlComponentChange<TValue>(
-  { onChange, config }: FmlFormComponentProps<TValue>,
-  componentState: UseFmlComponentState<TValue>,
+  validators: FmlValidatorConfiguration<TValue>[],
+  afterStateChangeHandler: FmlValueStateChangeHandler<TValue>,
+  componentState: {
+    value: FmlValueState<TValue>;
+    validationMessages: string[];
+  },
   setComponentState: React.Dispatch<
-    React.SetStateAction<UseFmlComponentState<TValue>>
+    React.SetStateAction<{
+      value: FmlValueState<TValue>;
+      validationMessages: string[];
+    }>
   >,
   hasBeenBlurred: boolean,
 ) {
-  const validatorFuncs = useFmlValidators<TValue>(
-    config.validators as FmlValidatorConfiguration<TValue>[],
-  );
+  const validatorFuncs = useFmlValidators<TValue>(validators);
 
   const { value: stateValue, validationMessages } = componentState;
 
@@ -181,8 +172,8 @@ function useFmlComponentChange<TValue>(
 
   // any time value changes, inform parent
   useEffect(() => {
-    onChange(stateValue);
-  }, [stateValue, onChange]);
+    afterStateChangeHandler(stateValue);
+  }, [stateValue, afterStateChangeHandler]);
 
   return { validationMessages, changeHandler };
 }
@@ -194,11 +185,21 @@ function useFmlValidators<TValue>(
     () =>
       validators
         ? validators.map((validator) =>
-            createValidator<TValue>(
+            instantiateValidator<TValue>(
               validator as FmlValidatorConfiguration<TValue> & { args: [] },
             ),
           )
         : [],
     [validators],
   );
+}
+
+function usePreviousValue<T>(latestValue: T) {
+  const ref = useRef<T>();
+
+  useEffect(() => {
+    ref.current = latestValue;
+  }, [latestValue]);
+
+  return ref.current;
 }

@@ -1,5 +1,7 @@
-import { FmlFormConfiguration } from '@fml/core';
+import { FmlConfiguration } from '@fml/core';
+import '@fml/core/validators/add/required'
 import Form from './Form';
+import './layouts/Expando';
 
 interface ExampleShape {
   stringProperty?: string;
@@ -11,7 +13,7 @@ interface ExampleShape {
   };
 }
 
-const defaultConfig: FmlFormConfiguration<ExampleShape> = {
+const defaultConfig: FmlConfiguration<ExampleShape> = {
   label: 'This is an example',
   schema: {
     stringProperty: {
@@ -19,11 +21,15 @@ const defaultConfig: FmlFormConfiguration<ExampleShape> = {
       control: 'text',
       defaultValue: '',
     },
-    boolProperty: {
-      label: 'A string property',
-      control: 'checkbox',
-      defaultValue: false,
-    },
+    boolProperty: [
+      'expando',
+      { defaultExpanded: false, summary: 'Something is hidden here' },
+      {
+        label: 'A boolean property',
+        control: 'checkbox',
+        defaultValue: false,
+      },
+    ],
     dateProperty: {
       label: 'A date property',
       control: 'date',
@@ -31,10 +37,9 @@ const defaultConfig: FmlFormConfiguration<ExampleShape> = {
     },
     collectionProperty: {
       label: 'A collection of strings property',
-      itemSchema: {
+      itemConfig: {
         label: 'Value of this string',
         control: 'text',
-        validators: [],
         defaultValue: '',
       },
     },
@@ -44,7 +49,7 @@ const defaultConfig: FmlFormConfiguration<ExampleShape> = {
         property: {
           label: `The object's property`,
           control: 'text',
-          validators: [{ message: 'Oh no!', validator: 'required' }],
+          validators: [['required', 'Oh no!']],
           defaultValue: '',
         },
       },
@@ -59,7 +64,7 @@ const logit = (x: any, e: React.FormEvent<HTMLFormElement>) => {
 
 export const ExampleForm = () => {
   return (
-    <Form
+    <Form<ExampleShape>
       onSubmit={logit}
       config={defaultConfig}
       formName='example'
@@ -85,7 +90,7 @@ export const SillyForm = () => {
       onSubmit={logit}
       config={{
         label: 'lllllll',
-        itemSchema: { label: 'sss', control: 'text', defaultValue: '' },
+        itemConfig: { label: 'sss', control: 'text', defaultValue: '' },
       }}
       formName='stringValue'
       submitText='Submit me!'
@@ -94,7 +99,7 @@ export const SillyForm = () => {
 };
 
 const stories = {
-  title: 'Stories/Form',
+  title: 'Stories/Fml/Form',
   component: Form,
 };
 

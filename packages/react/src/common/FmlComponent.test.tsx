@@ -1,9 +1,11 @@
+/**
+ * @jest-environment jsdom
+ */
 import { render, waitFor } from '@testing-library/react';
 import {
   FmlFieldConfiguration,
   FmlListConfiguration,
   FmlModelConfiguration,
-  noop,
 } from '@fml/core';
 import FmlComponent from './FmlComponent';
 
@@ -26,7 +28,7 @@ const modelConfig: FmlModelConfiguration<{ string: string }> = {
 
 const listConfig: FmlListConfiguration<string> = {
   label: 'test list',
-  itemSchema: {
+  itemConfig: {
     label: 'item',
     control: 'text',
     defaultValue: '',
@@ -44,9 +46,6 @@ it.each`
     const { getByText } = render(
       <FmlComponent
         config={config}
-        controlId='test'
-        onChange={noop}
-        onFocus={noop}
       />,
     );
 
@@ -63,14 +62,13 @@ it.each`
 it('renders nothing if an invalid configuration is passed', () => {
   const { container } = render(
     <FmlComponent
-      controlId='test'
-      config={{
-        something: 'invalid',
-      } as any}
-      onChange={noop}
-      onFocus={noop}
+      config={
+        {
+          something: 'invalid',
+        } as any
+      }
     />,
   );
 
-  expect(container.innerHTML).toBe('')
+  expect(container.innerHTML).toBe('');
 });

@@ -1,26 +1,19 @@
-import { FmlListConfiguration, noop } from '@fml/core';
+import { FmlListConfiguration } from '@fml/core';
 import List from './List';
 
 const config: FmlListConfiguration<string> = {
   label: 'list',
-  itemSchema: {
+  itemConfig: {
     label: 'list item',
     control: 'text',
     defaultValue: '',
   },
 };
 
-export const ListOfStrings = () => (
-  <List<string>
-    config={config}
-    controlId='test'
-    onChange={noop}
-    onFocus={noop}
-  />
-);
+export const ListOfStrings = () => <List<string> config={config} />;
 
 const stories = {
-  title: 'Stories/List',
+  title: 'Stories/Fml/List',
   component: List,
 };
 
