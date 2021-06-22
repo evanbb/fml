@@ -4,6 +4,7 @@ package-lock.json
 
 *.js
 !rollup.config.*
+!packages/react/.storybook/main.js
 
 lib
 tsconfig.buildinfo
