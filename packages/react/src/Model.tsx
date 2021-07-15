@@ -1,10 +1,10 @@
 import {
-  FmlFormConfiguration,
+  FmlConfiguration,
   FmlModelConfiguration,
-  FmlValidationStatus,
+  FmlValidityStatus,
   FmlValueStateChangeHandler,
+  FmlValueState,
 } from '@fml/core';
-import type { Noop } from '@fml/core';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import FmlComponent, {
   FmlComponentProps,
@@ -12,7 +12,6 @@ import FmlComponent, {
 } from './common/FmlComponent';
 import { useFmlComponent } from './common/hooks';
 import ValidationMessages from './ValidationMessages';
-import { FmlValueState } from '@fml/core/src/types';
 
 type ValueStateModelProps<TValue> = {
   [Key in keyof TValue]: FmlValueState<TValue[Key]>;
@@ -20,7 +19,7 @@ type ValueStateModelProps<TValue> = {
 
 type ValueStateModel<TValue> = {
   value: ValueStateModelProps<TValue>;
-  validity: FmlValidationStatus;
+  validity: FmlValidityStatus;
 };
 
 function useModelTransform<TValue>(
@@ -49,10 +48,10 @@ function useModelTransform<TValue>(
   }, [innerModel.value, props.config.schema]);
 
   const modelToInnerValue = useCallback<
-    (model: ValueStateModel<TValue>) => [TValue, Set<FmlValidationStatus>]
+    (model: ValueStateModel<TValue>) => [TValue, Set<FmlValidityStatus>]
   >((model: ValueStateModel<TValue>) => {
     const result = {} as TValue;
-    const validities = new Set<FmlValidationStatus>();
+    const validities = new Set<FmlValidityStatus>();
     Object.entries(model.value).forEach((entry) => {
       const key = entry[0] as keyof TValue;
       type PropertyType = TValue[typeof key];
@@ -70,37 +69,36 @@ function useModelTransform<TValue>(
   });
 
   const updateProperty = useCallback(
-    (property: keyof TValue) => (
-      change: FmlValueState<TValue[typeof property]>,
-    ) => {
-      updateModel((mod) => {
-        const newValue = {
-          ...mod.value,
-          [property]: change,
-        };
+    (property: keyof TValue) =>
+      (change: FmlValueState<TValue[typeof property]>) => {
+        updateModel((mod) => {
+          const newValue = {
+            ...mod.value,
+            [property]: change,
+          };
 
-        // all the model's validities for properties other than the one that changed
-        const validities = Object.keys(mod.value)
-          .filter((key) => key !== property)
-          .reduce((set, validity) => {
-            set.add(validity);
-            return set;
-          }, new Set<string>());
+          // all the model's validities for properties other than the one that changed
+          const validities = Object.keys(mod.value)
+            .filter((key) => key !== property)
+            .reduce((set, validity) => {
+              set.add(validity);
+              return set;
+            }, new Set<string>());
 
-        validities.add(change.validity);
+          validities.add(change.validity);
 
-        const newValidity = validities.has('invalid')
-          ? 'invalid'
-          : validities.has('unknown') || validities.has('pending')
-          ? 'unknown'
-          : 'pending';
+          const newValidity = validities.has('invalid')
+            ? 'invalid'
+            : validities.has('unknown') || validities.has('pending')
+            ? 'unknown'
+            : 'pending';
 
-        return {
-          value: newValue,
-          validity: newValidity,
-        };
-      });
-    },
+          return {
+            value: newValue,
+            validity: newValidity,
+          };
+        });
+      },
     [],
   );
 
@@ -129,9 +127,9 @@ interface ModelPropertyProps<TModel, TPropertyValue> {
   update: (
     propertyName: keyof TModel,
   ) => FmlValueStateChangeHandler<TPropertyValue>;
-  schema: FmlFormConfiguration<TPropertyValue>;
+  schema: FmlConfiguration<TPropertyValue>;
   modelControlId: string;
-  onFocus: Noop;
+  onFocus: () => void;
   propertyName: keyof TModel;
 }
 
@@ -162,12 +160,8 @@ function ModelProperty<TModel, TPropertyValue>({
 function Model<TValue>(
   props: FmlComponentProps<TValue, FmlModelConfiguration<TValue>>,
 ) {
-  const {
-    updateProperty,
-    validationMessages,
-    onFocus,
-    validity,
-  } = useModelTransform<TValue>(props);
+  const { updateProperty, validationMessages, onFocus, validity } =
+    useModelTransform<TValue>(props);
 
   return (
     <fieldset>

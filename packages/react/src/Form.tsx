@@ -1,27 +1,28 @@
-import { FmlFormConfiguration, FmlValueState } from '@fml/core';
+import { FmlConfiguration, FmlValueState } from '@fml/core';
 import { FormEvent, useCallback, useState } from 'react';
-import FmlComponent from './common/FmlComponent';
+import FmlComponent, { getControlConfig } from './common/FmlComponent';
 
 interface submitCallback<TModel> {
   (model: TModel, event: FormEvent<HTMLFormElement>): void;
 }
 
 interface FormProps<TModel> {
-  config: FmlFormConfiguration<TModel>;
+  config: FmlConfiguration<TModel>;
   formName: string;
   onSubmit: submitCallback<TModel>;
-  submitText: string
+  submitText: string;
 }
 
 export default function Form<TModel>({
   config,
   formName,
   onSubmit,
-  submitText
+  submitText,
 }: FormProps<TModel>) {
-  const [value, setValue] = useState<FmlValueState<typeof config.defaultValue>>(
-    { value: config.defaultValue, validity: 'unknown' },
-  );
+  const [value, setValue] = useState<FmlValueState<TModel | undefined>>({
+    value: getControlConfig(config).defaultValue as TModel | undefined,
+    validity: 'unknown',
+  });
   const [, setHasBeenTouched] = useState(false);
   const focusHandler = useCallback(() => setHasBeenTouched(true), []);
   const { validity, value: innerValue } = value;

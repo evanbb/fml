@@ -1,0 +1,31 @@
+{
+  "name": "@fml/validators",
+  "version": "0.0.2",
+  "description": "typings and implementations for validators for fml",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evanbb/fml.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "lib/index.cjs.js",
+  "module": "lib/index.es.js",
+  "browser": "lib/index.es.js",
+  "files": [
+    "lib"
+  ],
+  "keywords": [],
+  "author": "Evan Bremer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/evanbb/fml/issues"
+  },
+  "homepage": "https://github.com/evanbb/fml#readme",
+  "devDependencies": {
+    "@fml/util-types": "*",
+    "@typescript-eslint/eslint-plugin": "^4.28.1",
+    "@typescript-eslint/parser": "^4.28.1"
+  },
+  "types": "lib/index.d.ts"
+}

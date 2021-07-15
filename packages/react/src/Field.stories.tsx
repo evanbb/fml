@@ -1,4 +1,3 @@
-import { noop } from '@fml/core';
 import Field from './Field';
 
 function wrapInContext(element: React.ReactElement) {
@@ -8,8 +7,8 @@ function wrapInContext(element: React.ReactElement) {
 export const CheckboxExample = () => (
   <Field<boolean>
     controlId='test'
-    onChange={noop}
-    onFocus={noop}
+    onChange={() => {}}
+    onFocus={() => {}}
     config={{
       label: 'A checkbox',
       control: 'checkbox',
@@ -28,8 +27,8 @@ export const DateExample = () =>
   wrapInContext(
     <Field<Date | undefined>
       controlId='test'
-      onChange={noop}
-      onFocus={noop}
+      onChange={() => {}}
+      onFocus={() => {}}
       config={{
         label: 'A date',
         control: 'date',
@@ -41,8 +40,8 @@ export const DateTimeExample = () =>
   wrapInContext(
     <Field<Date>
       controlId='test'
-      onChange={noop}
-      onFocus={noop}
+      onChange={() => {}}
+      onFocus={() => {}}
       config={{
         label: 'A date',
         control: 'datetime',
@@ -54,8 +53,8 @@ export const HiddenExample = () =>
   wrapInContext(
     <Field<string>
       controlId='test'
-      onChange={noop}
-      onFocus={noop}
+      onChange={() => {}}
+      onFocus={() => {}}
       config={{
         label: 'A hidden value',
         control: 'hidden',
@@ -67,8 +66,8 @@ export const NumberExample = () =>
   wrapInContext(
     <Field<number>
       controlId='test'
-      onChange={noop}
-      onFocus={noop}
+      onChange={() => {}}
+      onFocus={() => {}}
       config={{
         label: 'A number',
         control: 'number',
@@ -83,8 +82,8 @@ export const SelectExample = () =>
   wrapInContext(
     <Field<'a' | 'b' | 'c'>
       controlId='test'
-      onChange={noop}
-      onFocus={noop}
+      onChange={() => {}}
+      onFocus={() => {}}
       config={{
         label: 'A few options',
         control: 'select',
@@ -97,8 +96,8 @@ export const TextInputExample = () =>
   wrapInContext(
     <Field<string>
       controlId='test'
-      onChange={noop}
-      onFocus={noop}
+      onChange={() => {}}
+      onFocus={() => {}}
       config={{ label: 'Text input', control: 'text', defaultValue: '' }}
     />,
   );
@@ -106,8 +105,8 @@ export const TextAreaInputExample = () =>
   wrapInContext(
     <Field<string>
       controlId='test'
-      onChange={noop}
-      onFocus={noop}
+      onChange={() => {}}
+      onFocus={() => {}}
       config={{ label: 'Text area', control: 'textarea', defaultValue: '' }}
     />,
   );
@@ -115,14 +114,14 @@ export const ToggleExample = () =>
   wrapInContext(
     <Field<boolean>
       controlId='test'
-      onChange={noop}
-      onFocus={noop}
+      onChange={() => {}}
+      onFocus={() => {}}
       config={{ label: 'A checkbox', control: 'toggle', defaultValue: false }}
     />,
   );
 
 const stories = {
-  title: 'Stories/Fields',
+  title: 'Stories/Fml/Fields',
   component: Field,
 };
 

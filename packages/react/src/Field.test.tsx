@@ -1,4 +1,11 @@
-import { noop, FmlControlDataType } from '@fml/core';
+/**
+ * @jest-environment jsdom
+ */
+import { FmlFieldConfiguration } from '@fml/core';
+import {
+  FmlFieldControlRegistry,
+  FmlRegisteredFieldControls,
+} from '@fml/controls';
 import {
   render,
   RenderResult,
@@ -6,13 +13,10 @@ import {
   fireEvent,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { FmlFieldConfiguration } from 'packages/core/lib/index.es';
 import Field from './Field';
 
-type FmlControlTypes = keyof FmlControlDataType<unknown>;
-
 type FmlControlConfigurationMap = {
-  [K in FmlControlTypes]: FmlControlDataType<unknown>[K] extends infer TValue
+  [K in FmlRegisteredFieldControls]: FmlFieldControlRegistry<unknown>[K][0] extends infer TValue
     ? FmlFieldConfiguration<TValue> extends never
       ? FmlFieldConfiguration<'test' | 'testing'> // hack for <select> field
       : FmlFieldConfiguration<TValue>
@@ -37,12 +41,21 @@ const fieldMap: FmlControlConfigurationMap = {
   },
   hidden: {
     control: 'hidden',
-    defaultValue: 'secret!',
-    label: 'test',
+    label: '',
+    defaultValue: '',
   },
   number: {
     control: 'number',
     defaultValue: 0,
+    label: 'test',
+  },
+  radios: {
+    control: 'select',
+    defaultValue: 'test',
+    options: {
+      test: 'test option',
+      testing: 'another option',
+    },
     label: 'test',
   },
   select: {
@@ -72,7 +85,9 @@ const fieldMap: FmlControlConfigurationMap = {
 };
 
 type FmlFieldAssertionMap = {
-  [K in FmlControlTypes]: (renderResult: RenderResult) => Promise<void>;
+  [K in FmlRegisteredFieldControls]: (
+    renderResult: RenderResult,
+  ) => Promise<void>;
 };
 
 async function waitForValid(container: HTMLElement, test: string) {
@@ -134,6 +149,14 @@ const assertionMap: FmlFieldAssertionMap = {
     expect(element.value).toEqual('100');
     await waitForValid(container.querySelector('label')!, 'number');
   },
+  radios: async ({ container }) => {
+    const element = container.querySelector('select') as HTMLSelectElement;
+    expect(element.options.length).toBe(2);
+    expect(element.options[0].value).toBe('test');
+    userEvent.selectOptions(element, 'testing');
+    expect(element.selectedOptions[0].text).toBe('another option');
+    await waitForValid(container.querySelector('label')!, 'select');
+  },
   select: async ({ container }) => {
     const element = container.querySelector('select') as HTMLSelectElement;
     expect(element.options.length).toBe(2);
@@ -166,10 +189,10 @@ const assertionMap: FmlFieldAssertionMap = {
   },
 };
 
-const keys = Object.keys(fieldMap) as FmlControlTypes[];
+const keys = Object.keys(fieldMap) as FmlRegisteredFieldControls[];
 
 const testCases = keys.map((k) => ({
-  config: fieldMap[k] as FmlFieldConfiguration<unknown>,
+  config: fieldMap[k] as FmlFieldConfiguration<any>,
   assertion: assertionMap[k],
 }));
 
@@ -177,7 +200,12 @@ it.each(testCases)(
   'renders the appropriate type of field based on configuration',
   async ({ config, assertion }) => {
     const foo = render(
-      <Field config={config} controlId={`test-${config.control}`} onChange={noop} onFocus={noop} />,
+      <Field
+        config={config}
+        controlId={`test-${config.control}`}
+        onChange={() => {}}
+        onFocus={() => {}}
+      />,
     );
 
     await assertion(foo);

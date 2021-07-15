@@ -1,11 +1,27 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "composite": true,
+    "baseUrl": "src",
+    "rootDir": "src",
+    "declarationDir": "lib",
+    "tsBuildInfoFile": "tsconfig.tsbuildinfo",
+    "module": "esnext"
   },
+  "exclude": [
+    "lib"
+  ],
   "references": [
     {
+      "path": "../controls"
+    },
+    {
       "path": "../core"
-    }
+    },
+    {
+      "path": "../layouts"
+    },
+    {
+      "path": "../validators"
+    },
   ]
 }

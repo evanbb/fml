@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import { waitFor, fireEvent, render } from '@testing-library/react';
 import userEvents from '@testing-library/user-event';
 import Form from './Form';
@@ -34,13 +37,13 @@ it('does not allow to submit if form is invalid', async () => {
 
   // jsdom consoles an error during submit, but callback is still called by react
   // which is what we want to test - we can safely ignore these jsdom errors
-  const { error } = console
-  console.error = jest.fn()
+  const { error } = console;
+  console.error = jest.fn();
 
   fireEvent.click(submitButton);
 
   // restore the original console.error
-  console.error = error
+  console.error = error;
 
   expect(submitSpy).toHaveBeenCalledTimes(1);
   expect(submitSpy).toHaveBeenCalledWith('something', expect.any(Object));

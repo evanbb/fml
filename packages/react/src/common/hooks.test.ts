@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useFmlComponent } from './hooks';
 
@@ -136,8 +139,10 @@ it('returns validation messages from failed validations', async () => {
 
   await waitForNextUpdate();
 
-  expect(result.current.validationMessages[0]).toBe('enter a value pretty please')
-})
+  expect(result.current.validationMessages[0]).toBe(
+    'enter a value pretty please',
+  );
+});
 
 it('validates on initial blur, even if value has not changed', async () => {
   const changeSpy = jest.fn();
@@ -162,14 +167,14 @@ it('validates on initial blur, even if value has not changed', async () => {
     }),
   );
 
-  act(() =>
-    result.current.onBlur(),
-  );
+  act(() => result.current.onBlur());
 
   await waitForNextUpdate();
 
-  expect(result.current.validationMessages[0]).toBe('enter a value pretty please')
-})
+  expect(result.current.validationMessages[0]).toBe(
+    'enter a value pretty please',
+  );
+});
 
 it('tracks whether the user has touched a form control', async () => {
   const changeSpy = jest.fn();
@@ -188,9 +193,7 @@ it('tracks whether the user has touched a form control', async () => {
     }),
   );
 
-  act(() =>
-    result.current.onFocus(),
-  );
+  act(() => result.current.onFocus());
 
-  expect(result.current.hasBeenTouched).toBe(true)
-})
+  expect(result.current.hasBeenTouched).toBe(true);
+});

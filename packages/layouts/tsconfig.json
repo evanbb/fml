@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": "src",
+    "rootDir": "src",
+    "declarationDir": "lib",
+    "tsBuildInfoFile": "tsconfig.tsbuildinfo",
+    "module": "esnext"
+  },
+  "exclude": ["lib"],
+  "references": [
+    {
+      "path": "../controls"
+    },
+    {
+      "path": "../util-types"
+    },
+    {
+      "path": "../validators"
+    }
+  ]
+}

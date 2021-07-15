@@ -3,16 +3,15 @@ import {
   FmlValidatorConfiguration,
   FmlValueState,
   FmlValueStateChangeHandler,
-  createValidator,
+  instantiateValidator,
 } from '@fml/core';
-import type { Noop } from '@fml/core';
-import { FmlFormComponentProps } from './FmlComponent';
+import { FmlFormComponentProps, getControlConfig } from './FmlComponent';
 
 interface UseFmlComponentOutput<TValue> {
   onChange: FmlValueStateChangeHandler<TValue>;
-  onFocus: Noop;
+  onFocus: () => void;
   hasBeenTouched: boolean;
-  onBlur: Noop;
+  onBlur: () => void;
   value: FmlValueState<TValue>;
   validationMessages: string[];
 }
@@ -51,8 +50,10 @@ function useFmlComponentState<TValue>(props: FmlFormComponentProps<TValue>) {
     UseFmlComponentState<TValue>
   >({
     value: {
-      value: props.config.defaultValue as TValue,
-      validity: props.config.validators?.length ? 'unknown' : 'valid',
+      value: getControlConfig(props.config).defaultValue as TValue,
+      validity: getControlConfig(props.config).validators?.length
+        ? 'unknown'
+        : 'valid',
     },
     validationMessages: [],
   });
@@ -115,7 +116,7 @@ function useFmlComponentChange<TValue>(
   hasBeenBlurred: boolean,
 ) {
   const validatorFuncs = useFmlValidators<TValue>(
-    config.validators as FmlValidatorConfiguration<TValue>[],
+    getControlConfig(config).validators as FmlValidatorConfiguration<TValue>[],
   );
 
   const { value: stateValue, validationMessages } = componentState;
@@ -194,7 +195,7 @@ function useFmlValidators<TValue>(
     () =>
       validators
         ? validators.map((validator) =>
-            createValidator<TValue>(
+            instantiateValidator<TValue>(
               validator as FmlValidatorConfiguration<TValue> & { args: [] },
             ),
           )

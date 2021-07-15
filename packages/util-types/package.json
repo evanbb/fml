@@ -1,0 +1,30 @@
+{
+  "name": "@fml/util-types",
+  "version": "0.0.2",
+  "description": "common utility types for fml",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evanbb/fml.git"
+  },
+  "main": "lib/index.cjs.js",
+  "module": "lib/index.es.js",
+  "browser": "lib/index.es.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "lib"
+  ],
+  "keywords": [],
+  "author": "Evan Bremer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/evanbb/fml/issues"
+  },
+  "homepage": "https://github.com/evanbb/fml#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.28.1",
+    "@typescript-eslint/parser": "^4.28.1"
+  },
+  "types": "lib/index.d.ts"
+}

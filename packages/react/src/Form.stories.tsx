@@ -1,4 +1,4 @@
-import { FmlFormConfiguration } from '@fml/core';
+import { FmlConfiguration } from '@fml/core';
 import Form from './Form';
 
 interface ExampleShape {
@@ -11,7 +11,7 @@ interface ExampleShape {
   };
 }
 
-const defaultConfig: FmlFormConfiguration<ExampleShape> = {
+const defaultConfig: FmlConfiguration<ExampleShape> = {
   label: 'This is an example',
   schema: {
     stringProperty: {
@@ -31,7 +31,7 @@ const defaultConfig: FmlFormConfiguration<ExampleShape> = {
     },
     collectionProperty: {
       label: 'A collection of strings property',
-      itemSchema: {
+      itemConfig: {
         label: 'Value of this string',
         control: 'text',
         validators: [],
@@ -59,7 +59,7 @@ const logit = (x: any, e: React.FormEvent<HTMLFormElement>) => {
 
 export const ExampleForm = () => {
   return (
-    <Form
+    <Form<ExampleShape>
       onSubmit={logit}
       config={defaultConfig}
       formName='example'
@@ -85,7 +85,7 @@ export const SillyForm = () => {
       onSubmit={logit}
       config={{
         label: 'lllllll',
-        itemSchema: { label: 'sss', control: 'text', defaultValue: '' },
+        itemConfig: { label: 'sss', control: 'text', defaultValue: '' },
       }}
       formName='stringValue'
       submitText='Submit me!'
@@ -94,7 +94,7 @@ export const SillyForm = () => {
 };
 
 const stories = {
-  title: 'Stories/Form',
+  title: 'Stories/Fml/Form',
   component: Form,
 };
 
