@@ -160,4 +160,16 @@ export type FmlFieldControlsFor<TValue> = keyof {
   > as TValue extends FmlFieldControlRegistry<TValue>[K][0] ? K : never]: K;
 };
 
+const registry = new Map<FmlRegisteredFieldControls, unknown>();
+
+export function register(key: FmlRegisteredFieldControls, impl: unknown): void {
+  registry.set(key, impl);
+}
+
+export function getFieldImplementation(
+  key: FmlRegisteredFieldControls,
+): unknown {
+  return registry.get(key);
+}
+
 //#endregion

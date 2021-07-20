@@ -2,6 +2,7 @@ import { FmlFieldConfiguration } from '@fml/core';
 import ValidationMessages from '../ValidationMessages';
 import { useFmlComponent } from '../common/hooks';
 import { FmlComponentProps } from '../common/FmlComponent';
+import { register } from '@fml/controls';
 
 type DateTimeProps = FmlComponentProps<Date, FmlFieldConfiguration<Date>>;
 
@@ -39,3 +40,5 @@ export default function DateTime(props: DateTimeProps) {
     </>
   );
 }
+
+register('datetime', DateTime);

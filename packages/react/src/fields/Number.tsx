@@ -2,6 +2,7 @@ import { FmlFieldConfiguration } from '@fml/core';
 import ValidationMessages from '../ValidationMessages';
 import { useFmlComponent } from '../common/hooks';
 import { FmlComponentProps } from '../common/FmlComponent';
+import { register } from '@fml/controls';
 
 type NumberComponentProps = FmlComponentProps<
   number,
@@ -42,3 +43,5 @@ export default function NumberComponent(props: NumberComponentProps) {
     </>
   );
 }
+
+register('number', NumberComponent);

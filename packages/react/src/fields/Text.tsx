@@ -2,6 +2,7 @@ import { FmlFieldConfiguration } from '@fml/core';
 import ValidationMessages from '../ValidationMessages';
 import { useFmlComponent } from '../common/hooks';
 import { FmlComponentProps } from '../common/FmlComponent';
+import { register } from '@fml/controls';
 
 type TextProps = FmlComponentProps<string, FmlFieldConfiguration<string>>;
 
@@ -39,3 +40,5 @@ export default function Text(props: TextProps) {
     </>
   );
 }
+
+register('text', Text);

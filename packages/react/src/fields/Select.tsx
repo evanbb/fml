@@ -5,6 +5,7 @@ import {
   FmlComponentProps,
   FmlFormComponentProps,
 } from '../common/FmlComponent';
+import { register } from '@fml/controls';
 
 type SelectProps = FmlComponentProps<string, FmlFieldConfiguration<string>>;
 
@@ -51,3 +52,5 @@ export default function Select(props: SelectProps) {
     </>
   );
 }
+
+register('select', Select);

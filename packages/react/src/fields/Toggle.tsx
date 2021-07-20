@@ -2,6 +2,7 @@ import { FmlFieldConfiguration } from '@fml/core';
 import ValidationMessages from '../ValidationMessages';
 import { useFmlComponent } from '../common/hooks';
 import { FmlComponentProps } from '../common/FmlComponent';
+import { register } from '@fml/controls';
 
 type ToggleProps = FmlComponentProps<boolean, FmlFieldConfiguration<boolean>>;
 
@@ -40,3 +41,5 @@ export default function Toggle(props: ToggleProps) {
     </>
   );
 }
+
+register('toggle', Toggle);

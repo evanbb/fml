@@ -2,6 +2,7 @@ import { FmlFieldConfiguration } from '@fml/core';
 import ValidationMessages from '../ValidationMessages';
 import { useFmlComponent } from '../common/hooks';
 import { FmlComponentProps } from '../common/FmlComponent';
+import { register } from '@fml/controls';
 
 type CheckboxProps = FmlComponentProps<boolean, FmlFieldConfiguration<boolean>>;
 
@@ -40,3 +41,5 @@ export default function Checkbox(props: CheckboxProps) {
     </>
   );
 }
+
+register('checkbox', Checkbox);

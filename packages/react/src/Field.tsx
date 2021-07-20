@@ -5,17 +5,17 @@ import {
 } from '@fml/controls';
 import { memo } from 'react';
 import { FmlComponentProps } from './common/FmlComponent';
-
-import Checkbox from './fields/Checkbox';
-import DateComponent from './fields/Date';
-import DateTime from './fields/DateTime';
-import Hidden from './fields/Hidden';
-import NumberComponent from './fields/Number';
-import Radios from './fields/Radios';
-import Select from './fields/Select';
-import Text from './fields/Text';
-import TextArea from './fields/TextArea';
-import Toggle from './fields/Toggle';
+import { getFieldImplementation } from '@fml/controls';
+import './fields/Checkbox'
+import './fields/Date'
+import './fields/DateTime'
+import './fields/Hidden'
+import './fields/Number'
+import './fields/Radios'
+import './fields/Select'
+import './fields/Text'
+import './fields/TextArea'
+import './fields/Toggle'
 
 export type FieldMap<TValue> = {
   [Key in FmlRegisteredFieldControls as Capitalize<Key>]: React.ComponentType<
@@ -34,16 +34,16 @@ function getControl<TValue>(
   FmlComponentProps<TValue, FmlFieldConfiguration<TValue>>
 > {
   const map: FieldMap<TValue> = {
-    Checkbox: Checkbox as any,
-    Date: DateComponent as any,
-    Datetime: DateTime as any,
-    Hidden: Hidden as any,
-    Number: NumberComponent as any,
-    Radios: Radios as any,
-    Select: Select as any,
-    Text: Text as any,
-    Textarea: TextArea as any,
-    Toggle: Toggle as any,
+    Checkbox: getFieldImplementation('checkbox') as any,
+    Date: getFieldImplementation('date') as any,
+    Datetime: getFieldImplementation('datetime') as any,
+    Hidden: getFieldImplementation('hidden') as any,
+    Number: getFieldImplementation('number') as any,
+    Radios: getFieldImplementation('radios') as any,
+    Select: getFieldImplementation('select') as any,
+    Text: getFieldImplementation('text') as any,
+    Textarea: getFieldImplementation('textarea') as any,
+    Toggle: getFieldImplementation('toggle') as any,
   };
 
   const { control } = props.config as FmlFieldConfigurationBase<
