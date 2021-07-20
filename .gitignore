@@ -7,7 +7,7 @@ package-lock.json
 !packages/react/.storybook/main.js
 
 lib
-tsconfig.buildinfo
+tsconfig.tsbuildinfo
 .rollup.tscache
 
 yarn-error.log
