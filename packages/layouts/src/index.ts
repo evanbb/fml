@@ -12,3 +12,13 @@ export interface FmlLayoutRegistry<TValue>
   extends Record<string, FmlLayoutRegistration<TValue>> {}
 
 export type FmlRegisteredLayouts = KnownKeys<FmlLayoutRegistry<never>>;
+
+const registry = new Map<FmlRegisteredLayouts, unknown>();
+
+export function register(key: FmlRegisteredLayouts, impl: unknown): void {
+  registry.set(key, impl);
+}
+
+export function getLayoutImplementation(key: FmlRegisteredLayouts): unknown {
+  return registry.get(key);
+}
