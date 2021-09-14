@@ -1,5 +1,4 @@
-import { FmlLayoutConfiguration } from '@fml/core';
-import { getLayoutImplementation } from '@fml/core/layouts';
+import { getLayoutImplementation, FmlLayoutConfiguration } from '@fml/core';
 
 interface LayoutProps<TValue> {
   config: FmlLayoutConfiguration<TValue>;

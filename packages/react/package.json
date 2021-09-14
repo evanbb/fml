@@ -5,6 +5,7 @@
   "scripts": {
     "start": "start-storybook"
   },
+  "browser": "lib/index.es.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/evanbb/fml.git"
@@ -12,7 +13,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "type": "module",
   "exports": {
     ".": {
       "import": "./lib/index.es.js",
@@ -60,6 +60,7 @@
     "react-dom": "^17.0.2"
   },
   "peerDependencies": {
+    "@fml/add": "0.0.2",
     "@fml/core": "0.0.2",
     "react": "^17.0.2"
   },

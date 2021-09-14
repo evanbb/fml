@@ -1,5 +1,4 @@
-import { FmlFieldConfiguration } from '@fml/core';
-import { getFieldImplementation } from '@fml/core/controls';
+import { getFieldImplementation, FmlFieldConfiguration } from '@fml/core';
 import { memo } from 'react';
 import './fields';
 

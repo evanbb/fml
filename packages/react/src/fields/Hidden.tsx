@@ -1,6 +1,5 @@
-import { FmlControlConfiguration } from '@fml/core';
-import HIDDEN from '@fml/core/controls/add/hidden';
-import { register } from '@fml/core/controls';
+import { FmlControlConfiguration, registerControl } from '@fml/core';
+import HIDDEN from '@fml/add/controls/hidden';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
 
@@ -22,4 +21,4 @@ export default function Hidden(props: HiddenProps) {
   );
 }
 
-register(HIDDEN, Hidden);
+registerControl(HIDDEN, Hidden);

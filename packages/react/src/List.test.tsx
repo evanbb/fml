@@ -4,6 +4,7 @@
 import { waitFor, render } from '@testing-library/react';
 import userEvents from '@testing-library/user-event';
 import List from './List';
+import '@fml/add/validators/required';
 
 async function waitForValid(listLabel: HTMLElement) {
   await waitFor(() => {

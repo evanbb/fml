@@ -1,6 +1,5 @@
-import { FmlFieldConfiguration } from '@fml/core';
-import DATE from '@fml/core/controls/add/date'
-import { register } from '@fml/core/controls';
+import { FmlFieldConfiguration, registerControl } from '@fml/core';
+import DATE from '@fml/add/controls/date';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
@@ -43,4 +42,4 @@ export default function DateComponent(props: DateComponentProps) {
   );
 }
 
-register(DATE, DateComponent);
+registerControl(DATE, DateComponent);

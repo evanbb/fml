@@ -1,6 +1,5 @@
-import { FmlFieldConfiguration } from '@fml/core';
-import SELECT from '@fml/core/controls/add/select';
-import { register } from '@fml/core/controls';
+import { FmlFieldConfiguration, registerControl } from '@fml/core';
+import SELECT from '@fml/add/controls/select';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
@@ -49,4 +48,4 @@ export default function Select(props: SelectProps) {
   );
 }
 
-register(SELECT, Select);
+registerControl(SELECT, Select);

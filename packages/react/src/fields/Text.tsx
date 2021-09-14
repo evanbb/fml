@@ -1,6 +1,5 @@
-import { FmlFieldConfiguration } from '@fml/core';
-import TEXT from '@fml/core/controls/add/text';
-import { register } from '@fml/core/controls';
+import { FmlFieldConfiguration, registerControl } from '@fml/core';
+import TEXT from '@fml/add/controls/text';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
@@ -43,4 +42,4 @@ export default function Text(props: TextProps) {
   );
 }
 
-register(TEXT, Text);
+registerControl(TEXT, Text);

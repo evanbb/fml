@@ -4,6 +4,7 @@
 import { render, waitFor } from '@testing-library/react';
 import userEvents from '@testing-library/user-event';
 import Model from './Model';
+import '@fml/add/validators/required'
 
 interface TestModel {
   foo: string;

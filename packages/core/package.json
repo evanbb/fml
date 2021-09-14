@@ -6,17 +6,12 @@
     "type": "git",
     "url": "git+https://github.com/evanbb/fml.git"
   },
-  "type": "module",
   "exports": {
     ".": {
       "import": "./lib/index.es.js",
       "require": "./lib/index.cjs.js"
     },
-    "./package.json": "./package.json",
-    "./*": {
-      "import": "./lib/*/index.es.js",
-      "require": "./lib/*/index.cjs.js"
-    }
+    "./package.json": "./package.json"
   },
   "publishConfig": {
     "access": "public"
@@ -35,15 +30,5 @@
     "@typescript-eslint/eslint-plugin": "^4.28.1",
     "@typescript-eslint/parser": "^4.28.1"
   },
-  "typesVersions": {
-    "*": {
-      "lib/index.*": [
-        "lib/index.d.ts"
-      ],
-      "*": [
-        "lib/*",
-        "lib/*/index.d.ts"
-      ]
-    }
-  }
+  "types": "lib/index.d.ts"
 }

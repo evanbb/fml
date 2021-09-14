@@ -22,29 +22,14 @@ const entries = packageDirs.reduce((acc, pkg) => {
   };
 }, {});
 
-entries['@fml/core/controls'] = 'packages/core/src/controls/index.ts';
-entries['@fml/core/controls/add/checkbox'] =
-  'packages/core/src/controls/add/checkbox.ts';
-entries['@fml/core/controls/add/date'] =
-  'packages/core/src/controls/add/date.ts';
-entries['@fml/core/controls/add/datetime'] =
-  'packages/core/src/controls/add/datetime.ts';
-entries['@fml/core/controls/add/hidden/foobar'] =
-  'packages/core/src/controls/add/hidden.ts';
-entries['@fml/core/controls/add/number'] =
-  'packages/core/src/controls/add/number.ts';
-entries['@fml/core/controls/add/radios'] =
-  'packages/core/src/controls/add/radios.ts';
-entries['@fml/core/controls/add/select'] =
-  'packages/core/src/controls/add/select.ts';
-entries['@fml/core/controls/add/text'] =
-  'packages/core/src/controls/add/text.ts';
-entries['@fml/core/controls/add/textarea'] =
-  'packages/core/src/controls/add/textarea.ts';
-entries['@fml/core/controls/add/toggle'] =
-  'packages/core/src/controls/add/toggle.ts';
-entries['@fml/core/layouts'] = 'packages/core/src/layouts/index.ts';
-entries['@fml/core/validators'] = 'packages/core/src/validators/index.ts';
+['controls', 'layouts', 'validators'].forEach((dir) =>
+  fs
+    .readdirSync(`packages/add/src/${dir}`)
+    .forEach(
+      (file) =>
+        (entries[`@fml/add/${dir}/${path.parse(file).name}`] = `packages/add/src/${dir}/${file}`),
+    ),
+);
 
 function generateEntryChunkName(chunkInfo) {
   const entryName = chunkInfo.name.replace('@fml/', '');

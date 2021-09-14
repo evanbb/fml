@@ -1,0 +1,51 @@
+{
+  "name": "@fml/add",
+  "version": "0.0.2",
+  "description": "ability to add, along with some examples of adding, controls, layouts, and validators to @fml/core abstractions",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evanbb/fml.git"
+  },
+  "exports": {
+    ".": {
+      "import": "./lib/index.es.js",
+      "require": "./lib/index.cjs.js"
+    },
+    "./package.json": "./package.json",
+    "./*": {
+      "import": "./lib/*/index.es.js",
+      "require": "./lib/*/index.cjs.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "lib"
+  ],
+  "keywords": [],
+  "author": "Evan Bremer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/evanbb/fml/issues"
+  },
+  "homepage": "https://github.com/evanbb/fml#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.28.1",
+    "@typescript-eslint/parser": "^4.28.1"
+  },
+  "peerDependencies": {
+    "@fml/core": "0.0.2"
+  },
+  "typesVersions": {
+    "*": {
+      "lib/index.*": [
+        "lib/index.d.ts"
+      ],
+      "*": [
+        "lib/*",
+        "lib/*/index.d.ts"
+      ]
+    }
+  }
+}

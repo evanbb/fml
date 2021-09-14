@@ -1,8 +1,7 @@
-import { FmlFieldConfiguration } from '@fml/core';
-import TEXTAREA from '@fml/core/controls/add/textarea';
+import { FmlFieldConfiguration, registerControl } from '@fml/core';
+import TEXTAREA from '@fml/add/controls/textarea';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
-import { register } from '@fml/core/controls';
 import { useFmlControl } from '../common/useFmlControl';
 
 type TextAreaProps = FmlComponentProps<string>;
@@ -42,4 +41,4 @@ export default function TextArea(props: TextAreaProps) {
   );
 }
 
-register(TEXTAREA, TextArea);
+registerControl(TEXTAREA, TextArea);

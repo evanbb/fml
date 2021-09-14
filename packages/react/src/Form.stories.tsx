@@ -1,5 +1,5 @@
 import { FmlConfiguration } from '@fml/core';
-import '@fml/core/validators/add/required'
+import '@fml/add/validators/required'
 import Form from './Form';
 import './layouts/Expando';
 

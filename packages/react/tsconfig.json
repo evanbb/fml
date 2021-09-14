@@ -12,6 +12,9 @@
   "exclude": ["lib", "src/**/*.test.*", "src/**/*.stories.*"],
   "references": [
     {
+      "path": "../add"
+    },
+    {
       "path": "../core"
     }
   ]

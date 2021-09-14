@@ -1,10 +1,8 @@
-import { FmlLayoutConfiguration } from '@fml/core';
-import { FmlControlClassifications } from '@fml/core/controls';
-import { register } from '@fml/core/layouts';
+import { FmlLayoutConfiguration, registerLayout } from '@fml/core';
 import FmlComponent from '../common/FmlComponent';
 import { useState } from 'react';
 
-declare module '@fml/core/layouts' {
+declare module '@fml/core' {
   export interface FmlLayoutRegistry<TValue> {
     expando: [FmlControlClassifications, ExpandoConfig];
   }
@@ -36,4 +34,4 @@ function Expando<TValue>({
   );
 }
 
-register('expando', Expando);
+registerLayout('expando', Expando);

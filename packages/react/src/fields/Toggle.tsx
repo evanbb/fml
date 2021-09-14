@@ -1,8 +1,7 @@
-import { FmlFieldConfiguration } from '@fml/core';
-import TOGGLE from '@fml/core/controls/add/toggle';
+import { FmlFieldConfiguration, registerControl } from '@fml/core';
+import TOGGLE from '@fml/add/controls/toggle';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
-import { register } from '@fml/core/controls';
 import { useFmlControl } from '../common/useFmlControl';
 
 type ToggleProps = FmlComponentProps<boolean>;
@@ -45,4 +44,4 @@ export default function Toggle(props: ToggleProps) {
   );
 }
 
-register(TOGGLE, Toggle);
+registerControl(TOGGLE, Toggle);

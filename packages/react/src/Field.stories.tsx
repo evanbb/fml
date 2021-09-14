@@ -1,4 +1,4 @@
-import '@fml/core/validators/add/required'
+import '@fml/add/validators/required'
 import Field from './Field';
 
 export const CheckboxExample = () => (

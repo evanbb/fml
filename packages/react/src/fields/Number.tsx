@@ -1,6 +1,5 @@
-import { FmlFieldConfiguration } from '@fml/core';
-import NUMBER from '@fml/core/controls/add/number';
-import { register } from '@fml/core/controls';
+import { FmlFieldConfiguration, registerControl } from '@fml/core';
+import NUMBER from '@fml/add/controls/number';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
@@ -43,4 +42,4 @@ export default function NumberComponent(props: NumberComponentProps) {
   );
 }
 
-register(NUMBER, NumberComponent);
+registerControl(NUMBER, NumberComponent);
