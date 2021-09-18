@@ -1,10 +1,10 @@
 import {
-  FmlConfiguration,
-  FmlModelConfiguration,
-  FmlValidityStatus,
-  FmlValueStateChangeHandler,
-  FmlValueState,
-  FmlControlConfiguration,
+  Configuration,
+  ModelConfiguration,
+  ValidityStatus,
+  ValueStateChangeHandler,
+  ValueState,
+  ControlConfiguration,
 } from '@fml/core';
 import { FmlContextProvider } from './common/FmlControlContext';
 import { useFmlControl } from './common/useFmlControl';
@@ -13,12 +13,12 @@ import FmlComponent from './common/FmlComponent';
 import ValidationMessages from './ValidationMessages';
 
 type ValueStateModelProps<TValue> = {
-  [Key in keyof TValue]: FmlValueState<TValue[Key]>;
+  [Key in keyof TValue]: ValueState<TValue[Key]>;
 };
 
 type ValueStateModel<TValue> = {
   value: ValueStateModelProps<TValue>;
-  validity: FmlValidityStatus;
+  validity: ValidityStatus;
 };
 
 function useModelTransform<TValue>(props: ModelProps<TValue>) {
@@ -27,7 +27,7 @@ function useModelTransform<TValue>(props: ModelProps<TValue>) {
     validationMessages,
     focusHandler: onFocus,
     value: innerModel,
-  } = useFmlControl<TValue>(props.config as FmlControlConfiguration<TValue>);
+  } = useFmlControl<TValue>(props.config as ControlConfiguration<TValue>);
 
   const initialModel = useMemo<ValueStateModelProps<TValue>>(() => {
     const result = {} as ValueStateModelProps<TValue>;
@@ -45,15 +45,15 @@ function useModelTransform<TValue>(props: ModelProps<TValue>) {
   }, [innerModel.value, props.config.schema]);
 
   const modelToInnerValue = useCallback<
-    (model: ValueStateModel<TValue>) => [TValue, Set<FmlValidityStatus>]
+    (model: ValueStateModel<TValue>) => [TValue, Set<ValidityStatus>]
   >((model: ValueStateModel<TValue>) => {
     const result = {} as TValue;
-    const validities = new Set<FmlValidityStatus>();
+    const validities = new Set<ValidityStatus>();
     Object.entries(model.value).forEach((entry) => {
       const key = entry[0] as keyof TValue;
       type PropertyType = TValue[typeof key];
       Object.assign(result, {
-        [key]: (entry[1] as FmlValueState<PropertyType>).value,
+        [key]: (entry[1] as ValueState<PropertyType>).value,
       });
       validities.add(model.value[key].validity);
     });
@@ -67,7 +67,7 @@ function useModelTransform<TValue>(props: ModelProps<TValue>) {
 
   const updateProperty = useCallback(
     (property: keyof TValue) =>
-      (change: FmlValueState<TValue[typeof property]>) => {
+      (change: ValueState<TValue[typeof property]>) => {
         updateModel((mod) => {
           const newValue = {
             ...mod.value,
@@ -123,8 +123,8 @@ function useModelTransform<TValue>(props: ModelProps<TValue>) {
 interface ModelPropertyProps<TModel, TPropertyValue> {
   update: (
     propertyName: keyof TModel,
-  ) => FmlValueStateChangeHandler<TPropertyValue>;
-  schema: FmlConfiguration<TPropertyValue>;
+  ) => ValueStateChangeHandler<TPropertyValue>;
+  schema: Configuration<TPropertyValue>;
   propertyName: keyof TModel;
 }
 
@@ -134,7 +134,7 @@ function ModelProperty<TModel, TPropertyValue>({
   update,
 }: ModelPropertyProps<TModel, TPropertyValue>) {
   const changeHandler = useCallback(
-    (change: FmlValueState<TPropertyValue>) => {
+    (change: ValueState<TPropertyValue>) => {
       update(propertyName)(change);
     },
     [propertyName, update],
@@ -151,13 +151,13 @@ function ModelProperty<TModel, TPropertyValue>({
 }
 
 export interface ModelProps<TValue> {
-  config: FmlModelConfiguration<TValue>;
+  config: ModelConfiguration<TValue>;
 }
 
 function Model<TValue>(props: ModelProps<TValue>) {
   const { updateProperty, validationMessages, validity } =
     useModelTransform<TValue>(props);
-  const config = props.config as FmlModelConfiguration<TValue>;
+  const config = props.config as ModelConfiguration<TValue>;
 
   return (
     <fieldset>

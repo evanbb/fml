@@ -1,17 +1,17 @@
 import {
-  FmlRegisteredValidators,
+  RegisteredValidators,
   registerValidator,
 } from '@fml/core';
 
 const REQUIRED = 'required';
 
 declare module '@fml/core' {
-  export interface FmlValidatorFactoryRegistry {
-    [REQUIRED]: FmlValidatorFactory;
+  export interface ValidatorFactoryRegistry {
+    [REQUIRED]: ValidatorFactory;
   }
 }
 
-const required: FmlRegisteredValidators[typeof REQUIRED] = function required() {
+const required: RegisteredValidators[typeof REQUIRED] = function required() {
   return function (value) {
     return !!value;
   };

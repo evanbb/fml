@@ -1,4 +1,4 @@
-import { FmlControlConfiguration, registerControl } from '@fml/core';
+import { ControlConfiguration, registerControl } from '@fml/core';
 import HIDDEN from '@fml/add/controls/hidden';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
@@ -7,7 +7,7 @@ type HiddenProps = FmlComponentProps<string>;
 
 export default function Hidden(props: HiddenProps) {
   const { controlId, value } = useFmlControl<string>(
-    props.config as FmlControlConfiguration<string>,
+    props.config as ControlConfiguration<string>,
   );
 
   return (

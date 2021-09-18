@@ -1,9 +1,9 @@
 import {
-  FmlControlConfigurationBase,
-  FmlFieldConfiguration,
-  FmlConfiguration,
-  FmlListConfiguration,
-  FmlModelConfiguration,
+  ControlConfigurationBase,
+  FieldConfiguration,
+  Configuration,
+  ListConfiguration,
+  ModelConfiguration,
   FmlLayoutConfiguration,
 } from '@fml/core';
 import { memo } from 'react';
@@ -14,13 +14,13 @@ import Model from '../Model';
 
 export function getControlConfig<TValue>(
   config: unknown,
-): FmlControlConfigurationBase<TValue> {
+): ControlConfigurationBase<TValue> {
   if (isControlConfig<TValue>(config)) {
     return config;
   }
   if (isLayoutConfig<TValue>(config)) {
     return getControlConfig(
-      config[config.length - 1] as FmlConfiguration<TValue>,
+      config[config.length - 1] as Configuration<TValue>,
     );
   }
 
@@ -35,30 +35,30 @@ function isLayoutConfig<TValue>(
 
 function isControlConfig<TValue>(
   config: unknown,
-): config is FmlControlConfigurationBase<TValue> {
+): config is ControlConfigurationBase<TValue> {
   return !isLayoutConfig(config);
 }
 
 function isFieldProps<TValue>(
   config: unknown,
-): config is FmlFieldConfiguration<TValue> {
-  return Boolean((config as FmlFieldConfiguration<TValue>)?.control);
+): config is FieldConfiguration<TValue> {
+  return Boolean((config as FieldConfiguration<TValue>)?.control);
 }
 
 function isListProps<TValue>(
   config: unknown,
-): config is FmlListConfiguration<TValue> {
-  return Boolean((config as FmlListConfiguration<TValue>)?.itemConfig);
+): config is ListConfiguration<TValue> {
+  return Boolean((config as ListConfiguration<TValue>)?.itemConfig);
 }
 
 function isModelProps<TValue>(
   config: unknown,
-): config is FmlModelConfiguration<TValue> {
-  return Boolean((config as FmlModelConfiguration<TValue>)?.schema);
+): config is ModelConfiguration<TValue> {
+  return Boolean((config as ModelConfiguration<TValue>)?.schema);
 }
 
 export interface FmlComponentProps<TValue> {
-  config: FmlConfiguration<TValue>;
+  config: Configuration<TValue>;
 }
 
 function FmlComponent<TValue>(props: FmlComponentProps<TValue>) {

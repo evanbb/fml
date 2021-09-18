@@ -1,10 +1,10 @@
 import {
-  FmlControlConfigurationBase,  FmlValidityStatus,
-  FmlValueState,
-  FmlValueStateChangeHandler,
-  FmlConfiguration,
-  FmlControlConfiguration,
-  FmlListConfiguration,
+  ControlConfigurationBase,  ValidityStatus,
+  ValueState,
+  ValueStateChangeHandler,
+  Configuration,
+  ControlConfiguration,
+  ListConfiguration,
 } from '@fml/core';
 import { FmlContextProvider, useFmlContext } from './common/FmlControlContext';
 import { useFmlControl } from './common/useFmlControl';
@@ -17,7 +17,7 @@ import ValidationMessages from './ValidationMessages';
 interface CollectionItem<TValue> {
   value: TValue;
   fmlListId: number;
-  validity: FmlValidityStatus;
+  validity: ValidityStatus;
 }
 
 function useListItemId() {
@@ -38,7 +38,7 @@ function useListItemTransform<TValue>(props: ListProps<TValue>) {
     value: list,
     validationMessages,
   } = useFmlControl<TValue[]>(
-    props.config as FmlControlConfiguration<TValue[]>,
+    props.config as ControlConfiguration<TValue[]>,
   );
 
   const { newId } = useListItemId();
@@ -56,7 +56,7 @@ function useListItemTransform<TValue>(props: ListProps<TValue>) {
       ...coll,
       {
         value: getControlConfig(
-          (getControlConfig(props.config) as FmlListConfiguration<TValue>)
+          (getControlConfig(props.config) as ListConfiguration<TValue>)
             .itemConfig,
         ).defaultValue as TValue,
         fmlListId: newId(),
@@ -64,7 +64,7 @@ function useListItemTransform<TValue>(props: ListProps<TValue>) {
       },
     ]);
   }, [
-    (getControlConfig(props.config) as FmlControlConfiguration<TValue[]>)
+    (getControlConfig(props.config) as ControlConfiguration<TValue[]>)
       .itemConfig,
     newId,
   ]);
@@ -76,7 +76,7 @@ function useListItemTransform<TValue>(props: ListProps<TValue>) {
   }, []);
 
   const update = useCallback(
-    (fmlListId: number) => (change: FmlValueState<TValue>) => {
+    (fmlListId: number) => (change: ValueState<TValue>) => {
       updateCollection((coll) => {
         const changedItemIndex = coll.findIndex(
           (i) => i.fmlListId === fmlListId,
@@ -103,7 +103,7 @@ function useListItemTransform<TValue>(props: ListProps<TValue>) {
       validity: item.validity,
     }));
 
-    const validities = new Set<FmlValidityStatus>(
+    const validities = new Set<ValidityStatus>(
       listItems.map((item) => item.validity),
     );
 
@@ -131,9 +131,9 @@ function useListItemTransform<TValue>(props: ListProps<TValue>) {
 interface ListItemProps<TValue> {
   fmlListId: number;
   elementIndex: number;
-  update: (fmlListId: number) => FmlValueStateChangeHandler<TValue>;
+  update: (fmlListId: number) => ValueStateChangeHandler<TValue>;
   remove: (fmlListId: number) => void;
-  itemConfig: FmlConfiguration<TValue>;
+  itemConfig: Configuration<TValue>;
   onFocus: () => void;
   defaultValue: TValue;
 }
@@ -160,7 +160,7 @@ function ListItemComponent<TValue>({
    * TODO: fix this for lists with items in layouts
    */
 
-  const [actualConfig] = useState<FmlControlConfigurationBase<TValue>>({
+  const [actualConfig] = useState<ControlConfigurationBase<TValue>>({
     ...getControlConfig(itemConfig),
     defaultValue:
       typeof defaultValue === 'undefined'
@@ -168,7 +168,7 @@ function ListItemComponent<TValue>({
         : defaultValue,
   });
   const changeHandler = useCallback(
-    (change: FmlValueState<TValue>) => update(fmlListId)(change),
+    (change: ValueState<TValue>) => update(fmlListId)(change),
     [update, fmlListId],
   );
 
@@ -187,7 +187,7 @@ function ListItemComponent<TValue>({
         localControlId={String(elementIndex)}
       >
         <FmlComponent<TValue>
-          config={actualConfig as FmlConfiguration<TValue>}
+          config={actualConfig as Configuration<TValue>}
         />
       </FmlContextProvider>
       <button onClick={removeHandler}>-</button>
@@ -196,7 +196,7 @@ function ListItemComponent<TValue>({
 }
 
 export interface ListProps<TValue> {
-  config: FmlListConfiguration<TValue>;
+  config: ListConfiguration<TValue>;
 }
 
 function List<TValue>(props: ListProps<TValue>) {

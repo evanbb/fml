@@ -1,20 +1,20 @@
 import {
-  FmlRegisteredValidators,
+  RegisteredValidators,
   registerValidator,
 } from '@fml/core';
 
 const MIN_LENGTH = 'minLength';
 
 declare module '@fml/core' {
-  export interface FmlValidatorFactoryRegistry {
-    [MIN_LENGTH]: FmlValidatorFactory<
+  export interface ValidatorFactoryRegistry {
+    [MIN_LENGTH]: ValidatorFactory<
       string | { length: number },
       [maxLength: number]
     >;
   }
 }
 
-const minLength: FmlRegisteredValidators[typeof MIN_LENGTH] =
+const minLength: RegisteredValidators[typeof MIN_LENGTH] =
   function minLength(minLength) {
     return function (value) {
       return value.length >= minLength;

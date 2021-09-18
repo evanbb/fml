@@ -1,12 +1,12 @@
 declare module '@fml/core' {
-  export interface FmlFieldControlRegistry<TValue>
-    extends Record<string, FmlFieldControlRegistration<unknown>> {
+  export interface FieldControlRegistry<Value>
+    extends Record<string, FieldControlRegistration<unknown>> {
     radios: [
-      StringUnionOnlyNotString<TValue>,
-      [TValue] extends [string]
-        ? string extends TValue
+      StringUnionOnlyNotString<Value>,
+      [Value] extends [string]
+        ? string extends Value
           ? never
-          : FmlOptionsListConfiguration<TValue>
+          : OptionsListConfiguration<Value>
         : never,
     ];
   }

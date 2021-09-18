@@ -1,10 +1,10 @@
-import { FmlValueState, FmlValueStateChangeHandler } from '@fml/core';
+import { ValueState, ValueStateChangeHandler } from '@fml/core';
 import { createContext, useCallback, useContext, useMemo } from 'react';
 
 interface FmlControlContext<TValue> {
-  value: FmlValueState<TValue>;
+  value: ValueState<TValue>;
   validationMessages: string[];
-  onChange: FmlValueStateChangeHandler<TValue>;
+  onChange: ValueStateChangeHandler<TValue>;
   onBlur: () => void;
   onFocus: () => void;
   hasBeenTouched: boolean;
@@ -30,7 +30,7 @@ interface FmlControlContextProviderProps<
   TValue,
 > extends React.PropsWithChildren<{
     localControlId: string;
-    onChange?: FmlValueStateChangeHandler<TValue>;
+    onChange?: ValueStateChangeHandler<TValue>;
   }> {}
 
 export function FmlContextProvider<TValue>({
@@ -98,10 +98,10 @@ function useFmlContextFocus(contextOnFocus: () => void) {
 }
 
 function useFmlContextChange(
-  contextOnChange: FmlValueStateChangeHandler<never>,
-  onChange?: FmlValueStateChangeHandler<never>,
+  contextOnChange: ValueStateChangeHandler<never>,
+  onChange?: ValueStateChangeHandler<never>,
 ) {
-  const changeHandler = useCallback<FmlValueStateChangeHandler<never>>(
+  const changeHandler = useCallback<ValueStateChangeHandler<never>>(
     (change) => {
       onChange?.(change);
       contextOnChange(change);

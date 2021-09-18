@@ -1,17 +1,17 @@
 import {
-  FmlRegisteredValidators,
+  RegisteredValidators,
   registerValidator,
 } from '@fml/core';
 
 const BEFORE = 'before';
 
 declare module '@fml/core' {
-  export interface FmlValidatorFactoryRegistry {
-    [BEFORE]: FmlValidatorFactory<Date, [before: Date, inclusive?: boolean]>;
+  export interface ValidatorFactoryRegistry {
+    [BEFORE]: ValidatorFactory<Date, [before: Date, inclusive?: boolean]>;
   }
 }
 
-const before: FmlRegisteredValidators[typeof BEFORE] = function before(
+const before: RegisteredValidators[typeof BEFORE] = function before(
   beforeDate,
   inclusive,
 ) {

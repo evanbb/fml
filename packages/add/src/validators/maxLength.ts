@@ -1,20 +1,20 @@
 import {
-  FmlRegisteredValidators,
+  RegisteredValidators,
   registerValidator,
 } from '@fml/core';
 
 const MAX_LENGTH = 'maxLength';
 
 declare module '@fml/core' {
-  export interface FmlValidatorFactoryRegistry {
-    [MAX_LENGTH]: FmlValidatorFactory<
+  export interface ValidatorFactoryRegistry {
+    [MAX_LENGTH]: ValidatorFactory<
       string | { length: number },
       [maxLength: number]
     >;
   }
 }
 
-const maxLength: FmlRegisteredValidators[typeof MAX_LENGTH] =
+const maxLength: RegisteredValidators[typeof MAX_LENGTH] =
   function maxLength(maxLength) {
     return function (value) {
       return value.length <= maxLength;

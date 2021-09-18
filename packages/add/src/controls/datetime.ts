@@ -1,6 +1,6 @@
 declare module '@fml/core' {
-  export interface FmlFieldControlRegistry<TValue>
-    extends Record<string, FmlFieldControlRegistration<unknown>> {
+  export interface FieldControlRegistry<Value>
+    extends Record<string, FieldControlRegistration<unknown>> {
     datetime: [Date | undefined];
   }
 }

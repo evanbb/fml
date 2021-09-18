@@ -1,4 +1,4 @@
-import { FmlFieldConfiguration, registerControl } from '@fml/core';
+import { FieldConfiguration, registerControl } from '@fml/core';
 import TOGGLE from '@fml/add/controls/toggle';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
@@ -7,7 +7,7 @@ import { useFmlControl } from '../common/useFmlControl';
 type ToggleProps = FmlComponentProps<boolean>;
 
 export default function Toggle(props: ToggleProps) {
-  const { label } = props.config as FmlFieldConfiguration<boolean>;
+  const { label } = props.config as FieldConfiguration<boolean>;
 
   const {
     blurHandler,
@@ -17,7 +17,7 @@ export default function Toggle(props: ToggleProps) {
     validationMessages,
     value
   } = useFmlControl<boolean>(
-    props.config as FmlFieldConfiguration<boolean>,
+    props.config as FieldConfiguration<boolean>,
   );
 
   return (

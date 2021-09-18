@@ -51,44 +51,44 @@ export type IsPartial<T> = Partial<T> extends T ? true : false;
 /**
  * The various validity statuses in which data bound to a form control can be.
  */
-export type FmlValidityStatus = 'valid' | 'pending' | 'invalid' | 'unknown';
+export type ValidityStatus = 'valid' | 'pending' | 'invalid' | 'unknown';
 
 /**
  * The state a form control maintains about a piece of data.
  */
-export interface FmlValueState<TValue> {
+export interface ValueState<TValue> {
   value: TValue;
-  validity: FmlValidityStatus;
+  validity: ValidityStatus;
 }
 
 /**
  * Called when the value or validity of a piece of data has changed, e.g.,
  * through a user interaction or when an async validator resolves.
  */
-export interface FmlValueStateChangeHandler<TValue> {
-  (change: FmlValueState<TValue>): void;
+export interface ValueStateChangeHandler<TValue> {
+  (change: ValueState<TValue>): void;
 }
 
 /**
  * Basic info that every form control needs in order to configure itself to
  * render and run.
  */
-export interface FmlControlConfigurationBase<TValue> {
+export interface ControlConfigurationBase<TValue> {
   label: string;
   defaultValue?: TValue;
-  validators?: FmlValidatorConfiguration<TValue>[];
+  validators?: ValidatorConfiguration<TValue>[];
 }
 
 /**
  * The different classifications of controls.
  */
-export type FmlControlClassifications = 'field' | 'model' | 'list';
+export type ControlClassifications = 'field' | 'model' | 'list';
 
 /**
  * Basic descriptor of a validator and a message to display if validation fails.
  */
-export interface FmlValidatorConfigurationBase<
-  TValidator extends KnownKeys<FmlValidatorFactoryRegistry>,
+export interface ValidatorConfigurationBase<
+  TValidator extends KnownKeys<ValidatorFactoryRegistry>,
 > {
   message: string;
   validator: TValidator;
@@ -98,13 +98,13 @@ export interface FmlValidatorConfigurationBase<
  * Returns the configuration required to describe a validator to apply to a
  * control.
  */
-export type FmlValidatorConfiguration<TValue> = [
-  FmlValidatorKeys<TValue>,
+export type ValidatorConfiguration<TValue> = [
+  ValidatorKeys<TValue>,
 ] extends [infer TValidator]
-  ? TValidator extends keyof FmlValidatorFactoryRegistry
+  ? TValidator extends keyof ValidatorFactoryRegistry
     ? [
         TValidator,
-        ...Parameters<FmlValidatorFactoryRegistry[TValidator]>,
+        ...Parameters<ValidatorFactoryRegistry[TValidator]>,
         string,
       ]
     : never
@@ -120,24 +120,24 @@ export type FmlValidatorConfiguration<TValue> = [
  * used to map to implementations of each classification, e.g., different types
  * of fields (checkboxes, text inputs, date pickers, etc.)
  */
-interface FmlControlClassificationConfigurationRegistry<TValue>
+interface ControlClassificationConfigurationRegistry<Value>
   extends Record<
-    FmlControlClassifications,
-    TValue extends ReadonlyArray<infer TItem>
-      ? FmlControlConfigurationBase<TItem[]>
-      : FmlControlConfigurationBase<TValue>
+    ControlClassifications,
+    Value extends ReadonlyArray<infer TItem>
+      ? ControlConfigurationBase<TItem[]>
+      : ControlConfigurationBase<Value>
   > {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  field: TValue extends ReadonlyArray<infer _>
+  field: Value extends ReadonlyArray<infer _>
     ? never
-    : FmlFieldConfiguration<TValue>;
-  list: TValue extends ReadonlyArray<infer TItem>
-    ? FmlListConfiguration<TItem>
+    : FieldConfiguration<Value>;
+  list: Value extends ReadonlyArray<infer TItem>
+    ? ListConfiguration<TItem>
     : never;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  model: TValue extends ReadonlyArray<infer _>
+  model: Value extends ReadonlyArray<infer _>
     ? never
-    : FmlModelConfiguration<TValue>;
+    : ModelConfiguration<Value>;
 }
 
 /**
@@ -147,67 +147,67 @@ interface FmlControlClassificationConfigurationRegistry<TValue>
  * 2. An array of something, it should be bound to a 'list' control
  * 3. Anything else, it should be bound to a 'model' control
  */
-export type FmlControlClassification<TValue> = [TValue] extends [
-  FmlFieldValueTypes | undefined,
+export type ControlClassification<Value> = [Value] extends [
+  FieldValueTypes | undefined,
 ]
   ? 'field'
-  : TValue extends ReadonlyArray<unknown> | undefined
+  : Value extends ReadonlyArray<unknown> | undefined
   ? 'list'
-  : TValue extends unknown | undefined
+  : Value extends unknown | undefined
   ? 'model'
   : never;
 
 /**
  * Returns the appropriate configuration type for the provided data type.
  */
-export type FmlControlConfiguration<TValue> =
-  FmlControlClassificationConfigurationRegistry<TValue>[FmlControlClassification<TValue>];
+export type ControlConfiguration<Value> =
+  ControlClassificationConfigurationRegistry<Value>[ControlClassification<Value>];
 
 //#endregion controls
 
 //#region fields
 
-export type FmlFieldValueTypes = string | number | boolean | Date | undefined;
+export type FieldValueTypes = string | number | boolean | Date | undefined;
 
 /**
  * Basic descriptor of the field to bind a value to.
  */
-export interface FmlFieldConfigurationBase<
+export interface FieldConfigurationBase<
   TValue,
-  TControl extends FmlRegisteredFieldControls,
-> extends FmlControlConfigurationBase<TValue> {
+  TControl extends RegisteredFieldControls,
+> extends ControlConfigurationBase<TValue> {
   control: TControl;
 }
 
 /**
  * Returns a union of appropriate configurations for the provided data type.
  */
-export type FmlFieldConfiguration<TValue> = FmlFieldConfigurationBase<
+export type FieldConfiguration<TValue> = FieldConfigurationBase<
   TValue,
-  FmlRegisteredFieldControls
+  RegisteredFieldControls
 > extends infer TConfig
-  ? TConfig extends FmlFieldConfigurationBase<
+  ? TConfig extends FieldConfigurationBase<
       TValue,
-      FmlRegisteredFieldControls
+      RegisteredFieldControls
     >
     ? TConfig['control'] extends infer TControl
-      ? TControl extends FmlFieldControlsFor<TValue>
-        ? FmlFieldControlRegistry<TValue>[TControl][1] extends undefined
-          ? FmlFieldConfigurationBase<TValue, TControl>
-          : FmlFieldConfigurationBase<TValue, TControl> &
-              FmlFieldControlRegistry<TValue>[TControl][1]
+      ? TControl extends FieldControlsFor<TValue>
+        ? FieldControlRegistry<TValue>[TControl][1] extends undefined
+          ? FieldConfigurationBase<TValue, TControl>
+          : FieldConfigurationBase<TValue, TControl> &
+              FieldControlRegistry<TValue>[TControl][1]
         : never
       : never
     : never
   : never;
 
-export type FmlFieldControlRegistration<TExtraConfig> = [
-  FmlFieldValueTypes,
+export type FieldControlRegistration<TExtraConfig> = [
+  FieldValueTypes,
   TExtraConfig?,
 ];
 
-export interface FmlOptionsListConfiguration<TValue extends string> {
-  options: Record<TValue, string>;
+export interface OptionsListConfiguration<Value extends string> {
+  options: Record<Value, string>;
 }
 
 /**
@@ -218,28 +218,28 @@ export interface FmlOptionsListConfiguration<TValue extends string> {
  * existing) field controls.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export interface FmlFieldControlRegistry<TValue> {
-  [more: string]: FmlFieldControlRegistration<unknown>;
+export interface FieldControlRegistry<Value> {
+  [more: string]: FieldControlRegistration<unknown>;
 }
 
 /**
  * This returns a union of the names of registered field controls.
  */
-export type FmlRegisteredFieldControls = KnownKeys<
-  FmlFieldControlRegistry<never>
+export type RegisteredFieldControls = KnownKeys<
+  FieldControlRegistry<never>
 >;
 
 /**
  * This returns a union of the names of registered field controls that are
  * designed for the provided data type.
  */
-export type FmlFieldControlsFor<TValue> = keyof {
+export type FieldControlsFor<Value> = keyof {
   [K in KnownKeys<
-    FmlFieldControlRegistry<TValue>
-  > as TValue extends FmlFieldControlRegistry<TValue>[K][0] ? K : never]: K;
+    FieldControlRegistry<Value>
+  > as Value extends FieldControlRegistry<Value>[K][0] ? K : never]: K;
 };
 
-const controlRegistry = new Map<FmlRegisteredFieldControls, unknown>();
+const controlRegistry = new Map<RegisteredFieldControls, unknown>();
 
 /**
  * Register a field control's concrete implementation.
@@ -247,7 +247,7 @@ const controlRegistry = new Map<FmlRegisteredFieldControls, unknown>();
  * @param impl The field control's implementation
  */
 export function registerControl(
-  key: FmlRegisteredFieldControls,
+  key: RegisteredFieldControls,
   impl: unknown,
 ): void {
   controlRegistry.set(key, impl);
@@ -259,7 +259,7 @@ export function registerControl(
  * @returns The implmementation of the field control
  */
 export function getFieldImplementation(
-  key: FmlRegisteredFieldControls,
+  key: RegisteredFieldControls,
 ): unknown {
   return controlRegistry.get(key);
 }
@@ -268,79 +268,28 @@ export function getFieldImplementation(
 
 //#region models
 
-export interface FmlModelConfiguration<TValue>
-  extends FmlControlConfigurationBase<TValue> {
-  schema: { [Key in keyof TValue]: FmlConfiguration<TValue[Key]> };
+export interface ModelConfiguration<TValue>
+  extends ControlConfigurationBase<TValue> {
+  schema: { [Key in keyof TValue]: Configuration<TValue[Key]> };
 }
 
 //#endregion
 
 //#region lists
 
-export interface FmlListConfiguration<TValue>
-  extends FmlControlConfigurationBase<TValue[]> {
-  itemConfig: FmlConfiguration<TValue>;
+export interface ListConfiguration<TValue>
+  extends ControlConfigurationBase<TValue[]> {
+  itemConfig: Configuration<TValue>;
 }
 
 //#endregion
-
-//#endregion
-
-//#region layouts
-
-export type FmlLayoutsFor<TValue> = keyof {
-  [K in FmlRegisteredLayouts as FmlControlClassification<TValue> extends FmlLayoutRegistry<TValue>[K][0]
-    ? K
-    : never]: K;
-};
-
-export type FmlLayoutConfiguration<
-  TValue,
-  TLayoutKey extends FmlRegisteredLayouts = FmlLayoutsFor<TValue>,
-> = FmlLayoutRegistry<TValue>[TLayoutKey][1] extends undefined
-  ? [TLayoutKey, FmlConfiguration<TValue>]
-  : IsPartial<FmlLayoutRegistry<TValue>[TLayoutKey][1]> extends true
-  ?
-      | [
-          TLayoutKey,
-          FmlLayoutRegistry<TValue>[TLayoutKey][1],
-          FmlConfiguration<TValue>,
-        ]
-      | [TLayoutKey, FmlConfiguration<TValue>]
-  : [
-      TLayoutKey,
-      FmlLayoutRegistry<TValue>[TLayoutKey][1],
-      FmlConfiguration<TValue>,
-    ];
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type FmlLayoutRegistration<TValue, TExtraConfig = undefined> = [
-  FmlControlClassifications,
-  TExtraConfig?,
-];
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface FmlLayoutRegistry<TValue>
-  extends Record<string, FmlLayoutRegistration<TValue>> {}
-
-export type FmlRegisteredLayouts = KnownKeys<FmlLayoutRegistry<never>>;
-
-const layoutRegistry = new Map<FmlRegisteredLayouts, unknown>();
-
-export function registerLayout(key: FmlRegisteredLayouts, impl: unknown): void {
-  layoutRegistry.set(key, impl);
-}
-
-export function getLayoutImplementation(key: FmlRegisteredLayouts): unknown {
-  return layoutRegistry.get(key);
-}
 
 //#endregion
 
 /**
  * A function that can determine the validity of the provided @argument value
  */
-export interface FmlValidator<TValue> {
+export interface Validator<TValue> {
   (value: TValue): boolean | Promise<boolean>;
 }
 
@@ -349,7 +298,7 @@ export interface FmlValidator<TValue> {
  * to a single control, and when a validator fails, the control should return
  * the configured message for the failed validator.
  */
-export type FmlControlValidatorReturnTypes =
+export type ControlValidatorReturnTypes =
   | string
   | string[]
   | undefined
@@ -361,43 +310,43 @@ export type FmlControlValidatorReturnTypes =
  * validator fails, the control validator should return the corresponding
  * message as configured by the
  *
- * @see {FmlValidatorConfigurationBase}
+ * @see {ValidatorConfigurationBase}
  */
-export interface FmlControlValidator<TValue> {
-  (value: TValue): FmlControlValidatorReturnTypes;
+export interface ControlValidator<TValue> {
+  (value: TValue): ControlValidatorReturnTypes;
 }
 
 /**
  * A function that binds parameters to a validation function so the validator
  * can be invoked with just the form value to be validated.
  */
-export interface FmlValidatorFactory<
+export interface ValidatorFactory<
   TValue = unknown,
   TArgs extends ReadonlyArray<unknown> = [],
 > {
-  (...params: TArgs): FmlValidator<TValue>;
+  (...params: TArgs): Validator<TValue>;
 }
 
 /**
  * Contains all registered validator factories.
  */
-export interface FmlValidatorFactoryRegistry {
-  readonly [more: string]: FmlValidatorFactory<never, never>;
+export interface ValidatorFactoryRegistry {
+  readonly [more: string]: ValidatorFactory<never, never>;
 }
 
 /**
  * Returns all registered validators and their respective factories.
  */
-export type FmlRegisteredValidators = {
-  [K in KnownKeys<FmlValidatorFactoryRegistry>]: FmlValidatorFactoryRegistry[K];
+export type RegisteredValidators = {
+  [K in KnownKeys<ValidatorFactoryRegistry>]: ValidatorFactoryRegistry[K];
 };
 
 /**
  * Returns all registered validator factories that can be applied to the
  * provided data type.
  */
-export type FmlValidators<TValue> = {
-  [Key in keyof FmlRegisteredValidators as FmlRegisteredValidators[Key] extends FmlValidatorFactory<
+export type Validators<TValue> = {
+  [Key in keyof RegisteredValidators as RegisteredValidators[Key] extends ValidatorFactory<
     infer TValidatorValue,
     never
   >
@@ -407,19 +356,19 @@ export type FmlValidators<TValue> = {
       : TValue extends TValidatorValue
       ? Key
       : never
-    : never]: FmlRegisteredValidators[Key];
+    : never]: RegisteredValidators[Key];
 };
 
 /**
  * Returns the names of all registered validator factories that can be
  * applied to the provided data type.
  */
-export type FmlValidatorKeys<TValue> = keyof FmlValidators<TValue>;
+export type ValidatorKeys<TValue> = keyof Validators<TValue>;
 
 /**
  * The actual registry. Don't mess with it.
  */
-const validatorRegistry = {} as FmlValidatorFactoryRegistry;
+const validatorRegistry = {} as ValidatorFactoryRegistry;
 
 /**
  * Registers the provided validator factory implementation at the provided name.
@@ -427,8 +376,8 @@ const validatorRegistry = {} as FmlValidatorFactoryRegistry;
  * @param factory The validator factory implementation
  */
 export function registerValidator<
-  TName extends keyof FmlValidatorFactoryRegistry,
->(name: TName, factory: FmlValidatorFactoryRegistry[TName]): void {
+  TName extends keyof ValidatorFactoryRegistry,
+>(name: TName, factory: ValidatorFactoryRegistry[TName]): void {
   validatorRegistry[name] = factory;
 }
 
@@ -437,19 +386,18 @@ export function registerValidator<
  * @param name The name of the validator factory to retrieve
  * @returns The validator factory
  */
-export function getFactory<TValidator extends keyof FmlRegisteredValidators>(
+export function getFactory<TValidator extends keyof RegisteredValidators>(
   name: TValidator,
-): FmlValidatorFactoryRegistry[TValidator] {
+): ValidatorFactoryRegistry[TValidator] {
   return validatorRegistry[name];
 }
 
-export type FmlConfiguration<TValue> =
-  | FmlControlConfiguration<TValue>
-  | FmlLayoutConfiguration<TValue>;
+export type Configuration<TValue> =
+  | ControlConfiguration<TValue>;
 
 export function instantiateValidator<TValue>(
-  config: FmlValidatorConfiguration<TValue>,
-): FmlControlValidator<TValue> {
+  config: ValidatorConfiguration<TValue>,
+): ControlValidator<TValue> {
   // get the appropriate validator factory for this data type
   const type = config[0];
   const factory = getFactory(type);
@@ -459,7 +407,7 @@ export function instantiateValidator<TValue>(
   // create the validator function by applying the factory
   const func = (factory as (...x: unknown[]) => unknown)(
     ...args,
-  ) as FmlValidator<TValue>;
+  ) as Validator<TValue>;
 
   const invalidMessage = (config as unknown[]).slice(-1)[0] as string;
 

@@ -1,20 +1,20 @@
 import {
-  FmlRegisteredValidators,
+  RegisteredValidators,
   registerValidator,
 } from '@fml/core';
 
 const WITHIN = 'within';
 
 declare module '@fml/core' {
-  export interface FmlValidatorFactoryRegistry {
-    [WITHIN]: FmlValidatorFactory<
+  export interface ValidatorFactoryRegistry {
+    [WITHIN]: ValidatorFactory<
       Date,
       [dateRange: { after: Date; before: Date }, inclusive?: boolean]
     >;
   }
 }
 
-const within: FmlRegisteredValidators[typeof WITHIN] = function within(
+const within: RegisteredValidators[typeof WITHIN] = function within(
   { before, after },
   inclusive,
 ) {

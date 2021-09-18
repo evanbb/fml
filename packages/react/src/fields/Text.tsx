@@ -1,4 +1,4 @@
-import { FmlFieldConfiguration, registerControl } from '@fml/core';
+import { FieldConfiguration, registerControl } from '@fml/core';
 import TEXT from '@fml/add/controls/text';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
@@ -7,7 +7,7 @@ import { useFmlControl } from '../common/useFmlControl';
 type TextProps = FmlComponentProps<string>;
 
 export default function Text(props: TextProps) {
-  const { label } = props.config as FmlFieldConfiguration<string>;
+  const { label } = props.config as FieldConfiguration<string>;
 
   const {
     blurHandler,
@@ -16,7 +16,7 @@ export default function Text(props: TextProps) {
     focusHandler,
     validationMessages,
     value,
-  } = useFmlControl<string>(props.config as FmlFieldConfiguration<string>);
+  } = useFmlControl<string>(props.config as FieldConfiguration<string>);
 
   return (
     <>

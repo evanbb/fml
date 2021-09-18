@@ -1,9 +1,9 @@
-import { getFieldImplementation, FmlFieldConfiguration } from '@fml/core';
+import { getFieldImplementation, FieldConfiguration } from '@fml/core';
 import { memo } from 'react';
 import './fields';
 
 export interface FieldProps<TValue> {
-  config: FmlFieldConfiguration<TValue>;
+  config: FieldConfiguration<TValue>;
 }
 
 function Field<TValue>(props: FieldProps<TValue>) {

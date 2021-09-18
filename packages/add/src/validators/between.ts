@@ -1,20 +1,20 @@
 import {
-  FmlRegisteredValidators,
+  RegisteredValidators,
   registerValidator,
 } from '@fml/core';
 
 const BETWEEN = 'between';
 
 declare module '@fml/core' {
-  export interface FmlValidatorFactoryRegistry {
-    [BETWEEN]: FmlValidatorFactory<
+  export interface ValidatorFactoryRegistry {
+    [BETWEEN]: ValidatorFactory<
       number,
       [range: { min: number; max: number }, inclusive?: boolean]
     >;
   }
 }
 
-const between: FmlRegisteredValidators[typeof BETWEEN] = function between(
+const between: RegisteredValidators[typeof BETWEEN] = function between(
   { min, max },
   inclusive,
 ) {

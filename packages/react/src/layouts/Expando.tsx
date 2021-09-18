@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 declare module '@fml/core' {
   export interface FmlLayoutRegistry<TValue> {
-    expando: [FmlControlClassifications, ExpandoConfig];
+    expando: [ControlClassifications, ExpandoConfig];
   }
 }
 

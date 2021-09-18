@@ -1,17 +1,17 @@
 import {
-  FmlRegisteredValidators,
+  RegisteredValidators,
   registerValidator,
 } from '@fml/core';
 
 const AFTER = 'after';
 
 declare module '@fml/core' {
-  export interface FmlValidatorFactoryRegistry {
-    [AFTER]: FmlValidatorFactory<Date, [after: Date, inclusive?: boolean]>;
+  export interface ValidatorFactoryRegistry {
+    [AFTER]: ValidatorFactory<Date, [after: Date, inclusive?: boolean]>;
   }
 }
 
-const after: FmlRegisteredValidators[typeof AFTER] = function after(
+const after: RegisteredValidators[typeof AFTER] = function after(
   afterDate,
   inclusive,
 ) {

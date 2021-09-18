@@ -1,19 +1,19 @@
 import {
-  FmlRegisteredValidators,
+  RegisteredValidators,
   registerValidator,
 } from '@fml/core';
 
 const LESS_THAN = 'lessThan';
 
 declare module '@fml/core' {
-  export interface FmlValidatorFactoryRegistry {
-    [LESS_THAN]: FmlValidatorFactory<
+  export interface ValidatorFactoryRegistry {
+    [LESS_THAN]: ValidatorFactory<
     number, [maximum: number, inclusive?: boolean]
     >;
   }
 }
 
-const lessThan: FmlRegisteredValidators[typeof LESS_THAN] = function lessThan(
+const lessThan: RegisteredValidators[typeof LESS_THAN] = function lessThan(
   max,
   inclusive,
 ) {
