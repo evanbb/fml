@@ -1,5 +1,5 @@
 import {
-  ControlConfiguration,
+  Configuration,
   ValidatorConfiguration,
   ValidityStatus,
   ValueState,
@@ -9,7 +9,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFmlContext } from './FmlControlContext';
 
-export function useFmlControl<TValue>(config: ControlConfiguration<TValue>) {
+export function useFmlControl<TValue>([, config]: Configuration<TValue>) {
   const {
     controlId,
     onBlur: contextOnBlur,

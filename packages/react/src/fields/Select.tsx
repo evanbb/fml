@@ -1,4 +1,4 @@
-import { FieldConfiguration, registerControl } from '@fml/core';
+import { Configuration, registerComponent } from '@fml/core';
 import SELECT from '@fml/add/controls/select';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
@@ -7,18 +7,20 @@ import { useFmlControl } from '../common/useFmlControl';
 type SelectProps = FmlComponentProps<string>;
 
 export default function Select(props: SelectProps) {
-  const { label, options } =
-    props.config as unknown as FieldConfiguration<'string'>;
+  const [, { label, options }] =
+    props.config as unknown as Configuration<'string'>;
 
-    const {
-      blurHandler,
-      changeHandler,
-      controlId,
-      focusHandler,
-      validationMessages,
-      value,
-    } = useFmlControl<'string'>(props.config as unknown as FieldConfiguration<'string'>);
-  
+  const {
+    blurHandler,
+    changeHandler,
+    controlId,
+    focusHandler,
+    validationMessages,
+    value,
+  } = useFmlControl<'string'>(
+    props.config as unknown as Configuration<'string'>,
+  );
+
   return (
     <>
       <label data-fml-validity={value.validity} htmlFor={controlId}>
@@ -48,4 +50,4 @@ export default function Select(props: SelectProps) {
   );
 }
 
-registerControl(SELECT, Select);
+registerComponent(SELECT, Select);

@@ -1,4 +1,4 @@
-import { FieldConfiguration, registerControl } from '@fml/core';
+import { Configuration, registerComponent } from '@fml/core';
 import DATETIME from '@fml/add/controls/datetime';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
@@ -7,7 +7,7 @@ import { useFmlControl } from '../common/useFmlControl';
 type DateTimeProps = FmlComponentProps<Date>;
 
 export default function DateTime(props: DateTimeProps) {
-  const { label } = props.config as FieldConfiguration<Date>;
+  const [, { label }] = props.config as Configuration<Date>;
 
   const {
     blurHandler,
@@ -16,7 +16,7 @@ export default function DateTime(props: DateTimeProps) {
     focusHandler,
     validationMessages,
     value,
-  } = useFmlControl<Date>(props.config as FieldConfiguration<Date>);
+  } = useFmlControl<Date>(props.config as Configuration<Date>);
 
   return (
     <>
@@ -42,4 +42,4 @@ export default function DateTime(props: DateTimeProps) {
   );
 }
 
-registerControl(DATETIME, DateTime);
+registerComponent(DATETIME, DateTime);

@@ -1,8 +1,12 @@
+const HIDDEN = 'fml:hidden';
+
 declare module '@fml/core' {
-  export interface FieldControlRegistry<Value>
-    extends Record<string, FieldControlRegistration<unknown>> {
-    hidden: [StringOnlyNotStringUnion<Value> | undefined];
+  export interface ComponentRegistry<Value> {
+    [HIDDEN]: [
+      StringOnlyNotStringUnion<Value> | undefined,
+      ControlConfigurationBase<StringOnlyNotStringUnion<Value> | undefined>,
+    ];
   }
 }
 
-export default 'hidden';
+export default HIDDEN;

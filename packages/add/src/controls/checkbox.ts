@@ -1,8 +1,9 @@
+const CHECKBOX = 'fml:checkbox'
+
 declare module '@fml/core' {
-  export interface FieldControlRegistry<Value>
-    extends Record<string, FieldControlRegistration<unknown>> {
-    checkbox: [boolean | undefined];
+  export interface ComponentRegistry<Value> {
+    [CHECKBOX]: [boolean | undefined, ControlConfigurationBase<boolean | undefined>];
   }
 }
 
-export default 'checkbox'
+export default CHECKBOX

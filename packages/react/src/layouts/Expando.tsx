@@ -1,10 +1,16 @@
-import { FmlLayoutConfiguration, registerLayout } from '@fml/core';
+import {
+  Configuration,
+  ConfigurationKeyed,
+  registerComponent,
+} from '@fml/core';
 import FmlComponent from '../common/FmlComponent';
 import { useState } from 'react';
 
+const EXPANDO = 'fml:expando';
+
 declare module '@fml/core' {
-  export interface FmlLayoutRegistry<TValue> {
-    expando: [ControlClassifications, ExpandoConfig];
+  export interface ComponentRegistry<Value> {
+    [EXPANDO]: [any, ExpandoConfig];
   }
 }
 
@@ -13,12 +19,12 @@ interface ExpandoConfig {
   summary: string;
 }
 
-interface ExpandoProps<TValue> {
-  config: FmlLayoutConfiguration<TValue, 'expando'>;
+interface ExpandoProps<Value> {
+  config: ConfigurationKeyed<'fml:expando'>;
 }
 
 function Expando<TValue>({
-  config: [, { defaultExpanded, summary }, componentConfig],
+  config: [, { defaultExpanded, summary }],
 }: ExpandoProps<TValue>) {
   const [expanded, setExpanded] = useState(defaultExpanded);
 
@@ -27,11 +33,15 @@ function Expando<TValue>({
       <div>
         <p onClick={(e) => setExpanded((x) => !x)}>{summary}</p>
         <div style={expanded ? {} : { display: 'none' }}>
-          <FmlComponent {...{ config: componentConfig }} />
+          <FmlComponent
+            {...{
+              config: ['fml:expando', { defaultExpanded: false, summary: '' }],
+            }}
+          />
         </div>
       </div>
     </>
   );
 }
 
-registerLayout('expando', Expando);
+registerComponent(EXPANDO, Expando);

@@ -1,7 +1,8 @@
+const RADIOS = 'fml:radios'
+
 declare module '@fml/core' {
-  export interface FieldControlRegistry<Value>
-    extends Record<string, FieldControlRegistration<unknown>> {
-    radios: [
+  export interface ComponentRegistry<Value> {
+    [RADIOS]: [
       StringUnionOnlyNotString<Value>,
       [Value] extends [string]
         ? string extends Value
@@ -12,4 +13,4 @@ declare module '@fml/core' {
   }
 }
 
-export default 'radios';
+export default RADIOS;

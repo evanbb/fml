@@ -1,8 +1,9 @@
+const DATE = 'fml:date'
+
 declare module '@fml/core' {
-  export interface FieldControlRegistry<Value>
-    extends Record<string, FieldControlRegistration<unknown>> {
-    date: [Date | undefined];
+  export interface ComponentRegistry<Value> {
+    [DATE]: [Date | undefined, ControlConfigurationBase<Date | undefined>];
   }
 }
 
-export default 'date';
+export default DATE;

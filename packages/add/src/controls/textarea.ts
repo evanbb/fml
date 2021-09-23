@@ -1,8 +1,12 @@
+const TEXTAREA = 'fml:textarea';
+
 declare module '@fml/core' {
-  export interface FieldControlRegistry<Value>
-    extends Record<string, FieldControlRegistration<unknown>> {
-    textarea: [StringOnlyNotStringUnion<Value> | undefined];
+  export interface ComponentRegistry<Value> {
+    [TEXTAREA]: [
+      StringOnlyNotStringUnion<Value> | undefined,
+      ControlConfigurationBase<StringOnlyNotStringUnion<Value> | undefined>,
+    ];
   }
 }
 
-export default 'textarea';
+export default TEXTAREA;

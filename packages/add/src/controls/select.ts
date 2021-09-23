@@ -1,7 +1,8 @@
+const SELECT = 'fml:select';
+
 declare module '@fml/core' {
-  export interface FieldControlRegistry<Value>
-    extends Record<string, FieldControlRegistration<unknown>> {
-    select: [
+  export interface ComponentRegistry<Value> {
+    [SELECT]: [
       StringUnionOnlyNotString<Value>,
       [Value] extends [string]
         ? string extends Value
@@ -13,4 +14,4 @@ declare module '@fml/core' {
   }
 }
 
-export default 'select';
+export default SELECT;

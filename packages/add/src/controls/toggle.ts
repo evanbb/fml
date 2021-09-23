@@ -1,8 +1,9 @@
+const TOGGLE = 'fml:toggle'
+
 declare module '@fml/core' {
-  export interface FieldControlRegistry<Value>
-    extends Record<string, FieldControlRegistration<unknown>> {
-    toggle: [boolean | undefined];
+  export interface ComponentRegistry<Value> {
+    [TOGGLE]: [boolean | undefined, ControlConfigurationBase<boolean | undefined>];
   }
 }
 
-export default 'toggle';
+export default TOGGLE;

@@ -1,10 +1,8 @@
 import {
   Configuration,
-  ModelConfiguration,
   ValidityStatus,
   ValueStateChangeHandler,
   ValueState,
-  ControlConfiguration,
 } from '@fml/core';
 import { FmlContextProvider } from './common/FmlControlContext';
 import { useFmlControl } from './common/useFmlControl';
@@ -27,7 +25,7 @@ function useModelTransform<TValue>(props: ModelProps<TValue>) {
     validationMessages,
     focusHandler: onFocus,
     value: innerModel,
-  } = useFmlControl<TValue>(props.config as ControlConfiguration<TValue>);
+  } = useFmlControl<TValue>(props.config as Configuration<TValue>);
 
   const initialModel = useMemo<ValueStateModelProps<TValue>>(() => {
     const result = {} as ValueStateModelProps<TValue>;
@@ -151,13 +149,13 @@ function ModelProperty<TModel, TPropertyValue>({
 }
 
 export interface ModelProps<TValue> {
-  config: ModelConfiguration<TValue>;
+  config: Configuration<TValue>;
 }
 
 function Model<TValue>(props: ModelProps<TValue>) {
   const { updateProperty, validationMessages, validity } =
     useModelTransform<TValue>(props);
-  const config = props.config as ModelConfiguration<TValue>;
+  const config = props.config as Configuration<TValue>;
 
   return (
     <fieldset>

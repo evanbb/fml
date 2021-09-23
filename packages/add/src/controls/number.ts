@@ -1,8 +1,12 @@
+const NUMBER = 'fml:number';
+
 declare module '@fml/core' {
-  export interface FieldControlRegistry<Value>
-    extends Record<string, FieldControlRegistration<unknown>> {
-    number: [number | undefined];
+  export interface ComponentRegistry<Value> {
+    [NUMBER]: [
+      number | undefined,
+      ControlConfigurationBase<number | undefined>,
+    ];
   }
 }
 
-export default 'number';
+export default NUMBER;

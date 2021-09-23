@@ -1,8 +1,12 @@
+const TEXT = 'fml:text';
+
 declare module '@fml/core' {
-  export interface FieldControlRegistry<Value>
-    extends Record<string, FieldControlRegistration<unknown>> {
-    text: [StringOnlyNotStringUnion<Value> | undefined];
+  export interface ComponentRegistry<Value> {
+    [TEXT]: [
+      StringOnlyNotStringUnion<Value> | undefined,
+      ControlConfigurationBase<StringOnlyNotStringUnion<Value> | undefined>,
+    ];
   }
 }
 
-export default 'text';
+export default TEXT;

@@ -1,8 +1,9 @@
+const DATETIME = 'fml:datetime';
+
 declare module '@fml/core' {
-  export interface FieldControlRegistry<Value>
-    extends Record<string, FieldControlRegistration<unknown>> {
-    datetime: [Date | undefined];
+  export interface ComponentRegistry<Value> {
+    [DATETIME]: [Date | undefined, ControlConfigurationBase<Date | undefined>];
   }
 }
 
-export default 'datetime';
+export default DATETIME;

@@ -1,6 +1,6 @@
 //#region utils
 
-export type StringUnionOnlyNotString<TValue> =
+export type StringUnionOnlyNotString<Value> =
   /**
    * If a) it's a tuple of [TSomethingThatExtendsString]
    * and b) the tuple is of exactly [string]
@@ -9,10 +9,10 @@ export type StringUnionOnlyNotString<TValue> =
    * case we want the single element of the tuple (the union)
    */
 
-  TValue extends [string]
-    ? string extends TValue[0]
+  Value extends [string]
+    ? string extends Value[0]
       ? never
-      : TValue[0]
+      : Value[0]
     : /**
      * Otherwise, if a) it's a TSomethingThatExtendsString
      * and b) it's exactly string
@@ -20,13 +20,13 @@ export type StringUnionOnlyNotString<TValue> =
      * Otherwise, it must be 'something' | 'insteresting', in which case
      * we want the union
      */
-    TValue extends string
-    ? string extends TValue
+    Value extends string
+    ? string extends Value
       ? never
-      : TValue
+      : Value
     : never;
 
-export type StringOnlyNotStringUnion<TValue> =
+export type StringOnlyNotStringUnion<Value> =
   /**
    * If a) it's a TSomethingThatExtendsString
    * and b) it's exactly string
@@ -34,7 +34,7 @@ export type StringOnlyNotStringUnion<TValue> =
    * Otherwise, it must be 'something' | 'insteresting', in which case
    * we aren't interested
    */
-  TValue extends string ? (string extends TValue ? string : never) : string;
+  Value extends string ? (string extends Value ? string : never) : string;
 
 export type KnownKeys<T> = keyof {
   [K in keyof T as string extends K ? never : number extends K ? never : K]: K;
@@ -42,11 +42,9 @@ export type KnownKeys<T> = keyof {
 
 export type IsPartial<T> = Partial<T> extends T ? true : false;
 
-//#endregion
+//#endregion utils
 
 //#region controls
-
-//#region common stuff
 
 /**
  * The various validity statuses in which data bound to a form control can be.
@@ -56,8 +54,8 @@ export type ValidityStatus = 'valid' | 'pending' | 'invalid' | 'unknown';
 /**
  * The state a form control maintains about a piece of data.
  */
-export interface ValueState<TValue> {
-  value: TValue;
+export interface ValueState<Value> {
+  value: Value;
   validity: ValidityStatus;
 }
 
@@ -65,232 +63,37 @@ export interface ValueState<TValue> {
  * Called when the value or validity of a piece of data has changed, e.g.,
  * through a user interaction or when an async validator resolves.
  */
-export interface ValueStateChangeHandler<TValue> {
-  (change: ValueState<TValue>): void;
+export interface ValueStateChangeHandler<Value> {
+  (change: ValueState<Value>): void;
 }
 
 /**
  * Basic info that every form control needs in order to configure itself to
  * render and run.
  */
-export interface ControlConfigurationBase<TValue> {
+export interface ControlConfigurationBase<Value> {
   label: string;
-  defaultValue?: TValue;
-  validators?: ValidatorConfiguration<TValue>[];
-}
-
-/**
- * The different classifications of controls.
- */
-export type ControlClassifications = 'field' | 'model' | 'list';
-
-/**
- * Basic descriptor of a validator and a message to display if validation fails.
- */
-export interface ValidatorConfigurationBase<
-  TValidator extends KnownKeys<ValidatorFactoryRegistry>,
-> {
-  message: string;
-  validator: TValidator;
+  defaultValue?: Value;
+  validators?: ValidatorConfiguration<Value>[];
 }
 
 /**
  * Returns the configuration required to describe a validator to apply to a
  * control.
  */
-export type ValidatorConfiguration<TValue> = [
-  ValidatorKeys<TValue>,
-] extends [infer TValidator]
-  ? TValidator extends keyof ValidatorFactoryRegistry
-    ? [
-        TValidator,
-        ...Parameters<ValidatorFactoryRegistry[TValidator]>,
-        string,
-      ]
-    : never
-  : never;
-
-//#endregion
-
-//#region controls
-
-/**
- * This registry contains the defined classifications of controls that may be
- * bound to various pieces of data on a form (fields, models, and lists). It is
- * used to map to implementations of each classification, e.g., different types
- * of fields (checkboxes, text inputs, date pickers, etc.)
- */
-interface ControlClassificationConfigurationRegistry<Value>
-  extends Record<
-    ControlClassifications,
-    Value extends ReadonlyArray<infer TItem>
-      ? ControlConfigurationBase<TItem[]>
-      : ControlConfigurationBase<Value>
-  > {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  field: Value extends ReadonlyArray<infer _>
-    ? never
-    : FieldConfiguration<Value>;
-  list: Value extends ReadonlyArray<infer TItem>
-    ? ListConfiguration<TItem>
-    : never;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  model: Value extends ReadonlyArray<infer _>
-    ? never
-    : ModelConfiguration<Value>;
-}
-
-/**
- * Returns the classification of control that can be bound to the provided
- * data type. I.e., if it is
- * 1. A field value type, it should be bound to a 'field' control
- * 2. An array of something, it should be bound to a 'list' control
- * 3. Anything else, it should be bound to a 'model' control
- */
-export type ControlClassification<Value> = [Value] extends [
-  FieldValueTypes | undefined,
+export type ValidatorConfiguration<Value> = [ValidatorKeys<Value>] extends [
+  infer TValidator,
 ]
-  ? 'field'
-  : Value extends ReadonlyArray<unknown> | undefined
-  ? 'list'
-  : Value extends unknown | undefined
-  ? 'model'
-  : never;
-
-/**
- * Returns the appropriate configuration type for the provided data type.
- */
-export type ControlConfiguration<Value> =
-  ControlClassificationConfigurationRegistry<Value>[ControlClassification<Value>];
-
-//#endregion controls
-
-//#region fields
-
-export type FieldValueTypes = string | number | boolean | Date | undefined;
-
-/**
- * Basic descriptor of the field to bind a value to.
- */
-export interface FieldConfigurationBase<
-  TValue,
-  TControl extends RegisteredFieldControls,
-> extends ControlConfigurationBase<TValue> {
-  control: TControl;
-}
-
-/**
- * Returns a union of appropriate configurations for the provided data type.
- */
-export type FieldConfiguration<TValue> = FieldConfigurationBase<
-  TValue,
-  RegisteredFieldControls
-> extends infer TConfig
-  ? TConfig extends FieldConfigurationBase<
-      TValue,
-      RegisteredFieldControls
-    >
-    ? TConfig['control'] extends infer TControl
-      ? TControl extends FieldControlsFor<TValue>
-        ? FieldControlRegistry<TValue>[TControl][1] extends undefined
-          ? FieldConfigurationBase<TValue, TControl>
-          : FieldConfigurationBase<TValue, TControl> &
-              FieldControlRegistry<TValue>[TControl][1]
-        : never
-      : never
+  ? TValidator extends keyof ValidatorFactoryRegistry
+    ? [TValidator, ...Parameters<ValidatorFactoryRegistry[TValidator]>, string]
     : never
   : never;
-
-export type FieldControlRegistration<TExtraConfig> = [
-  FieldValueTypes,
-  TExtraConfig?,
-];
-
-export interface OptionsListConfiguration<Value extends string> {
-  options: Record<Value, string>;
-}
-
-/**
- * This registry contains the defined types of controls that are available to
- * bind to fields on a form.
- *
- * This interface can be extended to effectively register new (or clobber
- * existing) field controls.
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export interface FieldControlRegistry<Value> {
-  [more: string]: FieldControlRegistration<unknown>;
-}
-
-/**
- * This returns a union of the names of registered field controls.
- */
-export type RegisteredFieldControls = KnownKeys<
-  FieldControlRegistry<never>
->;
-
-/**
- * This returns a union of the names of registered field controls that are
- * designed for the provided data type.
- */
-export type FieldControlsFor<Value> = keyof {
-  [K in KnownKeys<
-    FieldControlRegistry<Value>
-  > as Value extends FieldControlRegistry<Value>[K][0] ? K : never]: K;
-};
-
-const controlRegistry = new Map<RegisteredFieldControls, unknown>();
-
-/**
- * Register a field control's concrete implementation.
- * @param key The string key of the registered field control
- * @param impl The field control's implementation
- */
-export function registerControl(
-  key: RegisteredFieldControls,
-  impl: unknown,
-): void {
-  controlRegistry.set(key, impl);
-}
-
-/**
- * Gets the field control's implementation from the registry.
- * @param key The string key of the registered field control
- * @returns The implmementation of the field control
- */
-export function getFieldImplementation(
-  key: RegisteredFieldControls,
-): unknown {
-  return controlRegistry.get(key);
-}
-
-//#endregion fields
-
-//#region models
-
-export interface ModelConfiguration<TValue>
-  extends ControlConfigurationBase<TValue> {
-  schema: { [Key in keyof TValue]: Configuration<TValue[Key]> };
-}
-
-//#endregion
-
-//#region lists
-
-export interface ListConfiguration<TValue>
-  extends ControlConfigurationBase<TValue[]> {
-  itemConfig: Configuration<TValue>;
-}
-
-//#endregion
-
-//#endregion
 
 /**
  * A function that can determine the validity of the provided @argument value
  */
-export interface Validator<TValue> {
-  (value: TValue): boolean | Promise<boolean>;
+export interface Validator<Value> {
+  (value: Value): boolean | Promise<boolean>;
 }
 
 /**
@@ -312,8 +115,8 @@ export type ControlValidatorReturnTypes =
  *
  * @see {ValidatorConfigurationBase}
  */
-export interface ControlValidator<TValue> {
-  (value: TValue): ControlValidatorReturnTypes;
+export interface ControlValidator<Value> {
+  (value: Value): ControlValidatorReturnTypes;
 }
 
 /**
@@ -321,10 +124,10 @@ export interface ControlValidator<TValue> {
  * can be invoked with just the form value to be validated.
  */
 export interface ValidatorFactory<
-  TValue = unknown,
+  Value = unknown,
   TArgs extends ReadonlyArray<unknown> = [],
 > {
-  (...params: TArgs): Validator<TValue>;
+  (...params: TArgs): Validator<Value>;
 }
 
 /**
@@ -345,15 +148,15 @@ export type RegisteredValidators = {
  * Returns all registered validator factories that can be applied to the
  * provided data type.
  */
-export type Validators<TValue> = {
+export type Validators<Value> = {
   [Key in keyof RegisteredValidators as RegisteredValidators[Key] extends ValidatorFactory<
     infer TValidatorValue,
     never
   >
     ? //TODO: does it make sense to have bidi extends clauses here?
-      TValidatorValue extends TValue
+      TValidatorValue extends Value
       ? Key
-      : TValue extends TValidatorValue
+      : Value extends TValidatorValue
       ? Key
       : never
     : never]: RegisteredValidators[Key];
@@ -363,7 +166,7 @@ export type Validators<TValue> = {
  * Returns the names of all registered validator factories that can be
  * applied to the provided data type.
  */
-export type ValidatorKeys<TValue> = keyof Validators<TValue>;
+export type ValidatorKeys<Value> = keyof Validators<Value>;
 
 /**
  * The actual registry. Don't mess with it.
@@ -375,9 +178,10 @@ const validatorRegistry = {} as ValidatorFactoryRegistry;
  * @param name The name of the validator to enter into the registry
  * @param factory The validator factory implementation
  */
-export function registerValidator<
-  TName extends keyof ValidatorFactoryRegistry,
->(name: TName, factory: ValidatorFactoryRegistry[TName]): void {
+export function registerValidator<TName extends keyof ValidatorFactoryRegistry>(
+  name: TName,
+  factory: ValidatorFactoryRegistry[TName],
+): void {
   validatorRegistry[name] = factory;
 }
 
@@ -386,33 +190,30 @@ export function registerValidator<
  * @param name The name of the validator factory to retrieve
  * @returns The validator factory
  */
-export function getFactory<TValidator extends keyof RegisteredValidators>(
-  name: TValidator,
-): ValidatorFactoryRegistry[TValidator] {
+export function getValidatorFactory<
+  TValidator extends keyof RegisteredValidators,
+>(name: TValidator): ValidatorFactoryRegistry[TValidator] {
   return validatorRegistry[name];
 }
 
-export type Configuration<TValue> =
-  | ControlConfiguration<TValue>;
-
-export function instantiateValidator<TValue>(
-  config: ValidatorConfiguration<TValue>,
-): ControlValidator<TValue> {
+export function instantiateValidator<Value>(
+  config: ValidatorConfiguration<Value>,
+): ControlValidator<Value> {
   // get the appropriate validator factory for this data type
   const type = config[0];
-  const factory = getFactory(type);
+  const factory = getValidatorFactory(type);
 
   const args = (config as unknown[]).slice(1, (config as unknown[]).length - 1);
 
   // create the validator function by applying the factory
   const func = (factory as (...x: unknown[]) => unknown)(
     ...args,
-  ) as Validator<TValue>;
+  ) as Validator<Value>;
 
   const invalidMessage = (config as unknown[]).slice(-1)[0] as string;
 
   // result is an async function that calls the validator above (which may be async itself) with the current value
-  return async function (value: TValue) {
+  return async function (value: Value) {
     const valid = await func(value);
 
     if (!valid) {
@@ -421,3 +222,88 @@ export function instantiateValidator<TValue>(
     return;
   };
 }
+
+//#endregion controls
+
+//#region components
+
+export type ComponentRegistration<
+  Value,
+  Config,
+  Children extends ReadonlyArray<unknown> = [],
+> = [Value, Config?, ...Children];
+
+export interface OptionsListConfiguration<Value extends string>
+  extends ControlConfigurationBase<Value> {
+  options: Record<Value, string>;
+}
+
+/**
+ * This registry contains the defined types of controls that are available to
+ * bind to fields on a form.
+ *
+ * This interface can be extended to effectively register new (or clobber
+ * existing) field controls.
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export interface ComponentRegistry<Value> {
+  [more: string]: ComponentRegistration<Value, unknown, unknown[]>;
+}
+
+/**
+ * This returns a union of the names of registered field controls.
+ */
+export type RegisteredComponents = KnownKeys<ComponentRegistry<never>>;
+
+/**
+ * This returns a union of the names of registered field controls that are
+ * designed for the provided data type.
+ */
+type ConfigurationFor<Value> = keyof {
+  [K in KnownKeys<
+    ComponentRegistry<Value>
+  > as Value extends ComponentRegistry<Value>[K][0] ? K : never]: K;
+};
+
+export type Configuration<Value> = [ConfigurationFor<Value>] extends [
+  infer ComponentKey,
+]
+  ? ComponentKey extends keyof ComponentRegistry<Value>
+    ? ComponentRegistry<Value>[ComponentKey] extends ComponentRegistration<
+        infer Value,
+        infer Configuration,
+        infer ValidChildren
+      >
+      ? Configuration extends undefined
+        ? [ComponentKey]
+        : [ComponentKey, Configuration, ...ValidChildren]
+      : never
+    : never
+  : never;
+
+const componentRegistry = new Map<RegisteredComponents, unknown>();
+
+/**
+ * Register a field control's concrete implementation.
+ * @param key The string key of the registered field control
+ * @param impl The field control's implementation
+ */
+export function registerComponent<Implementation>(
+  key: RegisteredComponents,
+  impl: Implementation,
+): void {
+  componentRegistry.set(key, impl);
+}
+
+/**
+ * Gets the field control's implementation from the registry.
+ * @param key The string key of the registered field control
+ * @returns The implmementation of the field control
+ */
+export function getComponentImplementation<Implementation>(
+  key: RegisteredComponents,
+): Implementation {
+  return componentRegistry.get(key) as Implementation;
+}
+
+//#endregion components
