@@ -16,7 +16,7 @@ export default function NumberComponent(props: NumberComponentProps) {
     focusHandler,
     validationMessages,
     value,
-  } = useFmlControl<number>(props.config);
+  } = useFmlControl<number | undefined>(props.config[1]);
 
   return (
     <>

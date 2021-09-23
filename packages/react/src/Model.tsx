@@ -22,21 +22,21 @@ type ValueStateModel<TValue> = {
   validity: ValidityStatus;
 };
 
-function useModelTransform<TValue>(props: ModelProps<TValue>) {
+function useModelTransform<Value>(props: ModelProps<Value>) {
   const {
     changeHandler: updateInnerModel,
     validationMessages,
     focusHandler: onFocus,
     value: innerModel,
-  } = useFmlControl<TValue>(props.config[1] as unknown as Configuration<TValue>);
+  } = useFmlControl<Value>(props.config[1]);
 
-  const initialModel = useMemo<ValueStateModelProps<TValue>>(() => {
-    const result = {} as ValueStateModelProps<TValue>;
+  const initialModel = useMemo<ValueStateModelProps<Value>>(() => {
+    const result = {} as ValueStateModelProps<Value>;
     Object.keys(props.config[1].schema).forEach((key) => {
       Object.assign(result, {
         [key]: {
           value: innerModel.value
-            ? innerModel.value[key as keyof TValue]
+            ? innerModel.value[key as keyof Value]
             : undefined,
           validity: 'unknown',
         },
@@ -46,13 +46,13 @@ function useModelTransform<TValue>(props: ModelProps<TValue>) {
   }, [innerModel.value, props.config[1].schema]);
 
   const modelToInnerValue = useCallback<
-    (model: ValueStateModel<TValue>) => [TValue, Set<ValidityStatus>]
-  >((model: ValueStateModel<TValue>) => {
-    const result = {} as TValue;
+    (model: ValueStateModel<Value>) => [Value, Set<ValidityStatus>]
+  >((model: ValueStateModel<Value>) => {
+    const result = {} as Value;
     const validities = new Set<ValidityStatus>();
     Object.entries(model.value).forEach((entry) => {
-      const key = entry[0] as keyof TValue;
-      type PropertyType = TValue[typeof key];
+      const key = entry[0] as keyof Value;
+      type PropertyType = Value[typeof key];
       Object.assign(result, {
         [key]: (entry[1] as ValueState<PropertyType>).value,
       });
@@ -61,14 +61,14 @@ function useModelTransform<TValue>(props: ModelProps<TValue>) {
     return [result, validities];
   }, []);
 
-  const [model, updateModel] = useState<ValueStateModel<TValue>>({
+  const [model, updateModel] = useState<ValueStateModel<Value>>({
     value: initialModel,
     validity: 'unknown',
   });
 
   const updateProperty = useCallback(
-    (property: keyof TValue) =>
-      (change: ValueState<TValue[typeof property]>) => {
+    (property: keyof Value) =>
+      (change: ValueState<Value[typeof property]>) => {
         updateModel((mod) => {
           const newValue = {
             ...mod.value,
@@ -125,7 +125,7 @@ interface ModelPropertyProps<TModel, TPropertyValue> {
   update: (
     propertyName: keyof TModel,
   ) => ValueStateChangeHandler<TPropertyValue>;
-  schema: Configuration<TPropertyValue>;
+  schema: any;
   propertyName: keyof TModel;
 }
 

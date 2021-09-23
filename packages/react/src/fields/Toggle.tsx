@@ -16,7 +16,7 @@ export default function Toggle(props: ToggleProps) {
     focusHandler,
     validationMessages,
     value,
-  } = useFmlControl<boolean>(props.config);
+  } = useFmlControl<boolean | undefined>(props.config[1]);
 
   return (
     <>

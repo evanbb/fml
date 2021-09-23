@@ -16,7 +16,7 @@ export default function Checkbox(props: CheckboxProps) {
     focusHandler,
     validationMessages,
     value,
-  } = useFmlControl<boolean>(props.config);
+  } = useFmlControl<boolean | undefined>(props.config[1]);
 
   return (
     <>

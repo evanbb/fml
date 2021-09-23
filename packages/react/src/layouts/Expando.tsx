@@ -1,31 +1,15 @@
-import {
-  Configuration,
-  ConfigurationKeyed,
-  registerComponent,
-} from '@fml/core';
+import { ConfigurationFor, registerComponent } from '@fml/core';
 import FmlComponent from '../common/FmlComponent';
 import { useState } from 'react';
+import EXPANDO from '@fml/add/layouts/expando';
 
-const EXPANDO = 'fml:expando';
-
-declare module '@fml/core' {
-  export interface ComponentRegistry<Value> {
-    [EXPANDO]: [any, ExpandoConfig];
-  }
+interface ExpandoProps {
+  config: ConfigurationFor<'fml:expando'>;
 }
 
-interface ExpandoConfig {
-  defaultExpanded: boolean;
-  summary: string;
-}
-
-interface ExpandoProps<Value> {
-  config: ConfigurationKeyed<'fml:expando'>;
-}
-
-function Expando<TValue>({
-  config: [, { defaultExpanded, summary }],
-}: ExpandoProps<TValue>) {
+function Expando({
+  config: [, { defaultExpanded, summary }, config],
+}: ExpandoProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   return (
@@ -33,11 +17,7 @@ function Expando<TValue>({
       <div>
         <p onClick={(e) => setExpanded((x) => !x)}>{summary}</p>
         <div style={expanded ? {} : { display: 'none' }}>
-          <FmlComponent
-            {...{
-              config: ['fml:expando', { defaultExpanded: false, summary: '' }],
-            }}
-          />
+          <FmlComponent config={config} />
         </div>
       </div>
     </>

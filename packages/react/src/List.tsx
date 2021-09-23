@@ -3,7 +3,6 @@ import {
   ValidityStatus,
   ValueState,
   ValueStateChangeHandler,
-  Configuration,
   registerComponent,
   ConfigurationFor,
 } from '@fml/core';
@@ -37,9 +36,7 @@ function useListItemTransform<TValue>(props: ListProps<TValue>) {
     focusHandler: onFocus,
     value: list,
     validationMessages,
-  } = useFmlControl<TValue[]>(
-    props.config[1] as unknown as Configuration<TValue[]>,
-  );
+  } = useFmlControl<TValue[]>(props.config[1]);
 
   const { newId } = useListItemId();
 
@@ -126,7 +123,7 @@ interface ListItemProps<TValue> {
   elementIndex: number;
   update: (fmlListId: number) => ValueStateChangeHandler<TValue>;
   remove: (fmlListId: number) => void;
-  itemConfig: Configuration<TValue>;
+  itemConfig: any;
   onFocus: () => void;
   defaultValue: TValue;
 }

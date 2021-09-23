@@ -1,8 +1,6 @@
 const MODEL = 'fml:model';
 
 declare module '@fml/core' {
-  type FieldValueTypes = string | number | boolean | Date | undefined;
-
   interface ModelConfiguration<Value> extends ControlConfigurationBase<Value> {
     schema: { [Key in keyof Value]: Configuration<Value[Key]> };
   }

@@ -16,7 +16,7 @@ export default function TextArea(props: TextAreaProps) {
     focusHandler,
     validationMessages,
     value,
-  } = useFmlControl<string>(props.config);
+  } = useFmlControl<string | undefined>(props.config[1]);
 
   return (
     <>

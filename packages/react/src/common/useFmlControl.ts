@@ -1,5 +1,5 @@
 import {
-  Configuration,
+  ControlConfigurationBase,
   ValidatorConfiguration,
   ValidityStatus,
   ValueState,
@@ -9,7 +9,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFmlContext } from './FmlControlContext';
 
-export function useFmlControl<TValue>([, config]: Configuration<TValue>) {
+export function useFmlControl<Value>(config: ControlConfigurationBase<Value>) {
   const {
     controlId,
     onBlur: contextOnBlur,
@@ -18,14 +18,14 @@ export function useFmlControl<TValue>([, config]: Configuration<TValue>) {
   } = useFmlContext();
 
   const { blurHandler, hasBeenBlurred } = useFmlComponentBlur(contextOnBlur);
-  const { currentValue, setCurrentValue } = useFmlComponentState<TValue>(
-    config.defaultValue as TValue,
-    (config.validators ?? []) as ValidatorConfiguration<TValue>[],
+  const { currentValue, setCurrentValue } = useFmlComponentState<Value>(
+    config.defaultValue as Value,
+    (config.validators ?? []) as ValidatorConfiguration<Value>[],
   );
   const { focusHandler } = useFmlComponentFocus(contextOnFocus);
 
-  const { validationMessages, changeHandler } = useFmlComponentChange<TValue>(
-    (config.validators ?? []) as ValidatorConfiguration<TValue>[],
+  const { validationMessages, changeHandler } = useFmlComponentChange<Value>(
+    (config.validators ?? []) as ValidatorConfiguration<Value>[],
     onChange,
     currentValue,
     setCurrentValue,

@@ -1,7 +1,7 @@
 import { Configuration, ValueState } from '@fml/core';
 import { FmlContextProvider } from './common/FmlControlContext';
 import { FormEvent, useState } from 'react';
-import FmlComponent, { getControlConfig } from './common/FmlComponent';
+import FmlComponent from './common/FmlComponent';
 
 interface submitCallback<TModel> {
   (model: TModel, event: FormEvent<HTMLFormElement>): void;
@@ -21,7 +21,7 @@ export default function Form<TModel>({
   submitText,
 }: FormProps<TModel>) {
   const [value, setValue] = useState<ValueState<TModel | undefined>>({
-    value: getControlConfig(config).defaultValue as TModel | undefined,
+    value: (config[1] as any).defaultValue as TModel | undefined,
     validity: 'unknown',
   });
   const { validity, value: innerValue } = value;
@@ -29,7 +29,7 @@ export default function Form<TModel>({
   return (
     <form onSubmit={(e) => onSubmit(innerValue as TModel, e)}>
       <FmlContextProvider<TModel> localControlId={formName} onChange={setValue}>
-        <FmlComponent config={config} />
+        <FmlComponent config={config[1] as any} />
       </FmlContextProvider>
       <input value={submitText} type='submit' disabled={validity !== 'valid'} />
     </form>

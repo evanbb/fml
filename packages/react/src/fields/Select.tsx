@@ -17,7 +17,7 @@ export default function Select(props: SelectProps) {
     validationMessages,
     value,
   } = useFmlControl<'string'>(
-    props.config as Configuration<'string', 'fml:select'>,
+    (props.config as Configuration<'string', 'fml:select'>)[1],
   );
 
   return (

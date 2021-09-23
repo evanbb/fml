@@ -46,6 +46,8 @@ export type IsPartial<T> = Partial<T> extends T ? true : false;
 
 //#region controls
 
+export type FieldValueTypes = string | number | boolean | Date | undefined;
+
 /**
  * The various validity statuses in which data bound to a form control can be.
  */
@@ -247,7 +249,7 @@ export interface OptionsListConfiguration<Value extends string>
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface ComponentRegistry<Value> {
-  [more: string]: ComponentRegistration<Value, unknown, unknown[]>;
+  [more: string]: ComponentRegistration<unknown, unknown, unknown[]>;
 }
 
 /**
@@ -277,6 +279,8 @@ export type Configuration<
     ? [ComponentKey, ComponentConfiguration?, ...ValidChildren]
     : [ComponentKey, ComponentConfiguration, ...ValidChildren]
   : never;
+
+type f = Configuration<boolean>
 
 const componentRegistry = new Map<RegisteredComponents, unknown>();
 

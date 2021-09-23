@@ -16,7 +16,7 @@ export default function DateTime(props: DateTimeProps) {
     focusHandler,
     validationMessages,
     value,
-  } = useFmlControl<Date>(props.config);
+  } = useFmlControl<Date | undefined>(props.config[1]);
 
   return (
     <>
