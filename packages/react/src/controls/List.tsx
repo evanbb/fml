@@ -7,11 +7,11 @@ import {
   ConfigurationFor,
 } from '@fml/core';
 import LIST from '@fml/add/controls/list';
-import { FmlContextProvider, useFmlContext } from './common/FmlControlContext';
-import { useFmlControl } from './common/useFmlControl';
+import { FmlContextProvider, useFmlContext } from '../common/FmlControlContext';
+import { useFmlControl } from '../common/useFmlControl';
 import { useRef, useState, useEffect, useCallback, memo } from 'react';
-import FmlComponent from './common/FmlComponent';
-import ValidationMessages from './ValidationMessages';
+import FmlComponent from '../common/FmlComponent';
+import ValidationMessages from '../common/ValidationMessages';
 
 interface CollectionItem<TValue> {
   value: TValue;

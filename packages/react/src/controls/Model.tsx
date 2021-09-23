@@ -7,11 +7,11 @@ import {
   ConfigurationFor,
 } from '@fml/core';
 import MODEL from '@fml/add/controls/model';
-import { FmlContextProvider } from './common/FmlControlContext';
-import { useFmlControl } from './common/useFmlControl';
+import { FmlContextProvider } from '../common/FmlControlContext';
+import { useFmlControl } from '../common/useFmlControl';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import FmlComponent from './common/FmlComponent';
-import ValidationMessages from './ValidationMessages';
+import FmlComponent from '../common/FmlComponent';
+import ValidationMessages from '../common/ValidationMessages';
 
 type ValueStateModelProps<TValue> = {
   [Key in keyof TValue]: ValueState<TValue[Key]>;
