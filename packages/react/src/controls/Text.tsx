@@ -7,6 +7,7 @@ import { useFmlControl } from '../common/useFmlControl';
 type TextProps = FmlComponentProps<'fml:text', string>;
 
 export default function Text(props: TextProps) {
+  debugger;
   const [, { label }] = props.config;
 
   const {

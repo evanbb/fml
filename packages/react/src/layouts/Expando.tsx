@@ -3,7 +3,7 @@ import FmlComponent from '../common/FmlComponent';
 import { useState } from 'react';
 import EXPANDO from '@fml/add/layouts/expando';
 
-interface ExpandoProps {
+export interface ExpandoProps {
   config: ConfigurationFor<'fml:expando'>;
 }
 
@@ -25,3 +25,5 @@ function Expando({
 }
 
 registerComponent(EXPANDO, Expando);
+
+export default Expando

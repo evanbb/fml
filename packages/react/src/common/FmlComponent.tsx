@@ -5,19 +5,25 @@ import {
 } from '@fml/core';
 import React, { memo } from 'react';
 
-export interface FmlComponentProps<ComponentKey extends RegisteredComponents, Value = never> {
+export interface FmlComponentProps<
+  ComponentKey extends RegisteredComponents,
+  Value = never,
+> {
   config: ConfigurationFor<ComponentKey, Value>;
 }
 
 function FmlComponent<ComponentKey extends RegisteredComponents>({
   config,
 }: FmlComponentProps<ComponentKey>) {
-  const [key, props, children] = config;
+  debugger;
+  const [key, props] = config;
 
   const Impl =
-    getComponentImplementation<React.ComponentType<typeof props>>(key);
+    getComponentImplementation<React.ComponentType<{ config: typeof props }>>(
+      key,
+    );
 
-  return <Impl {...props}>{children as React.ReactNode}</Impl>;
+  return <Impl config={config} />;
 }
 
 export default memo(FmlComponent) as typeof FmlComponent;
