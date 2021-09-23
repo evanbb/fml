@@ -1,17 +1,17 @@
 import {
-  ControlConfigurationBase,  ValidityStatus,
+  ControlConfigurationBase,
+  ValidityStatus,
   ValueState,
   ValueStateChangeHandler,
   Configuration,
-  ControlConfiguration,
-  ListConfiguration,
+  registerComponent,
+  ConfigurationFor,
 } from '@fml/core';
+import LIST from '@fml/add/controls/list';
 import { FmlContextProvider, useFmlContext } from './common/FmlControlContext';
 import { useFmlControl } from './common/useFmlControl';
 import { useRef, useState, useEffect, useCallback, memo } from 'react';
-import FmlComponent, {
-  getControlConfig,
-} from './common/FmlComponent';
+import FmlComponent from './common/FmlComponent';
 import ValidationMessages from './ValidationMessages';
 
 interface CollectionItem<TValue> {
@@ -38,7 +38,7 @@ function useListItemTransform<TValue>(props: ListProps<TValue>) {
     value: list,
     validationMessages,
   } = useFmlControl<TValue[]>(
-    props.config as ControlConfiguration<TValue[]>,
+    props.config[1] as unknown as Configuration<TValue[]>,
   );
 
   const { newId } = useListItemId();
@@ -55,19 +55,12 @@ function useListItemTransform<TValue>(props: ListProps<TValue>) {
     updateCollection((coll) => [
       ...coll,
       {
-        value: getControlConfig(
-          (getControlConfig(props.config) as ListConfiguration<TValue>)
-            .itemConfig,
-        ).defaultValue as TValue,
+        value: (props.config[1].itemConfig[1] as any).defaultValue as TValue,
         fmlListId: newId(),
         validity: 'unknown',
       },
     ]);
-  }, [
-    (getControlConfig(props.config) as ControlConfiguration<TValue[]>)
-      .itemConfig,
-    newId,
-  ]);
+  }, [props.config[1].itemConfig[1], newId]);
 
   const remove = useCallback((fmlListId: number) => {
     updateCollection((coll) => {
@@ -142,7 +135,7 @@ function ListItemComponent<TValue>({
   fmlListId,
   update,
   remove,
-  itemConfig,
+  itemConfig: [, itemConfig],
   defaultValue,
   elementIndex,
 }: ListItemProps<TValue>) {
@@ -161,10 +154,10 @@ function ListItemComponent<TValue>({
    */
 
   const [actualConfig] = useState<ControlConfigurationBase<TValue>>({
-    ...getControlConfig(itemConfig),
+    ...(itemConfig as any),
     defaultValue:
       typeof defaultValue === 'undefined'
-        ? getControlConfig<TValue>(itemConfig).defaultValue
+        ? (itemConfig as any).defaultValue
         : defaultValue,
   });
   const changeHandler = useCallback(
@@ -186,9 +179,7 @@ function ListItemComponent<TValue>({
         onChange={changeHandler}
         localControlId={String(elementIndex)}
       >
-        <FmlComponent<TValue>
-          config={actualConfig as Configuration<TValue>}
-        />
+        <FmlComponent config={actualConfig as any} />
       </FmlContextProvider>
       <button onClick={removeHandler}>-</button>
     </li>
@@ -196,7 +187,7 @@ function ListItemComponent<TValue>({
 }
 
 export interface ListProps<TValue> {
-  config: ListConfiguration<TValue>;
+  config: ConfigurationFor<'fml:list', TValue>;
 }
 
 function List<TValue>(props: ListProps<TValue>) {
@@ -217,7 +208,7 @@ function List<TValue>(props: ListProps<TValue>) {
   return (
     <div role='group' aria-labelledby={labelId}>
       <label data-fml-validity={validity} id={labelId}>
-        {props.config.label}
+        {props.config[1].label}
       </label>
       <ValidationMessages validationMessages={validationMessages} />
       <ul>
@@ -227,7 +218,7 @@ function List<TValue>(props: ListProps<TValue>) {
             fmlListId={fmlListId}
             update={update}
             remove={remove}
-            itemConfig={props.config.itemConfig}
+            itemConfig={props.config[1].itemConfig}
             onFocus={onFocus}
             defaultValue={value}
             elementIndex={elementIndex}
@@ -247,5 +238,7 @@ function List<TValue>(props: ListProps<TValue>) {
     </div>
   );
 }
+
+registerComponent(LIST, List);
 
 export default memo(List) as typeof List;

@@ -3,7 +3,10 @@ import {
   ValidityStatus,
   ValueStateChangeHandler,
   ValueState,
+  registerComponent,
+  ConfigurationFor,
 } from '@fml/core';
+import MODEL from '@fml/add/controls/model';
 import { FmlContextProvider } from './common/FmlControlContext';
 import { useFmlControl } from './common/useFmlControl';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
@@ -25,11 +28,11 @@ function useModelTransform<TValue>(props: ModelProps<TValue>) {
     validationMessages,
     focusHandler: onFocus,
     value: innerModel,
-  } = useFmlControl<TValue>(props.config as Configuration<TValue>);
+  } = useFmlControl<TValue>(props.config[1] as unknown as Configuration<TValue>);
 
   const initialModel = useMemo<ValueStateModelProps<TValue>>(() => {
     const result = {} as ValueStateModelProps<TValue>;
-    Object.keys(props.config.schema).forEach((key) => {
+    Object.keys(props.config[1].schema).forEach((key) => {
       Object.assign(result, {
         [key]: {
           value: innerModel.value
@@ -40,7 +43,7 @@ function useModelTransform<TValue>(props: ModelProps<TValue>) {
       });
     });
     return result;
-  }, [innerModel.value, props.config.schema]);
+  }, [innerModel.value, props.config[1].schema]);
 
   const modelToInnerValue = useCallback<
     (model: ValueStateModel<TValue>) => [TValue, Set<ValidityStatus>]
@@ -128,7 +131,7 @@ interface ModelPropertyProps<TModel, TPropertyValue> {
 
 function ModelProperty<TModel, TPropertyValue>({
   propertyName,
-  schema,
+  schema: [, schema],
   update,
 }: ModelPropertyProps<TModel, TPropertyValue>) {
   const changeHandler = useCallback(
@@ -143,19 +146,19 @@ function ModelProperty<TModel, TPropertyValue>({
       localControlId={propertyName as string}
       onChange={changeHandler}
     >
-      <FmlComponent config={schema} />
+      <FmlComponent config={schema as any} />
     </FmlContextProvider>
   );
 }
 
 export interface ModelProps<TValue> {
-  config: Configuration<TValue>;
+  config: ConfigurationFor<'fml:model', TValue>;
 }
 
 function Model<TValue>(props: ModelProps<TValue>) {
   const { updateProperty, validationMessages, validity } =
     useModelTransform<TValue>(props);
-  const config = props.config as Configuration<TValue>;
+  const [, config] = props.config;
 
   return (
     <fieldset>
@@ -167,7 +170,7 @@ function Model<TValue>(props: ModelProps<TValue>) {
         return (
           <ModelProperty<TValue, PropertyType>
             key={k as string}
-            schema={config.schema[k]}
+            schema={config.schema[k][1] as Configuration<PropertyType>}
             propertyName={k}
             update={updateProperty}
           />
@@ -176,5 +179,7 @@ function Model<TValue>(props: ModelProps<TValue>) {
     </fieldset>
   );
 }
+
+registerComponent(MODEL, Model);
 
 export default memo(Model) as typeof Model;

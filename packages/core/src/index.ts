@@ -280,8 +280,8 @@ export type Configuration<
 
 const componentRegistry = new Map<RegisteredComponents, unknown>();
 
-export type ConfigurationFor<ComponentKey extends RegisteredComponents> =
-  ComponentRegistry<never>[ComponentKey] extends ComponentRegistration<
+export type ConfigurationFor<ComponentKey extends RegisteredComponents, Value = never> =
+  ComponentRegistry<Value>[ComponentKey] extends ComponentRegistration<
     unknown,
     infer ComponentConfiguration,
     infer ValidChildren
