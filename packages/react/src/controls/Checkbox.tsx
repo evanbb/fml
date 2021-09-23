@@ -1,6 +1,6 @@
 import { registerComponent } from '@fml/core';
 import CHECKBOX from '@fml/add/controls/checkbox';
-import ValidationMessages from '../ValidationMessages';
+import ValidationMessages from '../common/ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
 

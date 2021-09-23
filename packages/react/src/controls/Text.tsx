@@ -1,6 +1,6 @@
 import { registerComponent } from '@fml/core';
 import TEXT from '@fml/add/controls/text';
-import ValidationMessages from '../ValidationMessages';
+import ValidationMessages from '../common/ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
 
