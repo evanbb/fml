@@ -1,7 +1,12 @@
-import { FmlConfiguration } from '@fml/core';
-import '@fml/add/validators/required'
+import { Configuration } from '@fml/core';
+import '@fml/add/validators/required';
 import Form from './Form';
 import './layouts/Expando';
+import './controls/Model';
+import './controls/List';
+import './controls/Text';
+import './controls/Checkbox';
+import './controls/Date';
 
 interface ExampleShape {
   stringProperty?: string;
@@ -13,49 +18,69 @@ interface ExampleShape {
   };
 }
 
-const defaultConfig: FmlConfiguration<ExampleShape> = {
-  label: 'This is an example',
-  schema: {
-    stringProperty: {
-      label: 'A string property',
-      control: 'text',
-      defaultValue: '',
-    },
-    boolProperty: [
-      'expando',
-      { defaultExpanded: false, summary: 'Something is hidden here' },
-      {
-        label: 'A boolean property',
-        control: 'checkbox',
-        defaultValue: false,
-      },
-    ],
-    dateProperty: {
-      label: 'A date property',
-      control: 'date',
-      defaultValue: undefined,
-    },
-    collectionProperty: {
-      label: 'A collection of strings property',
-      itemConfig: {
-        label: 'Value of this string',
-        control: 'text',
-        defaultValue: '',
-      },
-    },
-    objectProperty: {
-      label: 'An object property',
-      schema: {
-        property: {
-          label: `The object's property`,
-          control: 'text',
-          validators: [['required', 'Oh no!']],
+const defaultConfig: Configuration<ExampleShape> = [
+  'fml:model',
+  {
+    label: 'This is an example',
+    schema: {
+      stringProperty: [
+        'fml:text',
+        {
+          label: 'A string property',
           defaultValue: '',
         },
-      },
+      ],
+      boolProperty: [
+        'fml:expando',
+        { defaultExpanded: false, summary: 'Something is hidden here' },
+        [
+          'fml:checkbox',
+          {
+            label: 'A boolean property',
+            control: 'checkbox',
+            defaultValue: false,
+          },
+        ],
+      ],
+      dateProperty: [
+        'fml:date',
+        {
+          label: 'A date property',
+          defaultValue: undefined,
+        },
+      ],
+      collectionProperty: [
+        'fml:list',
+        {
+          label: 'A collection of strings property',
+          itemConfig: [
+            'fml:text',
+            {
+              label: 'Value of this string',
+              defaultValue: '',
+            },
+          ],
+        },
+      ],
+      objectProperty: [
+        'fml:model',
+        {
+          label: 'An object property',
+          schema: {
+            property: [
+              'fml:text',
+              {
+                label: `The object's property`,
+                validators: [['required', 'Oh no!']],
+                defaultValue: '',
+              },
+            ],
+          },
+        },
+      ],
     },
   },
-};
+];
 
 const logit = (x: any, e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
@@ -77,7 +102,7 @@ export const StupidForm = () => {
   return (
     <Form<string>
       onSubmit={logit}
-      config={{ label: 'stupid text', control: 'text', defaultValue: '' }}
+      config={['fml:text', { label: 'stupid text', defaultValue: '' }]}
       formName='stupidform'
       submitText='Submit me!'
     />
@@ -88,10 +113,13 @@ export const SillyForm = () => {
   return (
     <Form<string[]>
       onSubmit={logit}
-      config={{
-        label: 'lllllll',
-        itemConfig: { label: 'sss', control: 'text', defaultValue: '' },
-      }}
+      config={[
+        'fml:list',
+        {
+          label: 'lllllll',
+          itemConfig: ['fml:text', { label: 'sss', defaultValue: '' }],
+        },
+      ]}
       formName='stringValue'
       submitText='Submit me!'
     />
