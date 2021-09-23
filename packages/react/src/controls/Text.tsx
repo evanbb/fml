@@ -4,7 +4,7 @@ import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
 
-type TextProps = FmlComponentProps<'fml:text'>;
+type TextProps = FmlComponentProps<'fml:text', string>;
 
 export default function Text(props: TextProps) {
   const [, { label }] = props.config;

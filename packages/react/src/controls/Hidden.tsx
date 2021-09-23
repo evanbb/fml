@@ -3,7 +3,7 @@ import HIDDEN from '@fml/add/controls/hidden';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
 
-type HiddenProps = FmlComponentProps<'fml:hidden'>;
+type HiddenProps = FmlComponentProps<'fml:hidden', string>;
 
 export default function Hidden(props: HiddenProps) {
   const { controlId, value } = useFmlControl<string | undefined>(

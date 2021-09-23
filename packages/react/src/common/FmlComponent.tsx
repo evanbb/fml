@@ -5,8 +5,8 @@ import {
 } from '@fml/core';
 import React, { memo } from 'react';
 
-export interface FmlComponentProps<ComponentKey extends RegisteredComponents> {
-  config: ConfigurationFor<ComponentKey>;
+export interface FmlComponentProps<ComponentKey extends RegisteredComponents, Value = never> {
+  config: ConfigurationFor<ComponentKey, Value>;
 }
 
 function FmlComponent<ComponentKey extends RegisteredComponents>({
