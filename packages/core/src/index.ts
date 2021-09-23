@@ -280,8 +280,6 @@ export type Configuration<
     : [ComponentKey, ComponentConfiguration, ...ValidChildren]
   : never;
 
-type f = Configuration<boolean>
-
 const componentRegistry = new Map<RegisteredComponents, unknown>();
 
 export type ConfigurationFor<ComponentKey extends RegisteredComponents, Value = never> =

@@ -184,7 +184,7 @@ function ListItemComponent<TValue>({
 }
 
 export interface ListProps<TValue> {
-  config: ConfigurationFor<'fml:list', TValue>;
+  config: ConfigurationFor<'fml:list', TValue[]>;
 }
 
 function List<TValue>(props: ListProps<TValue>) {

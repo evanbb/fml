@@ -8,7 +8,7 @@ declare module '@fml/core' {
   export interface ComponentRegistry<Value> {
     [LIST]: [
       Value extends ReadonlyArray<unknown> ? Value : never,
-      ListConfiguration<Value>,
+      Value extends ReadonlyArray<infer Item> ? ListConfiguration<Item> : never,
     ];
   }
 }
