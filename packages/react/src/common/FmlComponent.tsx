@@ -1,12 +1,12 @@
-import { ConfigurationKeyed, RegisteredComponents } from '@fml/core';
+import { ConfigurationFor, RegisteredComponents } from '@fml/core';
 import { memo } from 'react';
 
-export interface FmlComponentProps<Key extends RegisteredComponents> {
-  config: ConfigurationKeyed<Key>;
+export interface FmlComponentProps<ComponentKey extends RegisteredComponents> {
+  config: ConfigurationFor<ComponentKey>;
 }
 
-function FmlComponent<Key extends RegisteredComponents>(
-  props: FmlComponentProps<Key>,
+function FmlComponent<ComponentKey extends RegisteredComponents>(
+  props: FmlComponentProps<ComponentKey>,
 ) {
   return null;
 }

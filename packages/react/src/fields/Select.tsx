@@ -4,11 +4,10 @@ import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
 
-type SelectProps = FmlComponentProps<string>;
+type SelectProps = FmlComponentProps<'fml:select'>;
 
 export default function Select(props: SelectProps) {
-  const [, { label, options }] =
-    props.config as unknown as Configuration<'string'>;
+  const [, { label, options }] = props.config;
 
   const {
     blurHandler,
@@ -18,7 +17,7 @@ export default function Select(props: SelectProps) {
     validationMessages,
     value,
   } = useFmlControl<'string'>(
-    props.config as unknown as Configuration<'string'>,
+    props.config as Configuration<'string', 'fml:select'>,
   );
 
   return (

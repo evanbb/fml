@@ -1,13 +1,13 @@
-import { Configuration, registerComponent } from '@fml/core';
+import { registerComponent } from '@fml/core';
 import NUMBER from '@fml/add/controls/number';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
 
-type NumberComponentProps = FmlComponentProps<number>;
+type NumberComponentProps = FmlComponentProps<'fml:number'>;
 
 export default function NumberComponent(props: NumberComponentProps) {
-  const [, { label }] = props.config as Configuration<number>;
+  const [, { label }] = props.config;
 
   const {
     blurHandler,
@@ -16,7 +16,7 @@ export default function NumberComponent(props: NumberComponentProps) {
     focusHandler,
     validationMessages,
     value,
-  } = useFmlControl<number>(props.config as Configuration<number>);
+  } = useFmlControl<number>(props.config);
 
   return (
     <>

@@ -1,13 +1,13 @@
-import { Configuration, registerComponent } from '@fml/core';
+import { registerComponent } from '@fml/core';
 import CHECKBOX from '@fml/add/controls/checkbox';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
 
-type CheckboxProps = FmlComponentProps<boolean>;
+type CheckboxProps = FmlComponentProps<'fml:checkbox'>;
 
 export default function Checkbox(props: CheckboxProps) {
-  const [, { label }] = props.config as Configuration<boolean>;
+  const [, { label }] = props.config;
 
   const {
     blurHandler,
@@ -16,7 +16,7 @@ export default function Checkbox(props: CheckboxProps) {
     focusHandler,
     validationMessages,
     value,
-  } = useFmlControl<boolean>(props.config as Configuration<boolean>);
+  } = useFmlControl<boolean>(props.config);
 
   return (
     <>

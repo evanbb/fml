@@ -1,13 +1,13 @@
-import { Configuration, registerComponent } from '@fml/core';
+import { registerComponent } from '@fml/core';
 import TEXTAREA from '@fml/add/controls/textarea';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
 
-type TextAreaProps = FmlComponentProps<string>;
+type TextAreaProps = FmlComponentProps<'fml:textarea'>;
 
 export default function TextArea(props: TextAreaProps) {
-  const [, { label }] = props.config as Configuration<string>;
+  const [, { label }] = props.config;
 
   const {
     blurHandler,
@@ -16,7 +16,7 @@ export default function TextArea(props: TextAreaProps) {
     focusHandler,
     validationMessages,
     value,
-  } = useFmlControl<string>(props.config as Configuration<string>);
+  } = useFmlControl<string>(props.config);
 
   return (
     <>

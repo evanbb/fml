@@ -256,32 +256,40 @@ export interface ComponentRegistry<Value> {
 export type RegisteredComponents = KnownKeys<ComponentRegistry<never>>;
 
 /**
- * This returns a union of the names of registered field controls that are
- * designed for the provided data type.
+ * This returns a union of the names of registered components that support the
+ * specified data type.
  */
-type ConfigurationFor<Value> = keyof {
+type ComponentsFor<Value> = keyof {
   [K in KnownKeys<
     ComponentRegistry<Value>
   > as Value extends ComponentRegistry<Value>[K][0] ? K : never]: K;
 };
 
-export type Configuration<Value> = [ConfigurationFor<Value>] extends [
-  infer ComponentKey,
-]
-  ? ComponentKey extends keyof ComponentRegistry<Value>
-    ? ComponentRegistry<Value>[ComponentKey] extends ComponentRegistration<
-        infer Value,
-        infer Configuration,
-        infer ValidChildren
-      >
-      ? Configuration extends undefined
-        ? [ComponentKey]
-        : [ComponentKey, Configuration, ...ValidChildren]
-      : never
-    : never
+export type Configuration<
+  Value,
+  ComponentKey extends ComponentsFor<Value> = ComponentsFor<Value>,
+> = ComponentRegistry<Value>[ComponentKey] extends ComponentRegistration<
+  unknown,
+  infer ComponentConfiguration,
+  infer ValidChildren
+>
+  ? IsPartial<ComponentConfiguration> extends true
+    ? [ComponentKey, ComponentConfiguration?, ...ValidChildren]
+    : [ComponentKey, ComponentConfiguration, ...ValidChildren]
   : never;
 
 const componentRegistry = new Map<RegisteredComponents, unknown>();
+
+export type ConfigurationFor<ComponentKey extends RegisteredComponents> =
+  ComponentRegistry<never>[ComponentKey] extends ComponentRegistration<
+    unknown,
+    infer ComponentConfiguration,
+    infer ValidChildren
+  >
+    ? IsPartial<ComponentConfiguration> extends true
+    ? [ComponentKey, ComponentConfiguration?, ...ValidChildren]
+    : [ComponentKey, ComponentConfiguration, ...ValidChildren]
+    : never;
 
 /**
  * Register a field control's concrete implementation.
