@@ -8,69 +8,69 @@ import './controls/Text';
 import './controls/Checkbox';
 import './controls/Date';
 
-interface ExampleShape {
-  stringProperty?: string;
-  boolProperty?: boolean;
-  dateProperty: Date;
-  collectionProperty: string[];
-  objectProperty: {
-    property: string;
+interface Person {
+  fullName?: string;
+  isBoring?: boolean;
+  birthdate: Date;
+  hobbies: string[];
+  hair: {
+    color: string;
   };
 }
 
-const defaultConfig: Configuration<ExampleShape> = [
+const defaultConfig: Configuration<Person> = [
   'fml:model',
   {
-    label: 'This is an example',
+    label: 'This is a person',
     schema: {
-      stringProperty: [
+      fullName: [
         'fml:text',
         {
-          label: 'A string property',
+          label: 'full name',
           defaultValue: '',
         },
       ],
-      boolProperty: [
+      isBoring: [
         'fml:expando',
-        { defaultExpanded: false, summary: 'Something is hidden here' },
+        { defaultExpanded: false, summary: 'Something is hidden here! 👻' },
         [
           'fml:checkbox',
           {
-            label: 'A boolean property',
+            label: 'this person is boring',
             control: 'checkbox',
             defaultValue: false,
           },
         ],
       ],
-      dateProperty: [
+      birthdate: [
         'fml:date',
         {
-          label: 'A date property',
+          label: 'birthdate',
           defaultValue: undefined,
         },
       ],
-      collectionProperty: [
+      hobbies: [
         'fml:list',
         {
-          label: 'A collection of strings property',
+          label: 'A collection of hobbies this person enjoys',
           itemConfig: [
             'fml:text',
             {
-              label: 'Value of this string',
+              label: 'hobby description',
               defaultValue: '',
             },
           ],
         },
       ],
-      objectProperty: [
+      hair: [
         'fml:model',
         {
-          label: 'An object property',
+          label: 'hair descriptors',
           schema: {
-            property: [
+            color: [
               'fml:text',
               {
-                label: `The object's property`,
+                label: `hair color`,
                 validators: [['required', 'Oh no!']],
                 defaultValue: '',
               },
@@ -89,7 +89,7 @@ const logit = (x: any, e: React.FormEvent<HTMLFormElement>) => {
 
 export const ExampleForm = () => {
   return (
-    <Form<ExampleShape>
+    <Form<Person>
       onSubmit={logit}
       config={defaultConfig}
       formName='example'
