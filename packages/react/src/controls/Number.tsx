@@ -1,10 +1,20 @@
 import { registerComponent } from '@fml/core';
-import NUMBER from '@fml/add/controls/number';
 import ValidationMessages from '../common/ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
 
-type NumberComponentProps = FmlComponentProps<'fml:number'>;
+const NUMBER = 'fml:number';
+
+declare module '@fml/core' {
+  export interface ComponentRegistry<Value> {
+    [NUMBER]: [
+      number | undefined,
+      ControlConfigurationBase<number | undefined>,
+    ];
+  }
+}
+
+type NumberComponentProps = FmlComponentProps<typeof NUMBER>;
 
 export default function NumberComponent(props: NumberComponentProps) {
   const [, { label }] = props.config;

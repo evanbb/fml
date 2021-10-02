@@ -1,10 +1,20 @@
 import { registerComponent } from '@fml/core';
-import TEXTAREA from '@fml/add/controls/textarea';
 import ValidationMessages from '../common/ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
 
-type TextAreaProps = FmlComponentProps<'fml:textarea', string>;
+const TEXTAREA = 'fml:textarea';
+
+declare module '@fml/core' {
+  export interface ComponentRegistry<Value> {
+    [TEXTAREA]: [
+      StringOnlyNotStringUnion<Value> | undefined,
+      ControlConfigurationBase<StringOnlyNotStringUnion<Value> | undefined>,
+    ];
+  }
+}
+
+type TextAreaProps = FmlComponentProps<typeof TEXTAREA, string>;
 
 export default function TextArea(props: TextAreaProps) {
   const [, { label }] = props.config;

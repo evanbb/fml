@@ -1,10 +1,17 @@
 import { registerComponent } from '@fml/core';
-import TOGGLE from '@fml/add/controls/toggle';
 import ValidationMessages from '../common/ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
 
-type ToggleProps = FmlComponentProps<'fml:toggle'>;
+const TOGGLE = 'fml:toggle'
+
+declare module '@fml/core' {
+  export interface ComponentRegistry<Value> {
+    [TOGGLE]: [boolean | undefined, ControlConfigurationBase<boolean | undefined>];
+  }
+}
+
+type ToggleProps = FmlComponentProps<typeof TOGGLE>;
 
 export default function Toggle(props: ToggleProps) {
   const [, { label }] = props.config;

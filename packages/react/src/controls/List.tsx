@@ -6,12 +6,26 @@ import {
   registerComponent,
   ConfigurationFor,
 } from '@fml/core';
-import LIST from '@fml/add/controls/list';
 import { FmlContextProvider, useFmlContext } from '../common/FmlControlContext';
 import { useFmlControl } from '../common/useFmlControl';
 import { useRef, useState, useEffect, useCallback, memo } from 'react';
 import FmlComponent from '../common/FmlComponent';
 import ValidationMessages from '../common/ValidationMessages';
+
+const LIST = 'fml:list';
+
+declare module '@fml/core' {
+  interface ListConfiguration<Value> extends ControlConfigurationBase<Value[]> {
+    itemConfig: Configuration<Value>;
+  }
+
+  export interface ComponentRegistry<Value> {
+    [LIST]: [
+      Value extends ReadonlyArray<unknown> ? Value : never,
+      Value extends ReadonlyArray<infer Item> ? ListConfiguration<Item> : never,
+    ];
+  }
+}
 
 interface CollectionItem<TValue> {
   value: TValue;

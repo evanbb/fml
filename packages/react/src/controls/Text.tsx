@@ -1,13 +1,22 @@
 import { registerComponent } from '@fml/core';
-import TEXT from '@fml/add/controls/text';
 import ValidationMessages from '../common/ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
 
-type TextProps = FmlComponentProps<'fml:text', string>;
+const TEXT = 'fml:text';
+
+declare module '@fml/core' {
+  export interface ComponentRegistry<Value> {
+    [TEXT]: [
+      StringOnlyNotStringUnion<Value> | undefined,
+      ControlConfigurationBase<StringOnlyNotStringUnion<Value> | undefined>,
+    ];
+  }
+}
+
+type TextProps = FmlComponentProps<typeof TEXT, string>;
 
 export default function Text(props: TextProps) {
-  debugger;
   const [, { label }] = props.config;
 
   const {

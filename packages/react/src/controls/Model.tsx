@@ -6,12 +6,30 @@ import {
   registerComponent,
   ConfigurationFor,
 } from '@fml/core';
-import MODEL from '@fml/add/controls/model';
 import { FmlContextProvider } from '../common/FmlControlContext';
 import { useFmlControl } from '../common/useFmlControl';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import FmlComponent from '../common/FmlComponent';
 import ValidationMessages from '../common/ValidationMessages';
+
+const MODEL = 'fml:model';
+
+declare module '@fml/core' {
+  interface ModelConfiguration<Value> extends ControlConfigurationBase<Value> {
+    schema: { [Key in keyof Value]: Configuration<Value[Key]> };
+  }
+
+  export interface ComponentRegistry<Value> {
+    [MODEL]: [
+      Value extends FieldValueTypes
+        ? never
+        : Value extends ReadonlyArray<unknown>
+        ? never
+        : Value,
+      ModelConfiguration<Value>,
+    ];
+  }
+}
 
 type ValueStateModelProps<TValue> = {
   [Key in keyof TValue]: ValueState<TValue[Key]>;

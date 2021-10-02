@@ -1,10 +1,17 @@
 import { registerComponent } from '@fml/core';
-import DATETIME from '@fml/add/controls/datetime';
 import ValidationMessages from '../common/ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
 
-type DateTimeProps = FmlComponentProps<'fml:datetime'>;
+const DATETIME = 'fml:datetime';
+
+declare module '@fml/core' {
+  export interface ComponentRegistry<Value> {
+    [DATETIME]: [Date | undefined, ControlConfigurationBase<Date | undefined>];
+  }
+}
+
+type DateTimeProps = FmlComponentProps<typeof DATETIME>;
 
 export default function DateTime(props: DateTimeProps) {
   const [, { label }] = props.config;

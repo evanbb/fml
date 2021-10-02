@@ -1,10 +1,25 @@
 import { Configuration, registerComponent } from '@fml/core';
-import SELECT from '@fml/add/controls/select';
 import ValidationMessages from '../common/ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
 
-type SelectProps<Value> = FmlComponentProps<'fml:select', Value>;
+const SELECT = 'fml:select';
+
+declare module '@fml/core' {
+  export interface ComponentRegistry<Value> {
+    [SELECT]: [
+      StringUnionOnlyNotString<Value>,
+      [Value] extends [string]
+        ? string extends Value
+          ? never
+          : OptionsListConfiguration<Value>
+        : // todo: add support for multiple selects...
+          never,
+    ];
+  }
+}
+
+type SelectProps<Value> = FmlComponentProps<typeof SELECT, Value>;
 
 export default function Select<Value extends string>(
   props: SelectProps<Value>,

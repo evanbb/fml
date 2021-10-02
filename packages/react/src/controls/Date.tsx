@@ -1,10 +1,17 @@
 import { registerComponent } from '@fml/core';
-import DATE from '@fml/add/controls/date';
 import ValidationMessages from '../common/ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
 import { useFmlControl } from '../common/useFmlControl';
 
-type DateComponentProps = FmlComponentProps<'fml:date'>;
+const DATE = 'fml:date'
+
+declare module '@fml/core' {
+  export interface ComponentRegistry<Value> {
+    [DATE]: [Date | undefined, ControlConfigurationBase<Date | undefined>];
+  }
+}
+
+type DateComponentProps = FmlComponentProps<typeof DATE>;
 
 export default function DateComponent(props: DateComponentProps) {
   const [, { label }] = props.config;

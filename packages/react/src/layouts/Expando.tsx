@@ -1,10 +1,22 @@
 import { ConfigurationFor, registerComponent } from '@fml/core';
 import FmlComponent from '../common/FmlComponent';
 import { useState } from 'react';
-import EXPANDO from '@fml/add/layouts/expando';
+
+const EXPANDO = 'fml:expando';
+
+declare module '@fml/core' {
+  export interface ExpandoConfig {
+    defaultExpanded: boolean;
+    summary: string;
+  }
+
+  export interface ComponentRegistry<Value> {
+    [EXPANDO]: [any, ExpandoConfig, any];
+  }
+}
 
 export interface ExpandoProps {
-  config: ConfigurationFor<'fml:expando'>;
+  config: ConfigurationFor<typeof EXPANDO>;
 }
 
 function Expando({

@@ -22,12 +22,26 @@ const entries = packageDirs.reduce((acc, pkg) => {
   };
 }, {});
 
-['controls', 'layouts', 'validators'].forEach((dir) =>
+['validators'].forEach((dir) =>
   fs
     .readdirSync(`packages/add/src/${dir}`)
     .forEach(
       (file) =>
-        (entries[`@fml/add/${dir}/${path.parse(file).name}`] = `packages/add/src/${dir}/${file}`),
+        (entries[
+          `@fml/add/${dir}/${path.parse(file).name}`
+        ] = `packages/add/src/${dir}/${file}`),
+    ),
+);
+
+['controls', 'layouts'].forEach((dir) =>
+  fs
+    .readdirSync(`packages/react/src/${dir}`)
+    .filter((name) => !name.includes('stories'))
+    .forEach(
+      (file) =>
+        (entries[
+          `@fml/react/${dir}/${path.parse(file).name}`
+        ] = `packages/react/src/${dir}/${file}`),
     ),
 );
 
