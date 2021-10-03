@@ -45,7 +45,22 @@ const entries = packageDirs.reduce((acc, pkg) => {
     ),
 );
 
-function generateEntryChunkName(chunkInfo) {
+function generateChunkName(chunkInfo) {
+  // we really only care about what package the chunk is part of
+  // as chunks will only contain modules within the same package
+
+  const moduleIdOfSomeModuleInThisChunk = Object.keys(chunkInfo.modules)[0];
+  const { dir } = path.parse(moduleIdOfSomeModuleInThisChunk);
+  const packagesDir = path.join(__dirname, 'packages');
+  const packageNameForThisChunk = path
+    .relative(packagesDir, dir)
+    .split(path.sep)
+    .shift();
+
+  return `${packageNameForThisChunk}/lib/${chunkInfo.name}.[format].[hash].js`;
+}
+
+function generateEntryName(chunkInfo) {
   const entryName = chunkInfo.name.replace('@fml/', '');
 
   const slashIndex = entryName.indexOf('/');
@@ -67,12 +82,14 @@ export default {
   output: [
     {
       dir: `packages`,
-      entryFileNames: generateEntryChunkName,
+      entryFileNames: generateEntryName,
+      chunkFileNames: generateChunkName,
       format: 'es',
     },
     {
       dir: `packages`,
-      entryFileNames: generateEntryChunkName,
+      entryFileNames: generateEntryName,
+      chunkFileNames: generateChunkName,
       format: 'cjs',
     },
   ],
