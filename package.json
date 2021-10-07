@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "description": "monorepo for fml",
   "scripts": {
-    "clean": "rimraf lib packages/*/lib packages/*/coverage packages/*/tsconfig.tsbuildinfo tsconfig.tsbuildinfo",
+    "clean": "rimraf lib packages/*/lib packages/*/coverage packages/*/tsconfig.tsbuildinfo tsconfig.tsbuildinfo packages/*/es packages/add/validators packages/add/*.js packages/add/*.ts packages/add/*.ts.map packages/core/*.js packages/core/*.ts packages/core/*.ts.map packages/react/*.js packages/react/*.ts packages/react/*.ts.map packages/react/controls packages/react/layouts packages/react/common",
     "start": "yarn start:react",
     "start:react": "yarn watch & cd packages/react && yarn start",
     "pretest": "yarn build",

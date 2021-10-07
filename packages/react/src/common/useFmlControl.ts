@@ -20,12 +20,12 @@ export function useFmlControl<Value>(config: ControlConfigurationBase<Value>) {
   const { blurHandler, hasBeenBlurred } = useFmlComponentBlur(contextOnBlur);
   const { currentValue, setCurrentValue } = useFmlComponentState<Value>(
     config.defaultValue as Value,
-    (config.validators ?? []) as ValidatorConfiguration<Value>[],
+    (config.validators || []) as ValidatorConfiguration<Value>[],
   );
   const { focusHandler } = useFmlComponentFocus(contextOnFocus);
 
   const { validationMessages, changeHandler } = useFmlComponentChange<Value>(
-    (config.validators ?? []) as ValidatorConfiguration<Value>[],
+    (config.validators || []) as ValidatorConfiguration<Value>[],
     onChange,
     currentValue,
     setCurrentValue,

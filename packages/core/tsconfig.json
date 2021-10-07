@@ -3,8 +3,8 @@
   "compilerOptions": {
     "baseUrl": "src",
     "rootDir": "src",
-    "declarationDir": "lib",
-    "outDir": "lib",
+    "declarationDir": ".",
+    "outDir": ".",
     "tsBuildInfoFile": "tsconfig.tsbuildinfo",
     "module": "esnext"
   },

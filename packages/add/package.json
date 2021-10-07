@@ -6,20 +6,11 @@
     "type": "git",
     "url": "git+https://github.com/evanbb/fml.git"
   },
-  "exports": {
-    ".": {
-      "import": "./lib/index.es.js",
-      "require": "./lib/index.cjs.js"
-    },
-    "./package.json": "./package.json",
-    "./*": {
-      "import": "./lib/*/index.es.js",
-      "require": "./lib/*/index.cjs.js"
-    }
-  },
   "publishConfig": {
     "access": "public"
   },
+  "main": "index.cjs.js",
+  "module": "es/index.js",
   "files": [
     "lib"
   ],
@@ -39,12 +30,12 @@
   },
   "typesVersions": {
     "*": {
-      "lib/index.*": [
-        "lib/index.d.ts"
+      "index.*": [
+        "index.d.ts"
       ],
       "*": [
-        "lib/*",
-        "lib/*/index.d.ts"
+        "*",
+        "*/index.d.ts"
       ]
     }
   }

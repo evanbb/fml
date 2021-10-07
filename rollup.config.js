@@ -45,7 +45,7 @@ const entries = packageDirs.reduce((acc, pkg) => {
     ),
 );
 
-function generateChunkName(chunkInfo) {
+function generateChunkName(isEsModule, chunkInfo) {
   // we really only care about what package the chunk is part of
   // as chunks will only contain modules within the same package
 
@@ -57,10 +57,10 @@ function generateChunkName(chunkInfo) {
     .split(path.sep)
     .shift();
 
-  return `${packageNameForThisChunk}/lib/${chunkInfo.name}.[format].[hash].js`;
+  return `${packageNameForThisChunk}${isEsModule ? '/es' : ''}/${chunkInfo.name}.[hash].js`;
 }
 
-function generateEntryName(chunkInfo) {
+function generateEntryName(isEsModule, chunkInfo) {
   const entryName = chunkInfo.name.replace('@fml/', '');
 
   const slashIndex = entryName.indexOf('/');
@@ -69,9 +69,9 @@ function generateEntryName(chunkInfo) {
     slashIndex !== -1 ? slashIndex : undefined,
   );
 
-  const result = `${packageName}/lib${
+  const result = `${packageName}${isEsModule ? '/es' : ''}${
     slashIndex !== -1 ? entryName.substring(slashIndex) : ''
-  }/index.[format].js`;
+  }/index.js`;
 
   return result;
 }
@@ -82,14 +82,14 @@ export default {
   output: [
     {
       dir: `packages`,
-      entryFileNames: generateEntryName,
-      chunkFileNames: generateChunkName,
+      entryFileNames: generateEntryName.bind(undefined, true),
+      chunkFileNames: generateChunkName.bind(undefined, true),
       format: 'es',
     },
     {
       dir: `packages`,
-      entryFileNames: generateEntryName,
-      chunkFileNames: generateChunkName,
+      entryFileNames: generateEntryName.bind(undefined, false),
+      chunkFileNames: generateChunkName.bind(undefined, false),
       format: 'cjs',
     },
   ],

@@ -5,7 +5,6 @@
   "scripts": {
     "start": "start-storybook"
   },
-  "browser": "lib/index.es.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/evanbb/fml.git"
@@ -13,17 +12,8 @@
   "publishConfig": {
     "access": "public"
   },
-  "exports": {
-    ".": {
-      "import": "./lib/index.es.js",
-      "require": "./lib/index.cjs.js"
-    },
-    "./package.json": "./package.json",
-    "./*": {
-      "import": "./lib/*/index.es.js",
-      "require": "./lib/*/index.cjs.js"
-    }
-  },
+  "main": "index.cjs.js",
+  "mmodule": "es/index.js",
   "files": [
     "lib"
   ],
@@ -66,12 +56,12 @@
   },
   "typesVersions": {
     "*": {
-      "lib/index.*": [
-        "lib/index.d.ts"
+      "index.*": [
+        "index.d.ts"
       ],
       "*": [
-        "lib/*",
-        "lib/*/index.d.ts"
+        "*",
+        "*/index.d.ts"
       ]
     }
   }

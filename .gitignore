@@ -2,6 +2,9 @@
 node_modules
 package-lock.json
 
+packages/*/es
+*.d.ts
+*.d.ts.map
 *.js
 !rollup.config.js
 !jest.config.js
@@ -15,3 +18,8 @@ yarn-error.log
 lerna-debug.log
 
 coverage
+
+packages/add/validators
+packages/react/controls
+packages/react/layouts
+packages/react/common
