@@ -2,38 +2,49 @@
  * @jest-environment jsdom
  */
 import { render, waitFor } from '@testing-library/react';
-import {
-  FmlFieldConfiguration,
-  FmlListConfiguration,
-  FmlModelConfiguration,
-} from '@fml/core';
+import { Configuration } from '@fml/core';
 import FmlComponent from './FmlComponent';
+import '../controls/Text';
+import '../controls/Model';
+import '../controls/List';
 
-const fieldConfig: FmlFieldConfiguration<string> = {
-  label: 'test field',
-  control: 'text',
-  defaultValue: '',
-};
-
-const modelConfig: FmlModelConfiguration<{ string: string }> = {
-  label: 'test model',
-  schema: {
-    string: {
-      label: 'property',
-      control: 'text',
-      defaultValue: '',
-    },
-  },
-};
-
-const listConfig: FmlListConfiguration<string> = {
-  label: 'test list',
-  itemConfig: {
-    label: 'item',
-    control: 'text',
+const fieldConfig: Configuration<string> = [
+  'fml:text',
+  {
+    label: 'test field',
     defaultValue: '',
   },
-};
+];
+
+const modelConfig: Configuration<{ string: string }> = [
+  'fml:model',
+  {
+    label: 'test model',
+    schema: {
+      string: [
+        'fml:text',
+        {
+          label: 'property',
+          defaultValue: '',
+        },
+      ],
+    },
+  },
+];
+
+const listConfig: Configuration<string[]> = [
+  'fml:list',
+  {
+    label: 'test list',
+    itemConfig: [
+      'fml:text',
+      {
+        label: 'item',
+        defaultValue: '',
+      },
+    ],
+  },
+];
 
 it.each`
   config         | expectedLabel   | expectedTagName
@@ -43,11 +54,7 @@ it.each`
 `(
   'renders the appropriate type of component base on the provided configuration',
   async ({ config, expectedLabel, expectedTagName }) => {
-    const { getByText } = render(
-      <FmlComponent
-        config={config}
-      />,
-    );
+    const { getByText } = render(<FmlComponent config={config} />);
 
     const element = getByText(expectedLabel);
 
@@ -63,9 +70,12 @@ it('renders nothing if an invalid configuration is passed', () => {
   const { container } = render(
     <FmlComponent
       config={
-        {
-          something: 'invalid',
-        } as any
+        [
+          'garbage',
+          {
+            something: 'invalid',
+          },
+        ] as any
       }
     />,
   );

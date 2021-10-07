@@ -22,6 +22,11 @@ function FmlComponent<ComponentKey extends RegisteredComponents>({
       key,
     );
 
+  if (!Impl) {
+    console.warn(`Unable to find a component at key "${key}" in the registry`)
+    return null;
+  }
+
   return <Impl config={config} />;
 }
 

@@ -191,7 +191,7 @@ function ListItemComponent<TValue>({
         onChange={changeHandler}
         localControlId={String(elementIndex)}
       >
-        <FmlComponent config={actualConfig as any} />
+        <FmlComponent config={[itemConfig[0], actualConfig] as any} />
       </FmlContextProvider>
       <button onClick={removeHandler}>-</button>
     </li>

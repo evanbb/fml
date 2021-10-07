@@ -5,17 +5,17 @@ import { waitFor, fireEvent, render } from '@testing-library/react';
 import userEvents from '@testing-library/user-event';
 import Form from './Form';
 import '@fml/add/validators/required'
+import './controls/Text'
 
 it('does not allow to submit if form is invalid', async () => {
   const submitSpy = jest.fn();
   const { getByText } = render(
     <Form<string>
-      config={{
-        control: 'text',
+      config={['fml:text', {
         defaultValue: '',
         label: 'test value',
         validators: [['required', 'please enter a value']],
-      }}
+      }]}
       formName='test-form'
       onSubmit={submitSpy}
       submitText='Submit my form'
