@@ -143,13 +143,13 @@ interface ModelPropertyProps<TModel, TPropertyValue> {
   update: (
     propertyName: keyof TModel,
   ) => ValueStateChangeHandler<TPropertyValue>;
-  schema: any;
+  config: Configuration<TPropertyValue>;
   propertyName: keyof TModel;
 }
 
 function ModelProperty<TModel, TPropertyValue>({
   propertyName,
-  schema: [, schema],
+  config,
   update,
 }: ModelPropertyProps<TModel, TPropertyValue>) {
   const changeHandler = useCallback(
@@ -164,7 +164,7 @@ function ModelProperty<TModel, TPropertyValue>({
       localControlId={propertyName as string}
       onChange={changeHandler}
     >
-      <FmlComponent config={schema as any} />
+      <FmlComponent<(typeof config)[0]> config={config as unknown as ConfigurationFor<(typeof config)[0]>} />
     </FmlContextProvider>
   );
 }
@@ -188,7 +188,7 @@ function Model<TValue>(props: ModelProps<TValue>) {
         return (
           <ModelProperty<TValue, PropertyType>
             key={k as string}
-            schema={config.schema[k][1] as Configuration<PropertyType>}
+            config={config.schema[k] as Configuration<PropertyType>}
             propertyName={k}
             update={updateProperty}
           />

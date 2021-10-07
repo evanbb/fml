@@ -1,4 +1,4 @@
-import { Configuration, ValueState } from '@fml/core';
+import { Configuration, ConfigurationFor, ValueState } from '@fml/core';
 import { FmlContextProvider } from './common/FmlControlContext';
 import { FormEvent, useState } from 'react';
 import FmlComponent from './common/FmlComponent';
@@ -29,7 +29,7 @@ export default function Form<TModel>({
   return (
     <form onSubmit={(e) => onSubmit(innerValue as TModel, e)}>
       <FmlContextProvider<TModel> localControlId={formName} onChange={setValue}>
-        <FmlComponent config={config[1] as any} />
+        <FmlComponent<(typeof config)[0]> config={config as unknown as ConfigurationFor<(typeof config)[0]>} />
       </FmlContextProvider>
       <input value={submitText} type='submit' disabled={validity !== 'valid'} />
     </form>

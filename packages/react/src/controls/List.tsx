@@ -5,6 +5,7 @@ import {
   ValueStateChangeHandler,
   registerComponent,
   ConfigurationFor,
+  Configuration,
 } from '@fml/core';
 import { FmlContextProvider, useFmlContext } from '../common/FmlControlContext';
 import { useFmlControl } from '../common/useFmlControl';
@@ -137,7 +138,7 @@ interface ListItemProps<TValue> {
   elementIndex: number;
   update: (fmlListId: number) => ValueStateChangeHandler<TValue>;
   remove: (fmlListId: number) => void;
-  itemConfig: any;
+  itemConfig: Configuration<TValue>;
   onFocus: () => void;
   defaultValue: TValue;
 }
@@ -146,7 +147,7 @@ function ListItemComponent<TValue>({
   fmlListId,
   update,
   remove,
-  itemConfig: [, itemConfig],
+  itemConfig,
   defaultValue,
   elementIndex,
 }: ListItemProps<TValue>) {
@@ -165,10 +166,10 @@ function ListItemComponent<TValue>({
    */
 
   const [actualConfig] = useState<ControlConfigurationBase<TValue>>({
-    ...(itemConfig as any),
+    ...(itemConfig[1] as any),
     defaultValue:
       typeof defaultValue === 'undefined'
-        ? (itemConfig as any).defaultValue
+        ? (itemConfig[1] as any).defaultValue
         : defaultValue,
   });
   const changeHandler = useCallback(
