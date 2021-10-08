@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "description": "react bindings for fml",
   "scripts": {
-    "start": "start-storybook"
+    "start": "start-storybook --no-manager-cache"
   },
   "repository": {
     "type": "git",
@@ -12,8 +12,9 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "index.cjs.js",
-  "mmodule": "es/index.js",
+  "main": "index.js",
+  "module": "es/index.js",
+  "browser": "es/index.js",
   "files": [
     "lib"
   ],

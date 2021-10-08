@@ -9,8 +9,9 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "index.cjs.js",
+  "main": "index.js",
   "module": "es/index.js",
+  "browser": "es/index.js",
   "files": [
     "lib"
   ],

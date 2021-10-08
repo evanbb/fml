@@ -1,19 +1,23 @@
-import '@fml/add/controls/text';
-import { Configuration } from '@fml/core';
 import List from './List';
+import './Text';
 
-const config: Configuration<string[]> = [
-  'fml:list',
-  {
-    label: 'list',
-    itemConfig: ['fml:text', {
-      label: 'list item',
-      defaultValue: '',
-    }],
-  },
-];
-
-export const ListOfStrings = () => <List<string> config={config} />;
+export const ListOfStrings = () => (
+  <List<string>
+    config={[
+      'fml:list',
+      {
+        label: 'list',
+        itemConfig: [
+          'fml:text',
+          {
+            label: 'list item',
+            defaultValue: '',
+          },
+        ],
+      },
+    ]}
+  />
+);
 
 const stories = {
   title: 'Stories/Fml/List',

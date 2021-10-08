@@ -6,8 +6,9 @@
     "type": "git",
     "url": "git+https://github.com/evanbb/fml.git"
   },
-  "main": "index.cjs.js",
-  "mmodule": "es/index.js",
+  "main": "index.js",
+  "module": "es/index.js",
+  "browser": "es/index.js",
   "publishConfig": {
     "access": "public"
   },
