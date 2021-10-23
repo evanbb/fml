@@ -23,7 +23,12 @@ function FmlComponent<ComponentKey extends RegisteredComponents>({
     );
 
   if (!Impl) {
-    console.warn(`Unable to find a component at key "${key}" in the registry`)
+    if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'test') {
+      console.error(
+        `Unable to find a component at key "${key}" in the registry`,
+      );
+    }
+
     return null;
   }
 
