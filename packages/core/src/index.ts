@@ -1,30 +1,63 @@
 //#region utils
 
+/**
+ * Helps make cases when a conditional type returns `never` more descriptive.
+ *
+ * Take the example below:
+ *
+ * ```ts
+ * X<Y> = Y extends string ? Y : never;
+ *
+ * // the error displayed is not super helpful:
+ * // type 'number' is not assignable to type 'never'
+ * const x: X<123> = 123;
+ * ```
+ *
+ * It would be nicer to be able to specify *why* the type is `never`, e.g.:
+ *
+ * ```ts
+ * X<Y> = Y extends string
+ *    ? Y
+ *    : NeverBecause<`Y has to be a ${string}!`>;
+ *
+ * // now, this error message is much more helpful!
+ * // type 'number' is not assignable to type 'Y has to be a ${string}!'
+ * const x: X<123> = 123;
+ * ```
+ */
+type NeverBecause<Message extends string> = `${Message}`;
+
+/**
+ * Just prefix all FML errors with this to distinguish them from other
+ * TypeScript errors.
+ */
+export type FmlNeverBecause<Message extends string> =
+  NeverBecause<`FML: Error: ${Message}`>;
+
 export type StringUnionOnlyNotString<Value> =
   /**
    * If a) it's a tuple of [TSomethingThatExtendsString]
    * and b) the tuple is of exactly [string]
    * then we don't want it.
    * Otherwise, it must be a tuple of ['something' | 'interesting'], in which
-   * case we want the single element of the tuple (the union)
+   * case we want the single element of the tuple (the union).
    */
-
   Value extends [string]
     ? string extends Value[0]
-      ? never
+      ? FmlNeverBecause<`Looks like the Value you passed is a tuple containing exactly the type ${Value[0]}. This configuration requires a union of strings be specified, e.g. 'one' | 'two' | 'three'.`>
       : Value[0]
     : /**
      * Otherwise, if a) it's a TSomethingThatExtendsString
      * and b) it's exactly string
      * then we don't want it.
-     * Otherwise, it must be 'something' | 'insteresting', in which case
-     * we want the union
+     * Otherwise, it must be 'something' | 'interesting', in which case
+     * we want the union.
      */
     Value extends string
     ? string extends Value
-      ? never
+      ? FmlNeverBecause<`Looks like the Value you passed is the type ${Value}. This configuration requires a union of strings be specified, e.g., 'one' | 'two' | 'three'.`>
       : Value
-    : never;
+    : FmlNeverBecause<`I'm not sure what kind of value you passed me, but it isn't assignable to a string union.`>;
 
 export type StringOnlyNotStringUnion<Value> =
   /**
@@ -32,20 +65,56 @@ export type StringOnlyNotStringUnion<Value> =
    * and b) it's exactly string
    * then it's what we want.
    * Otherwise, it must be 'something' | 'insteresting', in which case
-   * we aren't interested
+   * we aren't interested.
    */
-  Value extends string ? (string extends Value ? string : never) : string;
+  Value extends string
+    ? string extends Value
+      ? string
+      : FmlNeverBecause<`Looks like the Value you passed is a string union. This configuration requires specifically the type ${string}.`>
+    : string;
 
+/**
+ * Returns the keys of T, excluding the index signature.
+ *
+ * E.g.:
+ *
+ * ```ts
+ * interface Foo {
+ *  bar: string;
+ *  baz: number;
+ *  [others: string]: unknown;
+ * }
+ *
+ * type KnownKeysOfFoo = KnownKeys<Foo>; // 'bar' | 'baz'
+ * ```
+ */
 export type KnownKeys<T> = keyof {
   [K in keyof T as string extends K ? never : number extends K ? never : K]: K;
 };
 
+/**
+ * Returns `true` iff T contains only optional properties, else `false`.
+ *
+ * E.g.,
+ *
+ * ```ts
+ * interface Foo {
+ *  bar?: string;
+ *  baz?: number;
+ * }
+ *
+ * type IsFooPartial = IsPartial<Foo>; // true
+ * ```
+ */
 export type IsPartial<T> = Partial<T> extends T ? true : false;
 
 //#endregion utils
 
 //#region controls
 
+/**
+ * Types that presumeably would be bound to a single form field.
+ */
 export type FieldValueTypes = string | number | boolean | Date | undefined;
 
 /**
@@ -63,7 +132,7 @@ export interface ValueState<Value> {
 
 /**
  * Called when the value or validity of a piece of data has changed, e.g.,
- * through a user interaction or when an async validator resolves.
+ * through a user interaction or when a (potentially async) validator resolves.
  */
 export interface ValueStateChangeHandler<Value> {
   (change: ValueState<Value>): void;
@@ -113,9 +182,9 @@ export type ControlValidatorReturnTypes =
 /**
  * A function to be bound to a control that can delegate to a validator. If the
  * validator fails, the control validator should return the corresponding
- * message as configured by the
+ * message as configured by the `ValidatorConfiguration`
  *
- * @see {ValidatorConfigurationBase}
+ * @see {ValidatorConfiguration}
  */
 export interface ControlValidator<Value> {
   (value: Value): ControlValidatorReturnTypes;
@@ -155,8 +224,7 @@ export type Validators<Value> = {
     infer TValidatorValue,
     never
   >
-    ? //TODO: does it make sense to have bidi extends clauses here?
-      TValidatorValue extends Value
+    ? TValidatorValue extends Value
       ? Key
       : Value extends TValidatorValue
       ? Key
@@ -177,8 +245,8 @@ const validatorRegistry = {} as ValidatorFactoryRegistry;
 
 /**
  * Registers the provided validator factory implementation at the provided name.
- * @param name The name of the validator to enter into the registry
- * @param factory The validator factory implementation
+ * @param name The name of the validator to enter into the registry.
+ * @param factory The validator factory implementation.
  */
 export function registerValidator<TName extends keyof ValidatorFactoryRegistry>(
   name: TName,
@@ -189,8 +257,8 @@ export function registerValidator<TName extends keyof ValidatorFactoryRegistry>(
 
 /**
  * A means of getting the validator factory registered at the provided name
- * @param name The name of the validator factory to retrieve
- * @returns The validator factory
+ * @param name The name of the validator factory to retrieve.
+ * @returns The validator factory.
  */
 export function getValidatorFactory<
   TValidator extends keyof RegisteredValidators,
@@ -198,6 +266,15 @@ export function getValidatorFactory<
   return validatorRegistry[name];
 }
 
+/**
+ * Creates a validator function using the provided configuration. The first
+ * element in the configuration is the name of the registered validator. The
+ * last element is the error message to display if the validator resolves to
+ * `false`. All other elements in the configuration are arguments to the
+ * validator factory.
+ * @param config The configuration for instatiating the validator
+ * @returns The validator function with provided args bound.
+ */
 export function instantiateValidator<Value>(
   config: ValidatorConfiguration<Value>,
 ): ControlValidator<Value> {
@@ -229,12 +306,28 @@ export function instantiateValidator<Value>(
 
 //#region components
 
+/**
+ * A type that represents a valid configuration for a registered component. The
+ * elements in the tuple are:
+ * 0. The type for which this configuration is valid. For example, if the
+ *  configuration should only apply to `string` values, like a WYSIWYG editor,
+ *  then the zeroth element should be the type `string`.
+ * 1. The configuration options for this component. Consider extending
+ *  ControlConfigurationBase
+ * 2..n Valid configurations for children that are allowed to be nested within
+ *  this component. If left unspecified, it's assumed the component does not
+ *  support nesting children inside it (e.g., a text input or something)
+ */
 export type ComponentRegistration<
   Value,
   Config,
   Children extends ReadonlyArray<unknown> = [],
 > = [Value, Config?, ...Children];
 
+/**
+ * For select lists, radio groups, etc., require specifying available options
+ * as key-value pairs of { <optionValue>: <labelToDisplayForThatOption> }
+ */
 export interface OptionsListConfiguration<Value extends string>
   extends ControlConfigurationBase<Value> {
   options: Record<Value, string>;
@@ -267,6 +360,10 @@ type ComponentsFor<Value> = keyof {
   > as Value extends ComponentRegistry<Value>[K][0] ? K : never]: K;
 };
 
+/**
+ * The type(s) of configuration(s) valid for the specified `Value` and,
+ * optionally, named `ComponentKey`
+ */
 export type Configuration<
   Value,
   ComponentKey extends ComponentsFor<Value> = ComponentsFor<Value>,
@@ -280,18 +377,27 @@ export type Configuration<
     : [ComponentKey, ComponentConfiguration, ...ValidChildren]
   : never;
 
+/**
+ * The actual registry. Don't mess with it.
+ */
 const componentRegistry = new Map<RegisteredComponents, unknown>();
 
-export type ConfigurationFor<ComponentKey extends RegisteredComponents, Value = never> =
-  ComponentRegistry<Value>[ComponentKey] extends ComponentRegistration<
-    unknown,
-    infer ComponentConfiguration,
-    infer ValidChildren
-  >
-    ? IsPartial<ComponentConfiguration> extends true
+/**
+ * The type(s) of configuration(s) for the specified `ComponentKey` and,
+ * optionally, bound to type `Value`
+ */
+export type ConfigurationFor<
+  ComponentKey extends RegisteredComponents,
+  Value = never,
+> = ComponentRegistry<Value>[ComponentKey] extends ComponentRegistration<
+  unknown,
+  infer ComponentConfiguration,
+  infer ValidChildren
+>
+  ? IsPartial<ComponentConfiguration> extends true
     ? [ComponentKey, ComponentConfiguration?, ...ValidChildren]
     : [ComponentKey, ComponentConfiguration, ...ValidChildren]
-    : never;
+  : never;
 
 /**
  * Register a field control's concrete implementation.
@@ -306,9 +412,9 @@ export function registerComponent<Implementation>(
 }
 
 /**
- * Gets the field control's implementation from the registry.
- * @param key The string key of the registered field control
- * @returns The implmementation of the field control
+ * Gets the component's implementation from the registry.
+ * @param key The string key of the registered component.
+ * @returns The implmementation of the component.
  */
 export function getComponentImplementation<Implementation>(
   key: RegisteredComponents,
