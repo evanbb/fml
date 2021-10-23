@@ -6,7 +6,7 @@ import {
   registerComponent,
   ConfigurationFor,
 } from '@fml/core';
-import { FmlContextProvider } from '../common/FmlControlContext';
+import { FmlContextProvider, useFmlContext } from '../common/FmlControlContext';
 import { useFmlControl } from '../common/useFmlControl';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import FmlComponent from '../common/FmlComponent';
@@ -48,6 +48,8 @@ function useModelTransform<Value>(props: ModelProps<Value>) {
     value: innerModel,
   } = useFmlControl<Value>(props.config[1]);
 
+  const { controlId } = useFmlContext();
+
   const initialModel = useMemo<ValueStateModelProps<Value>>(() => {
     const result = {} as ValueStateModelProps<Value>;
     Object.keys(props.config[1].schema).forEach((key) => {
@@ -85,36 +87,55 @@ function useModelTransform<Value>(props: ModelProps<Value>) {
   });
 
   const updateProperty = useCallback(
-    (property: keyof Value) =>
-      (change: ValueState<Value[typeof property]>) => {
-        updateModel((mod) => {
-          const newValue = {
-            ...mod.value,
-            [property]: change,
-          };
+    (property: keyof Value) => (change: ValueState<Value[typeof property]>) => {
+      console.log(
+        `updating property ${property} in ${controlId} with change`,
+        change,
+      );
+      updateModel((mod) => {
+        console.log('current state of model:', mod);
 
-          // all the model's validities for properties other than the one that changed
-          const validities = Object.keys(mod.value)
-            .filter((key) => key !== property)
-            .reduce((set, validity) => {
-              set.add(validity);
-              return set;
-            }, new Set<string>());
+        console.log(
+          `updating model property ${property} in ${controlId} with change`,
+          change,
+        );
+        const newValue = {
+          ...mod.value,
+          [property]: change,
+        };
 
-          validities.add(change.validity);
+        console.log(`determining model validity for ${controlId}`);
 
-          const newValidity = validities.has('invalid')
-            ? 'invalid'
-            : validities.has('unknown') || validities.has('pending')
-            ? 'unknown'
-            : 'pending';
+        // all the model's validities for properties other than the one that changed
+        const validities = Object.keys(mod.value)
+          .filter((key) => key !== property)
+          .reduce((set, key) => {
+            set.add(mod.value[key as keyof typeof mod.value].validity);
+            return set;
+          }, new Set<string>());
 
-          return {
-            value: newValue,
-            validity: newValidity,
-          };
-        });
-      },
+        validities.add(change.validity);
+
+        console.log(
+          `model validities include ${Array.from(validities.entries()).join(
+            ', ',
+          )}`,
+        );
+
+        const newValidity = validities.has('invalid')
+          ? 'invalid'
+          : validities.has('unknown') || validities.has('pending')
+          ? 'unknown'
+          : 'pending';
+
+        console.log(`model validity for ${controlId} is ${newValidity}`);
+
+        return {
+          value: newValue,
+          validity: newValidity,
+        };
+      });
+    },
     [],
   );
 
@@ -152,8 +173,13 @@ function ModelProperty<TModel, TPropertyValue>({
   config,
   update,
 }: ModelPropertyProps<TModel, TPropertyValue>) {
+  const { controlId } = useFmlContext();
   const changeHandler = useCallback(
     (change: ValueState<TPropertyValue>) => {
+      console.log(
+        `updating property ${propertyName} in ${controlId} with change`,
+        change,
+      );
       update(propertyName)(change);
     },
     [propertyName, update],
@@ -164,7 +190,9 @@ function ModelProperty<TModel, TPropertyValue>({
       localControlId={propertyName as string}
       onChange={changeHandler}
     >
-      <FmlComponent<(typeof config)[0]> config={config as unknown as ConfigurationFor<(typeof config)[0]>} />
+      <FmlComponent<typeof config[0]>
+        config={config as unknown as ConfigurationFor<typeof config[0]>}
+      />
     </FmlContextProvider>
   );
 }

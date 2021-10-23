@@ -38,12 +38,13 @@ export default function Text(props: TextProps) {
         name={controlId}
         id={controlId}
         defaultValue={value.value}
-        onChange={(e) =>
+        onChange={(e) => {
+          console.log(`updating value in text field ${controlId} onChange handler`)
           changeHandler({
             value: e.target.value,
             validity: 'pending',
-          })
-        }
+          });
+        }}
         onBlur={blurHandler}
         onFocus={focusHandler}
       />

@@ -108,11 +108,16 @@ function useFmlComponentChange<TValue>(
   hasBeenBlurred: boolean,
 ) {
   const validatorFuncs = useFmlValidators<TValue>(validators);
+  const { controlId } = useFmlContext();
 
   const { value: stateValue, validationMessages } = componentState;
 
   const changeHandler = useCallback(
     (change: ValueState<TValue>) => {
+      console.log(
+        `setting internal state of ${controlId} from change: `,
+        change,
+      );
       setComponentState((state) => ({
         ...state,
         value: change,
@@ -131,10 +136,14 @@ function useFmlComponentChange<TValue>(
     let inflight = true;
 
     async function validate() {
+      console.log(`validating value of ${controlId}:`, stateValue);
       const validationResults = await Promise.all(
         validatorFuncs.map((validator) => validator(stateValue.value)),
       );
       const messages = validationResults.flat().filter(Boolean) as string[];
+
+      console.log(`done validating value for ${controlId}:`, stateValue.value);
+      console.log('in flight:', inflight);
 
       // another promise was kicked off before this one resolved - just bail
       if (!inflight) {
@@ -142,6 +151,10 @@ function useFmlComponentChange<TValue>(
       }
 
       setComponentState((state) => {
+        console.log(
+          `setting internal state for ${controlId} based on validity:`,
+          messages.length ? 'invalid' : 'valid',
+        );
         return {
           value: {
             ...state.value,
@@ -153,9 +166,13 @@ function useFmlComponentChange<TValue>(
     }
 
     if (stateValue.validity === 'pending' && stateChanged) {
+      console.log(
+        `validity is ${stateValue.validity} and state changed is ${stateChanged} for ${controlId}`,
+      );
       validate();
     } else if (firstTimeBlurring) {
       // fire validation the first time the user blurs from the field
+      console.log(`this is the first time blurring from ${controlId}`);
       validate();
     }
 
@@ -172,6 +189,10 @@ function useFmlComponentChange<TValue>(
 
   // any time value changes, inform parent
   useEffect(() => {
+    console.log(
+      `informing parent of ${controlId} that a state change occurred`,
+      stateValue,
+    );
     afterStateChangeHandler(stateValue);
   }, [stateValue, afterStateChangeHandler]);
 

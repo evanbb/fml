@@ -1,6 +1,3 @@
-const { join } = require('path');
-const cwd = process.cwd();
-
 module.exports = {
   stories: ['../src/**/*.stories.tsx'],
   addons: ['@storybook/addon-essentials'],
