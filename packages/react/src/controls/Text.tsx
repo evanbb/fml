@@ -39,7 +39,6 @@ export default function Text(props: TextProps) {
         id={controlId}
         defaultValue={value.value}
         onChange={(e) => {
-          console.log(`updating value in text field ${controlId} onChange handler`)
           changeHandler({
             value: e.target.value,
             validity: 'pending',

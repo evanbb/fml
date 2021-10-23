@@ -88,23 +88,11 @@ function useModelTransform<Value>(props: ModelProps<Value>) {
 
   const updateProperty = useCallback(
     (property: keyof Value) => (change: ValueState<Value[typeof property]>) => {
-      console.log(
-        `updating property ${property} in ${controlId} with change`,
-        change,
-      );
       updateModel((mod) => {
-        console.log('current state of model:', mod);
-
-        console.log(
-          `updating model property ${property} in ${controlId} with change`,
-          change,
-        );
         const newValue = {
           ...mod.value,
           [property]: change,
         };
-
-        console.log(`determining model validity for ${controlId}`);
 
         // all the model's validities for properties other than the one that changed
         const validities = Object.keys(mod.value)
@@ -116,19 +104,11 @@ function useModelTransform<Value>(props: ModelProps<Value>) {
 
         validities.add(change.validity);
 
-        console.log(
-          `model validities include ${Array.from(validities.entries()).join(
-            ', ',
-          )}`,
-        );
-
         const newValidity = validities.has('invalid')
           ? 'invalid'
           : validities.has('unknown') || validities.has('pending')
           ? 'unknown'
           : 'pending';
-
-        console.log(`model validity for ${controlId} is ${newValidity}`);
 
         return {
           value: newValue,
@@ -176,10 +156,6 @@ function ModelProperty<TModel, TPropertyValue>({
   const { controlId } = useFmlContext();
   const changeHandler = useCallback(
     (change: ValueState<TPropertyValue>) => {
-      console.log(
-        `updating property ${propertyName} in ${controlId} with change`,
-        change,
-      );
       update(propertyName)(change);
     },
     [propertyName, update],

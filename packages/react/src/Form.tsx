@@ -29,7 +29,9 @@ export default function Form<TModel>({
   return (
     <form onSubmit={(e) => onSubmit(innerValue as TModel, e)}>
       <FmlContextProvider<TModel> localControlId={formName} onChange={setValue}>
-        <FmlComponent<(typeof config)[0]> config={config as unknown as ConfigurationFor<(typeof config)[0]>} />
+        <FmlComponent<typeof config[0]>
+          config={config as unknown as ConfigurationFor<typeof config[0]>}
+        />
       </FmlContextProvider>
       <input value={submitText} type='submit' disabled={validity !== 'valid'} />
     </form>
