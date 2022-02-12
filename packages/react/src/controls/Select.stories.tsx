@@ -14,7 +14,7 @@ export const SelectExample = () => (
 );
 
 const stories = {
-  title: 'Stories/Fml/Controls',
+  title: 'Stories/Fml/Controls/Select',
   component: Select,
 };
 

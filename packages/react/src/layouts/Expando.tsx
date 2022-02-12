@@ -1,4 +1,4 @@
-import { ConfigurationFor, registerComponent } from '@fml/core';
+import { Configuration as Conf, ConfigurationFor, registerComponent } from '@fml/core';
 import FmlComponent from '../common/FmlComponent';
 import { useState } from 'react';
 
@@ -11,7 +11,7 @@ declare module '@fml/core' {
   }
 
   export interface ComponentRegistry<Value> {
-    [EXPANDO]: [any, ExpandoConfig, any];
+    [EXPANDO]: [any, ExpandoConfig, Conf<Value>];
   }
 }
 

@@ -15,6 +15,7 @@ export interface FmlComponentProps<
 function FmlComponent<ComponentKey extends RegisteredComponents>({
   config,
 }: FmlComponentProps<ComponentKey>) {
+  debugger;
   const [key, props] = config;
 
   const Impl =

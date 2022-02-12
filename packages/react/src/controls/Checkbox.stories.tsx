@@ -15,7 +15,7 @@ export const CheckboxExample = () => (
 );
 
 const stories = {
-  title: 'Stories/Fml/Controls',
+  title: 'Stories/Fml/Controls/Checkbox',
   component: Checkbox,
 };
 

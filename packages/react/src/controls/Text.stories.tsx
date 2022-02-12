@@ -5,7 +5,7 @@ export const TextExample = () => (
 );
 
 const stories = {
-  title: 'Stories/Fml/Controls',
+  title: 'Stories/Fml/Controls/Text',
   component: Text,
 };
 

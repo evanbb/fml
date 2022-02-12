@@ -15,7 +15,7 @@ export const NumberExample = () => (
 );
 
 const stories = {
-  title: 'Stories/Fml/Controls',
+  title: 'Stories/Fml/Controls/Number',
   component: Number,
 };
 

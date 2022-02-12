@@ -7,7 +7,7 @@ export const TextAreaExample = () => (
 );
 
 const stories = {
-  title: 'Stories/Fml/Controls',
+  title: 'Stories/Fml/Controls/TextArea',
   component: TextArea,
 };
 

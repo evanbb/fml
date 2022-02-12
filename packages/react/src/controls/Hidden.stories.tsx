@@ -13,7 +13,7 @@ export const HiddenExample = () => (
 );
 
 const stories = {
-  title: 'Stories/Fml/Controls',
+  title: 'Stories/Fml/Controls/Hidden',
   component: Hidden,
 };
 
