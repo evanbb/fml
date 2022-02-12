@@ -22,7 +22,7 @@ const entries = packageDirs.reduce((acc, pkg) => {
   };
 }, {});
 
-['controls', 'layouts', 'validators'].forEach((dir) =>
+['controls', 'validators'].forEach((dir) =>
   fs
     .readdirSync(`packages/add/src/${dir}`)
     .forEach(
