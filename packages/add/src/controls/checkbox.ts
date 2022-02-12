@@ -5,4 +5,4 @@ declare module '@fml/core' {
   }
 }
 
-export default 'checkbox'
+export default 'checkbox';

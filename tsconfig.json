@@ -11,8 +11,5 @@
     { "path": "packages/core" },
     { "path": "packages/react" }
   ],
-  "exclude": [
-    "packages/*/src/**/*.test.*",
-    "packages/*/src/**/*.stories.*"
-  ]
+  "exclude": ["packages/*/src/**/*.test.*", "packages/*/src/**/*.stories.*"]
 }
