@@ -4,10 +4,8 @@ import {
   FmlConfiguration,
   FmlListConfiguration,
   FmlModelConfiguration,
-  FmlLayoutConfiguration,
 } from '@fml/core';
 import { memo } from 'react';
-import Layout from '../Layout';
 import Field from '../Field';
 import List from '../List';
 import Model from '../Model';
@@ -18,25 +16,14 @@ export function getControlConfig<TValue>(
   if (isControlConfig<TValue>(config)) {
     return config;
   }
-  if (isLayoutConfig<TValue>(config)) {
-    return getControlConfig(
-      config[config.length - 1] as FmlConfiguration<TValue>,
-    );
-  }
 
   throw new Error('Unrecognized FmlConfiguration object');
-}
-
-function isLayoutConfig<TValue>(
-  config: unknown,
-): config is FmlLayoutConfiguration<TValue> {
-  return Array.isArray(config);
 }
 
 function isControlConfig<TValue>(
   config: unknown,
 ): config is FmlControlConfigurationBase<TValue> {
-  return !isLayoutConfig(config);
+  return !Array.isArray(config);
 }
 
 function isFieldProps<TValue>(
@@ -68,11 +55,6 @@ function FmlComponent<TValue>(props: FmlComponentProps<TValue>) {
     <List<TValue> {...{ config: props.config }} />
   ) : isModelProps<TValue>(props.config) ? (
     <Model<TValue> {...{ config: props.config }} />
-  ) : isLayoutConfig(props.config) ? (
-    <Layout<TValue>
-      // todo: figure out why this cast is necessary...
-      {...{ config: props.config as FmlLayoutConfiguration<TValue> }}
-    />
   ) : null;
 }
 

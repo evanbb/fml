@@ -1,5 +1,5 @@
 import { FmlConfiguration } from '@fml/core';
-import '@fml/add/validators/required'
+import '@fml/add/validators/required';
 import Form from './Form';
 import './layouts/Expando';
 
@@ -21,15 +21,11 @@ const defaultConfig: FmlConfiguration<ExampleShape> = {
       control: 'text',
       defaultValue: '',
     },
-    boolProperty: [
-      'expando',
-      { defaultExpanded: false, summary: 'Something is hidden here' },
-      {
-        label: 'A boolean property',
-        control: 'checkbox',
-        defaultValue: false,
-      },
-    ],
+    boolProperty: {
+      label: 'A boolean property',
+      control: 'checkbox',
+      defaultValue: false,
+    },
     dateProperty: {
       label: 'A date property',
       control: 'date',

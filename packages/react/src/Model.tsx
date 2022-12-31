@@ -47,7 +47,7 @@ function useModelTransform<TValue>(props: ModelProps<TValue>) {
   const modelToInnerValue = useCallback<
     (model: ValueStateModel<TValue>) => [TValue, Set<FmlValidityStatus>]
   >((model: ValueStateModel<TValue>) => {
-    const result = {} as TValue;
+    const result = {} as TValue & {};
     const validities = new Set<FmlValidityStatus>();
     Object.entries(model.value).forEach((entry) => {
       const key = entry[0] as keyof TValue;

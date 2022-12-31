@@ -10,21 +10,21 @@ export type StringUnionOnlyNotString<TValue> =
    */
 
   TValue extends [string]
-    ? string extends TValue[0]
-      ? never
-      : TValue[0]
-    : /**
+  ? string extends TValue[0]
+  ? never
+  : TValue[0]
+  : /**
      * Otherwise, if a) it's a TSomethingThatExtendsString
      * and b) it's exactly string
      * then we don't want it.
      * Otherwise, it must be 'something' | 'insteresting', in which case
      * we want the union
      */
-    TValue extends string
-    ? string extends TValue
-      ? never
-      : TValue
-    : never;
+  TValue extends string
+  ? string extends TValue
+  ? never
+  : TValue
+  : never;
 
 export type StringOnlyNotStringUnion<TValue> =
   /**
@@ -102,12 +102,12 @@ export type FmlValidatorConfiguration<TValue> = [
   FmlValidatorKeys<TValue>,
 ] extends [infer TValidator]
   ? TValidator extends keyof FmlValidatorFactoryRegistry
-    ? [
-        TValidator,
-        ...Parameters<FmlValidatorFactoryRegistry[TValidator]>,
-        string,
-      ]
-    : never
+  ? [
+    TValidator,
+    ...Parameters<FmlValidatorFactoryRegistry[TValidator]>,
+    string,
+  ]
+  : never
   : never;
 
 //#endregion
@@ -124,20 +124,20 @@ interface FmlControlClassificationConfigurationRegistry<TValue>
   extends Record<
     FmlControlClassifications,
     TValue extends ReadonlyArray<infer TItem>
-      ? FmlControlConfigurationBase<TItem[]>
-      : FmlControlConfigurationBase<TValue>
+    ? FmlControlConfigurationBase<TItem[]>
+    : FmlControlConfigurationBase<TValue>
   > {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   field: TValue extends ReadonlyArray<infer _>
-    ? never
-    : FmlFieldConfiguration<TValue>;
+  ? never
+  : FmlFieldConfiguration<TValue>;
   list: TValue extends ReadonlyArray<infer TItem>
-    ? FmlListConfiguration<TItem>
-    : never;
+  ? FmlListConfiguration<TItem>
+  : never;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   model: TValue extends ReadonlyArray<infer _>
-    ? never
-    : FmlModelConfiguration<TValue>;
+  ? never
+  : FmlModelConfiguration<TValue>;
 }
 
 /**
@@ -187,18 +187,22 @@ export type FmlFieldConfiguration<TValue> = FmlFieldConfigurationBase<
   FmlRegisteredFieldControls
 > extends infer TConfig
   ? TConfig extends FmlFieldConfigurationBase<
-      TValue,
-      FmlRegisteredFieldControls
-    >
-    ? TConfig['control'] extends infer TControl
-      ? TControl extends FmlFieldControlsFor<TValue>
-        ? FmlFieldControlRegistry<TValue>[TControl][1] extends undefined
-          ? FmlFieldConfigurationBase<TValue, TControl>
-          : FmlFieldConfigurationBase<TValue, TControl> &
-              FmlFieldControlRegistry<TValue>[TControl][1]
-        : never
-      : never
-    : never
+    TValue,
+    FmlRegisteredFieldControls
+  >
+  ? TConfig['control'] extends infer TControl
+  ? TControl extends FmlFieldControlsFor<TValue>
+  ? TControl extends keyof FmlFieldControlRegistry<TValue>
+  ? TControl extends KnownKeys<FmlFieldControlRegistry<TValue>>
+  ? FmlFieldControlRegistry<TValue>[TControl][1] extends undefined
+  ? FmlFieldConfigurationBase<TValue, TControl>
+  : FmlFieldConfigurationBase<TValue, TControl> &
+  FmlFieldControlRegistry<TValue>[TControl][1]
+  : never
+  : never
+  : never
+  : never
+  : never
   : never;
 
 export type FmlFieldControlRegistration<TExtraConfig> = [
@@ -286,57 +290,6 @@ export interface FmlListConfiguration<TValue>
 
 //#endregion
 
-//#region layouts
-
-export type FmlLayoutsFor<TValue> = keyof {
-  [K in FmlRegisteredLayouts as FmlControlClassification<TValue> extends FmlLayoutRegistry<TValue>[K][0]
-    ? K
-    : never]: K;
-};
-
-export type FmlLayoutConfiguration<
-  TValue,
-  TLayoutKey extends FmlRegisteredLayouts = FmlLayoutsFor<TValue>,
-> = FmlLayoutRegistry<TValue>[TLayoutKey][1] extends undefined
-  ? [TLayoutKey, FmlConfiguration<TValue>]
-  : IsPartial<FmlLayoutRegistry<TValue>[TLayoutKey][1]> extends true
-  ?
-      | [
-          TLayoutKey,
-          FmlLayoutRegistry<TValue>[TLayoutKey][1],
-          FmlConfiguration<TValue>,
-        ]
-      | [TLayoutKey, FmlConfiguration<TValue>]
-  : [
-      TLayoutKey,
-      FmlLayoutRegistry<TValue>[TLayoutKey][1],
-      FmlConfiguration<TValue>,
-    ];
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type FmlLayoutRegistration<TValue, TExtraConfig = undefined> = [
-  FmlControlClassifications,
-  TExtraConfig?,
-];
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface FmlLayoutRegistry<TValue>
-  extends Record<string, FmlLayoutRegistration<TValue>> {}
-
-export type FmlRegisteredLayouts = KnownKeys<FmlLayoutRegistry<never>>;
-
-const layoutRegistry = new Map<FmlRegisteredLayouts, unknown>();
-
-export function registerLayout(key: FmlRegisteredLayouts, impl: unknown): void {
-  layoutRegistry.set(key, impl);
-}
-
-export function getLayoutImplementation(key: FmlRegisteredLayouts): unknown {
-  return layoutRegistry.get(key);
-}
-
-//#endregion
-
 /**
  * A function that can determine the validity of the provided @argument value
  */
@@ -401,13 +354,13 @@ export type FmlValidators<TValue> = {
     infer TValidatorValue,
     never
   >
-    ? //TODO: does it make sense to have bidi extends clauses here?
-      TValidatorValue extends TValue
-      ? Key
-      : TValue extends TValidatorValue
-      ? Key
-      : never
-    : never]: FmlRegisteredValidators[Key];
+  ? //TODO: does it make sense to have bidi extends clauses here?
+  TValidatorValue extends TValue
+  ? Key
+  : TValue extends TValidatorValue
+  ? Key
+  : never
+  : never]: FmlRegisteredValidators[Key];
 };
 
 /**
@@ -443,9 +396,7 @@ export function getFactory<TValidator extends keyof FmlRegisteredValidators>(
   return validatorRegistry[name];
 }
 
-export type FmlConfiguration<TValue> =
-  | FmlControlConfiguration<TValue>
-  | FmlLayoutConfiguration<TValue>;
+export type FmlConfiguration<TValue> = FmlControlConfiguration<TValue>;
 
 export function instantiateValidator<TValue>(
   config: FmlValidatorConfiguration<TValue>,
