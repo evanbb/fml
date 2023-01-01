@@ -27,7 +27,7 @@ export default function Select(props: SelectProps) {
       <select
         name={controlId}
         id={controlId}
-        defaultValue={value.value}
+        defaulValue={value.value}
         onChange={(e) =>
           changeHandler({
             value: e.target.value as 'string',

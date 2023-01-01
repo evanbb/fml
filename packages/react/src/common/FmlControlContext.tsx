@@ -1,10 +1,10 @@
 import { FmlValueState, FmlValueStateChangeHandler } from '@fml/core';
 import { createContext, useCallback, useContext, useMemo } from 'react';
 
-interface FmlControlContext<TValue> {
-  value: FmlValueState<TValue>;
+interface FmlControlContext<Value> {
+  value: FmlValueState<Value>;
   validationMessages: string[];
-  onChange: FmlValueStateChangeHandler<TValue>;
+  onChange: FmlValueStateChangeHandler<Value>;
   onBlur: () => void;
   onFocus: () => void;
   hasBeenTouched: boolean;
@@ -27,23 +27,23 @@ const fmlControlContext = createContext<FmlControlContext<unknown>>({
 const { Provider } = fmlControlContext;
 
 interface FmlControlContextProviderProps<
-  TValue,
+  Value,
 > extends React.PropsWithChildren<{
     localControlId: string;
-    onChange?: FmlValueStateChangeHandler<TValue>;
+    onChange?: FmlValueStateChangeHandler<Value>;
   }> {}
 
-export function FmlContextProvider<TValue>({
+export function FmlContextProvider<Value>({
   children,
   localControlId,
   onChange,
-}: FmlControlContextProviderProps<TValue>) {
+}: FmlControlContextProviderProps<Value>) {
   const {
     controlId: contextControlId,
     onBlur: contextOnBlur,
     onFocus: contextOnFocus,
     onChange: contextOnChange,
-  } = useFmlContext<TValue>();
+  } = useFmlContext<Value>();
 
   const providerControlId = useFmlProviderControlId(
     contextControlId,
@@ -54,7 +54,7 @@ export function FmlContextProvider<TValue>({
   const { focusHandler } = useFmlContextFocus(contextOnFocus);
   const { changeHandler } = useFmlContextChange(contextOnChange, onChange);
 
-  const newContextValue = useMemo(
+  const newContexValue = useMemo(
     () => ({
       controlId: providerControlId,
       onChange: changeHandler,
@@ -65,7 +65,7 @@ export function FmlContextProvider<TValue>({
   );
 
   return (
-    <Provider value={newContextValue as FmlControlContext<unknown>}>
+    <Provider value={newContexValue as FmlControlContext<unknown>}>
       {children}
     </Provider>
   );
@@ -77,8 +77,8 @@ function useFmlProviderControlId(parentId: string, childId: string) {
   return parentId ? `${parentId}[${childId}]` : childId;
 }
 
-export function useFmlContext<TValue>() {
-  return useContext(fmlControlContext) as FmlControlContext<TValue>;
+export function useFmlContext<Value>() {
+  return useContext(fmlControlContext) as FmlControlContext<Value>;
 }
 
 function useFmlContextBlur(contextOnBlur: () => void) {

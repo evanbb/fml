@@ -9,7 +9,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFmlContext } from './FmlControlContext';
 
-export function useFmlControl<TValue>(config: FmlControlConfiguration<TValue>) {
+export function useFmlControl<Value>(config: FmlControlConfiguration<Value>) {
   const {
     controlId,
     onBlur: contextOnBlur,
@@ -18,17 +18,17 @@ export function useFmlControl<TValue>(config: FmlControlConfiguration<TValue>) {
   } = useFmlContext();
 
   const { blurHandler, hasBeenBlurred } = useFmlComponentBlur(contextOnBlur);
-  const { currentValue, setCurrentValue } = useFmlComponentState<TValue>(
-    config.defaultValue as TValue,
-    (config.validators ?? []) as FmlValidatorConfiguration<TValue>[],
+  const { currenValue, setCurrenValue } = useFmlComponentState<Value>(
+    config.defaulValue as Value,
+    (config.validators ?? []) as FmlValidatorConfiguration<Value>[],
   );
   const { focusHandler } = useFmlComponentFocus(contextOnFocus);
 
-  const { validationMessages, changeHandler } = useFmlComponentChange<TValue>(
-    (config.validators ?? []) as FmlValidatorConfiguration<TValue>[],
+  const { validationMessages, changeHandler } = useFmlComponentChange<Value>(
+    (config.validators ?? []) as FmlValidatorConfiguration<Value>[],
     onChange,
-    currentValue,
-    setCurrentValue,
+    currenValue,
+    setCurrenValue,
     hasBeenBlurred,
   );
 
@@ -37,7 +37,7 @@ export function useFmlControl<TValue>(config: FmlControlConfiguration<TValue>) {
     changeHandler,
     focusHandler,
     blurHandler,
-    value: currentValue.value,
+    value: currenValue.value,
     validationMessages,
   };
 }
@@ -56,21 +56,21 @@ function useFmlComponentBlur(contextOnBlur: () => void) {
   };
 }
 
-function useFmlComponentState<TValue>(
-  defaultValue: TValue,
-  validators: FmlValidatorConfiguration<TValue>[],
+function useFmlComponentState<Value>(
+  defaulValue: Value,
+  validators: FmlValidatorConfiguration<Value>[],
 ) {
-  const [currentValue, setCurrentValue] = useState({
+  const [currenValue, setCurrenValue] = useState({
     value: {
-      value: defaultValue,
+      value: defaulValue,
       validity: validators?.length ? 'unknown' : ('valid' as FmlValidityStatus),
     },
     validationMessages: [] as string[],
   });
 
   return {
-    currentValue,
-    setCurrentValue,
+    currenValue,
+    setCurrenValue,
   };
 }
 
@@ -92,27 +92,27 @@ function useFmlComponentFocus(onFocus: () => void) {
   };
 }
 
-function useFmlComponentChange<TValue>(
-  validators: FmlValidatorConfiguration<TValue>[],
-  afterStateChangeHandler: FmlValueStateChangeHandler<TValue>,
+function useFmlComponentChange<Value>(
+  validators: FmlValidatorConfiguration<Value>[],
+  afterStateChangeHandler: FmlValueStateChangeHandler<Value>,
   componentState: {
-    value: FmlValueState<TValue>;
+    value: FmlValueState<Value>;
     validationMessages: string[];
   },
   setComponentState: React.Dispatch<
     React.SetStateAction<{
-      value: FmlValueState<TValue>;
+      value: FmlValueState<Value>;
       validationMessages: string[];
     }>
   >,
   hasBeenBlurred: boolean,
 ) {
-  const validatorFuncs = useFmlValidators<TValue>(validators);
+  const validatorFuncs = useFmlValidators<Value>(validators);
 
   const { value: stateValue, validationMessages } = componentState;
 
   const changeHandler = useCallback(
-    (change: FmlValueState<TValue>) => {
+    (change: FmlValueState<Value>) => {
       setComponentState((state) => ({
         ...state,
         value: change,
@@ -178,15 +178,15 @@ function useFmlComponentChange<TValue>(
   return { validationMessages, changeHandler };
 }
 
-function useFmlValidators<TValue>(
-  validators: FmlValidatorConfiguration<TValue>[],
+function useFmlValidators<Value>(
+  validators: FmlValidatorConfiguration<Value>[],
 ) {
   return useMemo(
     () =>
       validators
         ? validators.map((validator) =>
-            instantiateValidator<TValue>(
-              validator as FmlValidatorConfiguration<TValue> & { args: [] },
+            instantiateValidator<Value>(
+              validator as FmlValidatorConfiguration<Value> & { args: [] },
             ),
           )
         : [],
@@ -194,12 +194,12 @@ function useFmlValidators<TValue>(
   );
 }
 
-function usePreviousValue<T>(latestValue: T) {
+function usePreviousValue<T>(latesValue: T) {
   const ref = useRef<T>();
 
   useEffect(() => {
-    ref.current = latestValue;
-  }, [latestValue]);
+    ref.current = latesValue;
+  }, [latesValue]);
 
   return ref.current;
 }

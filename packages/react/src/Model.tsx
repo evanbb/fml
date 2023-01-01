@@ -12,30 +12,30 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import FmlComponent from './common/FmlComponent';
 import ValidationMessages from './ValidationMessages';
 
-type ValueStateModelProps<TValue> = {
-  [Key in keyof TValue]: FmlValueState<TValue[Key]>;
+type ValueStateModelProps<Value> = {
+  [Key in keyof Value]: FmlValueState<Value[Key]>;
 };
 
-type ValueStateModel<TValue> = {
-  value: ValueStateModelProps<TValue>;
+type ValueStateModel<Value> = {
+  value: ValueStateModelProps<Value>;
   validity: FmlValidityStatus;
 };
 
-function useModelTransform<TValue>(props: ModelProps<TValue>) {
+function useModelTransform<Value>(props: ModelProps<Value>) {
   const {
     changeHandler: updateInnerModel,
     validationMessages,
     focusHandler: onFocus,
     value: innerModel,
-  } = useFmlControl<TValue>(props.config as FmlControlConfiguration<TValue>);
+  } = useFmlControl<Value>(props.config as FmlControlConfiguration<Value>);
 
-  const initialModel = useMemo<ValueStateModelProps<TValue>>(() => {
-    const result = {} as ValueStateModelProps<TValue>;
+  const initialModel = useMemo<ValueStateModelProps<Value>>(() => {
+    const result = {} as ValueStateModelProps<Value>;
     Object.keys(props.config.schema).forEach((key) => {
       Object.assign(result, {
         [key]: {
           value: innerModel.value
-            ? innerModel.value[key as keyof TValue]
+            ? innerModel.value[key as keyof Value]
             : undefined,
           validity: 'unknown',
         },
@@ -45,13 +45,13 @@ function useModelTransform<TValue>(props: ModelProps<TValue>) {
   }, [innerModel.value, props.config.schema]);
 
   const modelToInnerValue = useCallback<
-    (model: ValueStateModel<TValue>) => [TValue, Set<FmlValidityStatus>]
-  >((model: ValueStateModel<TValue>) => {
-    const result = {} as TValue & {};
+    (model: ValueStateModel<Value>) => [Value, Set<FmlValidityStatus>]
+  >((model: ValueStateModel<Value>) => {
+    const result = {} as Value & {};
     const validities = new Set<FmlValidityStatus>();
     Object.entries(model.value).forEach((entry) => {
-      const key = entry[0] as keyof TValue;
-      type PropertyType = TValue[typeof key];
+      const key = entry[0] as keyof Value;
+      type PropertyType = Value[typeof key];
       Object.assign(result, {
         [key]: (entry[1] as FmlValueState<PropertyType>).value,
       });
@@ -60,14 +60,14 @@ function useModelTransform<TValue>(props: ModelProps<TValue>) {
     return [result, validities];
   }, []);
 
-  const [model, updateModel] = useState<ValueStateModel<TValue>>({
+  const [model, updateModel] = useState<ValueStateModel<Value>>({
     value: initialModel,
     validity: 'unknown',
   });
 
   const updateProperty = useCallback(
-    (property: keyof TValue) =>
-      (change: FmlValueState<TValue[typeof property]>) => {
+    (property: keyof Value) =>
+      (change: FmlValueState<Value[typeof property]>) => {
         updateModel((mod) => {
           const newValue = {
             ...mod.value,
@@ -150,24 +150,24 @@ function ModelProperty<TModel, TPropertyValue>({
   );
 }
 
-export interface ModelProps<TValue> {
-  config: FmlModelConfiguration<TValue>;
+export interface ModelProps<Value> {
+  config: FmlModelConfiguration<Value>;
 }
 
-function Model<TValue>(props: ModelProps<TValue>) {
+function Model<Value>(props: ModelProps<Value>) {
   const { updateProperty, validationMessages, validity } =
-    useModelTransform<TValue>(props);
-  const config = props.config as FmlModelConfiguration<TValue>;
+    useModelTransform<Value>(props);
+  const config = props.config as FmlModelConfiguration<Value>;
 
   return (
     <fieldset>
       <legend data-fml-validity={validity}>{config.label}</legend>
       <ValidationMessages validationMessages={validationMessages} />
       {Object.keys(config.schema).map((key) => {
-        const k = key as keyof TValue;
-        type PropertyType = TValue[typeof k];
+        const k = key as keyof Value;
+        type PropertyType = Value[typeof k];
         return (
-          <ModelProperty<TValue, PropertyType>
+          <ModelProperty<Value, PropertyType>
             key={k as string}
             schema={config.schema[k]}
             propertyName={k}

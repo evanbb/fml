@@ -19,24 +19,24 @@ const defaultConfig: FmlConfiguration<ExampleShape> = {
     stringProperty: {
       label: 'A string property',
       control: 'text',
-      defaultValue: '',
+      defaulValue: '',
     },
     boolProperty: {
       label: 'A boolean property',
       control: 'checkbox',
-      defaultValue: false,
+      defaulValue: false,
     },
     dateProperty: {
       label: 'A date property',
       control: 'date',
-      defaultValue: undefined,
+      defaulValue: undefined,
     },
     collectionProperty: {
       label: 'A collection of strings property',
       itemConfig: {
         label: 'Value of this string',
         control: 'text',
-        defaultValue: '',
+        defaulValue: '',
       },
     },
     objectProperty: {
@@ -46,7 +46,7 @@ const defaultConfig: FmlConfiguration<ExampleShape> = {
           label: `The object's property`,
           control: 'text',
           validators: [['required', 'Oh no!']],
-          defaultValue: '',
+          defaulValue: '',
         },
       },
     },
@@ -73,7 +73,7 @@ export const StupidForm = () => {
   return (
     <Form<string>
       onSubmit={logit}
-      config={{ label: 'stupid text', control: 'text', defaultValue: '' }}
+      config={{ label: 'stupid text', control: 'text', defaulValue: '' }}
       formName='stupidform'
       submitText='Submit me!'
     />
@@ -86,7 +86,7 @@ export const SillyForm = () => {
       onSubmit={logit}
       config={{
         label: 'lllllll',
-        itemConfig: { label: 'sss', control: 'text', defaultValue: '' },
+        itemConfig: { label: 'sss', control: 'text', defaulValue: '' },
       }}
       formName='stringValue'
       submitText='Submit me!'

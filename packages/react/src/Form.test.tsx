@@ -12,7 +12,7 @@ it('does not allow to submit if form is invalid', async () => {
     <Form<string>
       config={{
         control: 'text',
-        defaultValue: '',
+        defaulValue: '',
         label: 'test value',
         validators: [['required', 'please enter a value']],
       }}

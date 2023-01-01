@@ -2,14 +2,14 @@ import { getFieldImplementation, FmlFieldConfiguration } from '@fml/core';
 import { memo } from 'react';
 import './fields';
 
-export interface FieldProps<TValue> {
-  config: FmlFieldConfiguration<TValue>;
+export interface FieldProps<Value> {
+  config: FmlFieldConfiguration<Value>;
 }
 
-function Field<TValue>(props: FieldProps<TValue>) {
+function Field<Value>(props: FieldProps<Value>) {
   const config = props.config;
   const Ctrl = getFieldImplementation(config.control) as React.ComponentType<
-    FieldProps<TValue>
+    FieldProps<Value>
   >;
 
   return <Ctrl {...props} />;

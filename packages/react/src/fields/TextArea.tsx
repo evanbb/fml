@@ -34,7 +34,7 @@ export default function TextArea(props: TextAreaProps) {
         }
         onBlur={blurHandler}
         onFocus={focusHandler}
-        defaultValue={value.value}
+        defaulValue={value.value}
       ></textarea>
       <ValidationMessages validationMessages={validationMessages} />
     </>

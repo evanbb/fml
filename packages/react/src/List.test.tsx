@@ -20,9 +20,9 @@ it('renders items in the list', async () => {
         itemConfig: {
           control: 'text',
           label: 'List item',
-          defaultValue: '',
+          defaulValue: '',
         },
-        defaultValue: ['first', 'second', 'third'],
+        defaulValue: ['first', 'second', 'third'],
       }}
     />,
   );
@@ -40,7 +40,7 @@ it('adds items to the list', async () => {
         itemConfig: {
           control: 'text',
           label: 'List item',
-          defaultValue: '',
+          defaulValue: '',
         },
       }}
     />,
@@ -68,9 +68,9 @@ it('removes items from the list, maintaining order', async () => {
         itemConfig: {
           control: 'text',
           label: 'List item',
-          defaultValue: '',
+          defaulValue: '',
         },
-        defaultValue: ['first', 'second', 'third'],
+        defaulValue: ['first', 'second', 'third'],
       }}
     />,
   );
@@ -102,9 +102,9 @@ it('updates items in the list', async () => {
         itemConfig: {
           control: 'text',
           label: 'List item',
-          defaultValue: '',
+          defaulValue: '',
         },
-        defaultValue: ['first', 'second', 'third'],
+        defaulValue: ['first', 'second', 'third'],
       }}
     />,
   );
@@ -154,10 +154,10 @@ it('bubbles validity from list items', async () => {
         itemConfig: {
           control: 'text',
           label: 'List item',
-          defaultValue: '',
+          defaulValue: '',
           validators: [['required', 'this is required']],
         },
-        defaultValue: ['first', 'second', 'third'],
+        defaulValue: ['first', 'second', 'third'],
       }}
     />,
   );
@@ -216,7 +216,7 @@ it('bubbles validity from list items', async () => {
   expect(listLabel.getAttribute('data-fml-validity')).toBe('valid');
 });
 
-it('uses provided value as default for list item, falling back to defaultValue configured in itemConfig', async () => {
+it('uses provided value as default for list item, falling back to defaulValue configured in itemConfig', async () => {
   /** defined default */
   const { getAllByLabelText, getByText, unmount } = render(
     <List<string>
@@ -225,9 +225,9 @@ it('uses provided value as default for list item, falling back to defaultValue c
         itemConfig: {
           control: 'text',
           label: 'List item',
-          defaultValue: 'default value',
+          defaulValue: 'default value',
         },
-        defaultValue: ['first', 'second', 'third'],
+        defaulValue: ['first', 'second', 'third'],
       }}
     />,
   );
@@ -263,9 +263,9 @@ it('uses provided value as default for list item, falling back to defaultValue c
           itemConfig: {
             control: 'text',
             label: 'List item',
-            defaultValue: undefined,
+            defaulValue: undefined,
           },
-          defaultValue: ['first', 'second', 'third'],
+          defaulValue: ['first', 'second', 'third'],
         }}
       />,
     );

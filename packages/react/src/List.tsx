@@ -14,8 +14,8 @@ import FmlComponent, {
 } from './common/FmlComponent';
 import ValidationMessages from './ValidationMessages';
 
-interface CollectionItem<TValue> {
-  value: TValue;
+interface CollectionItem<Value> {
+  value: Value;
   fmlListId: number;
   validity: FmlValidityStatus;
 }
@@ -31,19 +31,19 @@ function useListItemId() {
   return newIdRef.current;
 }
 
-function useListItemTransform<TValue>(props: ListProps<TValue>) {
+function useListItemTransform<Value>(props: ListProps<Value>) {
   const {
     changeHandler: updateList,
     focusHandler: onFocus,
     value: list,
     validationMessages,
-  } = useFmlControl<TValue[]>(
-    props.config as FmlControlConfiguration<TValue[]>,
+  } = useFmlControl<Value[]>(
+    props.config as FmlControlConfiguration<Value[]>,
   );
 
   const { newId } = useListItemId();
 
-  const [collection, updateCollection] = useState<CollectionItem<TValue>[]>(
+  const [collection, updateCollection] = useState<CollectionItem<Value>[]>(
     (list.value || []).map((item) => ({
       value: item,
       fmlListId: newId(),
@@ -56,15 +56,15 @@ function useListItemTransform<TValue>(props: ListProps<TValue>) {
       ...coll,
       {
         value: getControlConfig(
-          (getControlConfig(props.config) as FmlListConfiguration<TValue>)
+          (getControlConfig(props.config) as FmlListConfiguration<Value>)
             .itemConfig,
-        ).defaultValue as TValue,
+        ).defaulValue as Value,
         fmlListId: newId(),
         validity: 'unknown',
       },
     ]);
   }, [
-    (getControlConfig(props.config) as FmlControlConfiguration<TValue[]>)
+    (getControlConfig(props.config) as FmlControlConfiguration<Value[]>)
       .itemConfig,
     newId,
   ]);
@@ -76,7 +76,7 @@ function useListItemTransform<TValue>(props: ListProps<TValue>) {
   }, []);
 
   const update = useCallback(
-    (fmlListId: number) => (change: FmlValueState<TValue>) => {
+    (fmlListId: number) => (change: FmlValueState<Value>) => {
       updateCollection((coll) => {
         const changedItemIndex = coll.findIndex(
           (i) => i.fmlListId === fmlListId,
@@ -85,7 +85,7 @@ function useListItemTransform<TValue>(props: ListProps<TValue>) {
         return [
           ...coll.slice(0, changedItemIndex),
           {
-            value: change.value as TValue,
+            value: change.value as Value,
             fmlListId,
             validity: change.validity,
             collectionIndex: changedItemIndex,
@@ -128,30 +128,30 @@ function useListItemTransform<TValue>(props: ListProps<TValue>) {
   };
 }
 
-interface ListItemProps<TValue> {
+interface ListItemProps<Value> {
   fmlListId: number;
   elementIndex: number;
-  update: (fmlListId: number) => FmlValueStateChangeHandler<TValue>;
+  update: (fmlListId: number) => FmlValueStateChangeHandler<Value>;
   remove: (fmlListId: number) => void;
-  itemConfig: FmlConfiguration<TValue>;
+  itemConfig: FmlConfiguration<Value>;
   onFocus: () => void;
-  defaultValue: TValue;
+  defaulValue: Value;
 }
 
-function ListItemComponent<TValue>({
+function ListItemComponent<Value>({
   fmlListId,
   update,
   remove,
   itemConfig,
-  defaultValue,
+  defaulValue,
   elementIndex,
-}: ListItemProps<TValue>) {
+}: ListItemProps<Value>) {
   /**
-   * if the list's config defaultValue is [1, 2, 3], we want each list
+   * if the list's config defaulValue is [1, 2, 3], we want each list
    * item's default value to reflect the corresponding value in the list,
    * not the default value from the itemSchema
    *
-   * if nothing is provided, use the defaultValue from the itemSchema config
+   * if nothing is provided, use the defaulValue from the itemSchema config
    * and let the component figure it out
    *
    * once it is set, though, we let the component maintain its own state, so
@@ -160,15 +160,15 @@ function ListItemComponent<TValue>({
    * TODO: fix this for lists with items in layouts
    */
 
-  const [actualConfig] = useState<FmlControlConfigurationBase<TValue>>({
+  const [actualConfig] = useState<FmlControlConfigurationBase<Value>>({
     ...getControlConfig(itemConfig),
-    defaultValue:
-      typeof defaultValue === 'undefined'
-        ? getControlConfig<TValue>(itemConfig).defaultValue
-        : defaultValue,
+    defaulValue:
+      typeof defaulValue === 'undefined'
+        ? getControlConfig<Value>(itemConfig).defaulValue
+        : defaulValue,
   });
   const changeHandler = useCallback(
-    (change: FmlValueState<TValue>) => update(fmlListId)(change),
+    (change: FmlValueState<Value>) => update(fmlListId)(change),
     [update, fmlListId],
   );
 
@@ -182,12 +182,12 @@ function ListItemComponent<TValue>({
 
   return (
     <li>
-      <FmlContextProvider<TValue>
+      <FmlContextProvider<Value>
         onChange={changeHandler}
         localControlId={String(elementIndex)}
       >
-        <FmlComponent<TValue>
-          config={actualConfig as FmlConfiguration<TValue>}
+        <FmlComponent<Value>
+          config={actualConfig as FmlConfiguration<Value>}
         />
       </FmlContextProvider>
       <button onClick={removeHandler}>-</button>
@@ -195,11 +195,11 @@ function ListItemComponent<TValue>({
   );
 }
 
-export interface ListProps<TValue> {
-  config: FmlListConfiguration<TValue>;
+export interface ListProps<Value> {
+  config: FmlListConfiguration<Value>;
 }
 
-function List<TValue>(props: ListProps<TValue>) {
+function List<Value>(props: ListProps<Value>) {
   const {
     collection,
     update,
@@ -222,14 +222,14 @@ function List<TValue>(props: ListProps<TValue>) {
       <ValidationMessages validationMessages={validationMessages} />
       <ul>
         {collection.map(({ value, fmlListId }, elementIndex) => (
-          <ListItemComponent<TValue>
+          <ListItemComponent<Value>
             key={fmlListId}
             fmlListId={fmlListId}
             update={update}
             remove={remove}
             itemConfig={props.config.itemConfig}
             onFocus={onFocus}
-            defaultValue={value}
+            defaulValue={value}
             elementIndex={elementIndex}
           />
         ))}

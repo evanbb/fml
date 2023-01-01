@@ -1,7 +1,7 @@
 declare module '@fml/core' {
-  export interface FmlFieldControlRegistry<TValue>
+  export interface FmlFieldControlRegistry<Value>
     extends Record<string, FmlFieldControlRegistration<unknown>> {
-    textarea: [StringOnlyNotStringUnion<TValue> | undefined];
+    textarea: [StringOnlyNotStringUnion<Value> | undefined];
   }
 }
 

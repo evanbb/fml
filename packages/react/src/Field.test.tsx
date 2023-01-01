@@ -16,42 +16,42 @@ import userEvent from '@testing-library/user-event';
 import Field from './Field';
 
 type FmlControlConfigurationMap = {
-  [K in FmlRegisteredFieldControls]: FmlFieldControlRegistry<unknown>[K][0] extends infer TValue
-    ? FmlFieldConfiguration<TValue> extends never
+  [K in FmlRegisteredFieldControls]: FmlFieldControlRegistry<unknown>[K][0] extends infer Value
+    ? FmlFieldConfiguration<Value> extends never
       ? FmlFieldConfiguration<'test' | 'testing'> // hack for <select> field
-      : FmlFieldConfiguration<TValue>
+      : FmlFieldConfiguration<Value>
     : never;
 };
 
 const fieldMap: FmlControlConfigurationMap = {
   checkbox: {
     control: 'checkbox',
-    defaultValue: false,
+    defaulValue: false,
     label: 'test',
   },
   date: {
     control: 'date',
-    defaultValue: new Date(),
+    defaulValue: new Date(),
     label: 'test',
   },
   datetime: {
     control: 'datetime',
-    defaultValue: new Date(),
+    defaulValue: new Date(),
     label: 'test',
   },
   hidden: {
     control: 'hidden',
     label: '',
-    defaultValue: '',
+    defaulValue: '',
   },
   number: {
     control: 'number',
-    defaultValue: 0,
+    defaulValue: 0,
     label: 'test',
   },
   radios: {
     control: 'select',
-    defaultValue: 'test',
+    defaulValue: 'test',
     options: {
       test: 'test option',
       testing: 'another option',
@@ -60,7 +60,7 @@ const fieldMap: FmlControlConfigurationMap = {
   },
   select: {
     control: 'select',
-    defaultValue: 'test',
+    defaulValue: 'test',
     options: {
       test: 'test option',
       testing: 'another option',
@@ -69,17 +69,17 @@ const fieldMap: FmlControlConfigurationMap = {
   },
   text: {
     control: 'text',
-    defaultValue: '',
+    defaulValue: '',
     label: 'test',
   },
   textarea: {
     control: 'textarea',
-    defaultValue: '',
+    defaulValue: '',
     label: 'test',
   },
   toggle: {
     control: 'toggle',
-    defaultValue: false,
+    defaulValue: false,
     label: 'test',
   },
 };

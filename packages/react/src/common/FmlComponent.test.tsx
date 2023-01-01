@@ -12,7 +12,7 @@ import FmlComponent from './FmlComponent';
 const fieldConfig: FmlFieldConfiguration<string> = {
   label: 'test field',
   control: 'text',
-  defaultValue: '',
+  defaulValue: '',
 };
 
 const modelConfig: FmlModelConfiguration<{ string: string }> = {
@@ -21,7 +21,7 @@ const modelConfig: FmlModelConfiguration<{ string: string }> = {
     string: {
       label: 'property',
       control: 'text',
-      defaultValue: '',
+      defaulValue: '',
     },
   },
 };
@@ -31,7 +31,7 @@ const listConfig: FmlListConfiguration<string> = {
   itemConfig: {
     label: 'item',
     control: 'text',
-    defaultValue: '',
+    defaulValue: '',
   },
 };
 

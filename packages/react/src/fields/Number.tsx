@@ -27,7 +27,7 @@ export default function NumberComponent(props: NumberComponentProps) {
         type='number'
         name={controlId}
         id={controlId}
-        defaultValue={value.value}
+        defaulValue={value.value}
         onChange={(e) =>
           !isNaN(parseFloat(e.target.value)) && changeHandler({
             value: parseFloat(e.target.value),

@@ -10,51 +10,51 @@ import Field from '../Field';
 import List from '../List';
 import Model from '../Model';
 
-export function getControlConfig<TValue>(
+export function getControlConfig<Value>(
   config: unknown,
-): FmlControlConfigurationBase<TValue> {
-  if (isControlConfig<TValue>(config)) {
+): FmlControlConfigurationBase<Value> {
+  if (isControlConfig<Value>(config)) {
     return config;
   }
 
   throw new Error('Unrecognized FmlConfiguration object');
 }
 
-function isControlConfig<TValue>(
+function isControlConfig<Value>(
   config: unknown,
-): config is FmlControlConfigurationBase<TValue> {
+): config is FmlControlConfigurationBase<Value> {
   return !Array.isArray(config);
 }
 
-function isFieldProps<TValue>(
+function isFieldProps<Value>(
   config: unknown,
-): config is FmlFieldConfiguration<TValue> {
-  return Boolean((config as FmlFieldConfiguration<TValue>)?.control);
+): config is FmlFieldConfiguration<Value> {
+  return Boolean((config as FmlFieldConfiguration<Value>)?.control);
 }
 
-function isListProps<TValue>(
+function isListProps<Value>(
   config: unknown,
-): config is FmlListConfiguration<TValue> {
-  return Boolean((config as FmlListConfiguration<TValue>)?.itemConfig);
+): config is FmlListConfiguration<Value> {
+  return Boolean((config as FmlListConfiguration<Value>)?.itemConfig);
 }
 
-function isModelProps<TValue>(
+function isModelProps<Value>(
   config: unknown,
-): config is FmlModelConfiguration<TValue> {
-  return Boolean((config as FmlModelConfiguration<TValue>)?.schema);
+): config is FmlModelConfiguration<Value> {
+  return Boolean((config as FmlModelConfiguration<Value>)?.schema);
 }
 
-export interface FmlComponentProps<TValue> {
-  config: FmlConfiguration<TValue>;
+export interface FmlComponentProps<Value> {
+  config: FmlConfiguration<Value>;
 }
 
-function FmlComponent<TValue>(props: FmlComponentProps<TValue>) {
-  return isFieldProps<TValue>(props.config) ? (
-    <Field<TValue> {...{ config: props.config }} />
-  ) : isListProps<TValue>(props.config) ? (
-    <List<TValue> {...{ config: props.config }} />
-  ) : isModelProps<TValue>(props.config) ? (
-    <Model<TValue> {...{ config: props.config }} />
+function FmlComponent<Value>(props: FmlComponentProps<Value>) {
+  return isFieldProps<Value>(props.config) ? (
+    <Field<Value> {...{ config: props.config }} />
+  ) : isListProps<Value>(props.config) ? (
+    <List<Value> {...{ config: props.config }} />
+  ) : isModelProps<Value>(props.config) ? (
+    <Model<Value> {...{ config: props.config }} />
   ) : null;
 }
 

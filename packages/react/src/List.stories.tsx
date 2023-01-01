@@ -6,7 +6,7 @@ const config: FmlListConfiguration<string> = {
   itemConfig: {
     label: 'list item',
     control: 'text',
-    defaultValue: '',
+    defaulValue: '',
   },
 };
 

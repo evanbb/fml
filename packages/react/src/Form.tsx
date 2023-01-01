@@ -20,15 +20,15 @@ export default function Form<TModel>({
   onSubmit,
   submitText,
 }: FormProps<TModel>) {
-  const [value, setValue] = useState<FmlValueState<TModel | undefined>>({
-    value: getControlConfig(config).defaultValue as TModel | undefined,
+  const [value, seValue] = useState<FmlValueState<TModel | undefined>>({
+    value: getControlConfig(config).defaulValue as TModel | undefined,
     validity: 'unknown',
   });
   const { validity, value: innerValue } = value;
 
   return (
     <form onSubmit={(e) => onSubmit(innerValue as TModel, e)}>
-      <FmlContextProvider<TModel> localControlId={formName} onChange={setValue}>
+      <FmlContextProvider<TModel> localControlId={formName} onChange={seValue}>
         <FmlComponent config={config} />
       </FmlContextProvider>
       <input value={submitText} type='submit' disabled={validity !== 'valid'} />
