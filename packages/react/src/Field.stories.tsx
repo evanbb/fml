@@ -7,7 +7,7 @@ export const CheckboxExample = () => (
       label: 'A checkbox',
       control: 'checkbox',
       validators: [['required', 'Check this, please']],
-      defaulValue: false,
+      defaultValue: false,
     }}
   />
 );
@@ -17,7 +17,7 @@ export const DateExample = () => (
     config={{
       label: 'A date',
       control: 'date',
-      defaulValue: undefined,
+      defaultValue: undefined,
     }}
   />
 );
@@ -26,7 +26,7 @@ export const DateTimeExample = () => (
     config={{
       label: 'A date',
       control: 'datetime',
-      defaulValue: new Date(),
+      defaultValue: new Date(),
     }}
   />
 );
@@ -35,7 +35,7 @@ export const HiddenExample = () => (
     config={{
       label: 'A hidden value',
       control: 'hidden',
-      defaulValue: '',
+      defaultValue: '',
     }}
   />
 );
@@ -45,7 +45,7 @@ export const NumberExample = () => (
       label: 'A number',
       control: 'number',
       validators: [['required', 'This is required, dawg']],
-      defaulValue: undefined,
+      defaultValue: undefined,
     }}
   />
 );
@@ -55,23 +55,23 @@ export const SelectExample = () => (
       label: 'A few options',
       control: 'select',
       options: { a: 'Option A', b: 'Option B', c: 'Option C' },
-      defaulValue: 'b',
+      defaultValue: 'b',
     }}
   />
 );
 export const TextInputExample = () => (
   <Field<string>
-    config={{ label: 'Text input', control: 'text', defaulValue: '' }}
+    config={{ label: 'Text input', control: 'text', defaultValue: '' }}
   />
 );
 export const TextAreaInputExample = () => (
   <Field<string>
-    config={{ label: 'Text area', control: 'textarea', defaulValue: '' }}
+    config={{ label: 'Text area', control: 'textarea', defaultValue: '' }}
   />
 );
 export const ToggleExample = () => (
   <Field<boolean>
-    config={{ label: 'A checkbox', control: 'toggle', defaulValue: false }}
+    config={{ label: 'A checkbox', control: 'toggle', defaultValue: false }}
   />
 );
 

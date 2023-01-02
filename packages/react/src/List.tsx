@@ -58,7 +58,7 @@ function useListItemTransform<Value>(props: ListProps<Value>) {
         value: getControlConfig(
           (getControlConfig(props.config) as FmlListConfiguration<Value>)
             .itemConfig,
-        ).defaulValue as Value,
+        ).defaultValue as Value,
         fmlListId: newId(),
         validity: 'unknown',
       },
@@ -135,7 +135,7 @@ interface ListItemProps<Value> {
   remove: (fmlListId: number) => void;
   itemConfig: FmlConfiguration<Value>;
   onFocus: () => void;
-  defaulValue: Value;
+  defaultValue: Value;
 }
 
 function ListItemComponent<Value>({
@@ -143,15 +143,15 @@ function ListItemComponent<Value>({
   update,
   remove,
   itemConfig,
-  defaulValue,
+  defaultValue,
   elementIndex,
 }: ListItemProps<Value>) {
   /**
-   * if the list's config defaulValue is [1, 2, 3], we want each list
+   * if the list's config defaultValue is [1, 2, 3], we want each list
    * item's default value to reflect the corresponding value in the list,
    * not the default value from the itemSchema
    *
-   * if nothing is provided, use the defaulValue from the itemSchema config
+   * if nothing is provided, use the defaultValue from the itemSchema config
    * and let the component figure it out
    *
    * once it is set, though, we let the component maintain its own state, so
@@ -162,10 +162,10 @@ function ListItemComponent<Value>({
 
   const [actualConfig] = useState<FmlControlConfigurationBase<Value>>({
     ...getControlConfig(itemConfig),
-    defaulValue:
-      typeof defaulValue === 'undefined'
-        ? getControlConfig<Value>(itemConfig).defaulValue
-        : defaulValue,
+    defaultValue:
+      typeof defaultValue === 'undefined'
+        ? getControlConfig<Value>(itemConfig).defaultValue
+        : defaultValue,
   });
   const changeHandler = useCallback(
     (change: FmlValueState<Value>) => update(fmlListId)(change),
@@ -229,7 +229,7 @@ function List<Value>(props: ListProps<Value>) {
             remove={remove}
             itemConfig={props.config.itemConfig}
             onFocus={onFocus}
-            defaulValue={value}
+            defaultValue={value}
             elementIndex={elementIndex}
           />
         ))}

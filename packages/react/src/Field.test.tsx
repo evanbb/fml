@@ -26,32 +26,32 @@ type FmlControlConfigurationMap = {
 const fieldMap: FmlControlConfigurationMap = {
   checkbox: {
     control: 'checkbox',
-    defaulValue: false,
+    defaultValue: false,
     label: 'test',
   },
   date: {
     control: 'date',
-    defaulValue: new Date(),
+    defaultValue: new Date(),
     label: 'test',
   },
   datetime: {
     control: 'datetime',
-    defaulValue: new Date(),
+    defaultValue: new Date(),
     label: 'test',
   },
   hidden: {
     control: 'hidden',
     label: '',
-    defaulValue: '',
+    defaultValue: '',
   },
   number: {
     control: 'number',
-    defaulValue: 0,
+    defaultValue: 0,
     label: 'test',
   },
   radios: {
     control: 'select',
-    defaulValue: 'test',
+    defaultValue: 'test',
     options: {
       test: 'test option',
       testing: 'another option',
@@ -60,7 +60,7 @@ const fieldMap: FmlControlConfigurationMap = {
   },
   select: {
     control: 'select',
-    defaulValue: 'test',
+    defaultValue: 'test',
     options: {
       test: 'test option',
       testing: 'another option',
@@ -69,17 +69,17 @@ const fieldMap: FmlControlConfigurationMap = {
   },
   text: {
     control: 'text',
-    defaulValue: '',
+    defaultValue: '',
     label: 'test',
   },
   textarea: {
     control: 'textarea',
-    defaulValue: '',
+    defaultValue: '',
     label: 'test',
   },
   toggle: {
     control: 'toggle',
-    defaulValue: false,
+    defaultValue: false,
     label: 'test',
   },
 };

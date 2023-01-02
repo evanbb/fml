@@ -28,14 +28,14 @@ it('renders appropriate components for each property', async () => {
         schema: {
           foo: {
             control: 'text',
-            defaulValue: undefined,
+            defaultValue: undefined,
             label: 'Foo',
           },
           bar: {
             label: 'Bar',
             itemConfig: {
               control: 'number',
-              defaulValue: undefined,
+              defaultValue: undefined,
               label: 'Number',
             },
           },
@@ -44,7 +44,7 @@ it('renders appropriate components for each property', async () => {
             schema: {
               qux: {
                 control: 'checkbox',
-                defaulValue: false,
+                defaultValue: false,
                 label: 'Qux',
               },
             },
@@ -79,7 +79,7 @@ it('bubbles up validation errors', async () => {
         schema: {
           foo: {
             control: 'text',
-            defaulValue: 'valid value',
+            defaultValue: 'valid value',
             label: 'Foo',
             validators: [['required', 'required srsly']],
           },
@@ -87,7 +87,7 @@ it('bubbles up validation errors', async () => {
             label: 'Bar',
             itemConfig: {
               control: 'number',
-              defaulValue: undefined,
+              defaultValue: undefined,
               label: 'Number',
             },
           },
@@ -96,7 +96,7 @@ it('bubbles up validation errors', async () => {
             schema: {
               qux: {
                 control: 'checkbox',
-                defaulValue: false,
+                defaultValue: false,
                 label: 'Qux',
               },
             },

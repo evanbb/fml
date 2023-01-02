@@ -27,7 +27,7 @@ export default function DateComponent(props: DateComponentProps) {
         type='date'
         name={controlId}
         id={controlId}
-        defaulValue={value.value?.toString()}
+        defaultValue={value.value?.toString()}
         onChange={(e) =>
           changeHandler({
             value: new Date(e.target.value),

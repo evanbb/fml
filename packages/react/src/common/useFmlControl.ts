@@ -19,7 +19,7 @@ export function useFmlControl<Value>(config: FmlControlConfiguration<Value>) {
 
   const { blurHandler, hasBeenBlurred } = useFmlComponentBlur(contextOnBlur);
   const { currenValue, setCurrenValue } = useFmlComponentState<Value>(
-    config.defaulValue as Value,
+    config.defaultValue as Value,
     (config.validators ?? []) as FmlValidatorConfiguration<Value>[],
   );
   const { focusHandler } = useFmlComponentFocus(contextOnFocus);
@@ -57,12 +57,12 @@ function useFmlComponentBlur(contextOnBlur: () => void) {
 }
 
 function useFmlComponentState<Value>(
-  defaulValue: Value,
+  defaultValue: Value,
   validators: FmlValidatorConfiguration<Value>[],
 ) {
   const [currenValue, setCurrenValue] = useState({
     value: {
-      value: defaulValue,
+      value: defaultValue,
       validity: validators?.length ? 'unknown' : ('valid' as FmlValidityStatus),
     },
     validationMessages: [] as string[],

@@ -36,7 +36,7 @@ export default function Form<Model>({
   onChange,
 }: SubmittingFormProps<Model> | ChangingFormProps<Model>) {
   const [value, setValue] = useState<FmlValueState<Model | undefined>>({
-    value: getControlConfig(config).defaulValue as Model | undefined,
+    value: getControlConfig(config).defaultValue as Model | undefined,
     validity: 'unknown',
   });
 

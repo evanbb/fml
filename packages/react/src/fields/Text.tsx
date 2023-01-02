@@ -27,7 +27,7 @@ export default function Text(props: TextProps) {
         type='text'
         name={controlId}
         id={controlId}
-        defaulValue={value.value}
+        defaultValue={value.value}
         onChange={(e) =>
           changeHandler({
             value: e.target.value,

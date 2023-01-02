@@ -75,7 +75,7 @@ export interface FmlValueStateChangeHandler<Value> {
  */
 export interface FmlControlConfigurationBase<Value> {
   label: string;
-  defaulValue?: Value;
+  defaultValue?: Value;
   validators?: FmlValidatorConfiguration<Value>[];
 }
 

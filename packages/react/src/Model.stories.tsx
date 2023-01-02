@@ -12,12 +12,12 @@ const config: FmlModelConfiguration<MyModel> = {
     firstName: {
       label: 'First Name',
       control: 'text',
-      defaulValue: '',
+      defaultValue: '',
     },
     lastName: {
       label: 'Last Name',
       control: 'text',
-      defaulValue: '',
+      defaultValue: '',
     },
   },
 };
