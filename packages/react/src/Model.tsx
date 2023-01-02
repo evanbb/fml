@@ -23,10 +23,11 @@ type ValueStateModel<Value> = {
 
 function useModelTransform<Value>(props: ModelProps<Value>) {
   const {
-    changeHandler: updateInnerModel,
+    onChange: updateInnerModel,
     validationMessages,
-    focusHandler: onFocus,
+    onFocus: onFocus,
     value: innerModel,
+    validity,
   } = useFmlControl<Value>(props.config as FmlControlConfiguration<Value>);
 
   const initialModel = useMemo<ValueStateModelProps<Value>>(() => {
@@ -34,15 +35,13 @@ function useModelTransform<Value>(props: ModelProps<Value>) {
     Object.keys(props.config.schema).forEach((key) => {
       Object.assign(result, {
         [key]: {
-          value: innerModel.value
-            ? innerModel.value[key as keyof Value]
-            : undefined,
+          value: innerModel ? innerModel[key as keyof Value] : undefined,
           validity: 'unknown',
         },
       });
     });
     return result;
-  }, [innerModel.value, props.config.schema]);
+  }, [innerModel, props.config.schema]);
 
   const modelToInnerValue = useCallback<
     (model: ValueStateModel<Value>) => [Value, Set<FmlValidityStatus>]
@@ -116,7 +115,7 @@ function useModelTransform<Value>(props: ModelProps<Value>) {
     updateProperty,
     validationMessages,
     onFocus,
-    validity: innerModel.validity,
+    validity: validity,
   };
 }
 

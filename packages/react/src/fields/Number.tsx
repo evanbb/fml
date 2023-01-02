@@ -10,32 +10,34 @@ export default function NumberComponent(props: NumberComponentProps) {
   const { label } = props.config as FmlFieldConfiguration<number>;
 
   const {
-    blurHandler,
-    changeHandler,
+    onBlur,
+    onChange,
     controlId,
-    focusHandler,
+    onFocus,
     validationMessages,
     value,
+    validity,
   } = useFmlControl<number>(props.config as FmlFieldConfiguration<number>);
 
   return (
     <>
-      <label data-fml-validity={value.validity} htmlFor={controlId}>
+      <label data-fml-validity={validity} htmlFor={controlId}>
         {label}
       </label>
       <input
         type='number'
         name={controlId}
         id={controlId}
-        defaultValue={value.value}
+        defaultValue={value}
         onChange={(e) =>
-          !isNaN(parseFloat(e.target.value)) && changeHandler({
+          !isNaN(parseFloat(e.target.value)) &&
+          onChange({
             value: parseFloat(e.target.value),
             validity: 'pending',
           })
         }
-        onBlur={blurHandler}
-        onFocus={focusHandler}
+        onBlur={onBlur}
+        onFocus={onFocus}
       />
       <ValidationMessages validationMessages={validationMessages} />
     </>

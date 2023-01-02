@@ -10,32 +10,33 @@ export default function DateComponent(props: DateComponentProps) {
   const { label } = props.config as FmlFieldConfiguration<Date>;
 
   const {
-    blurHandler,
-    changeHandler,
+    onBlur,
+    onChange,
     controlId,
-    focusHandler,
+    onFocus,
     validationMessages,
     value,
+    validity,
   } = useFmlControl<Date>(props.config as FmlFieldConfiguration<Date>);
 
   return (
     <>
-      <label data-fml-validity={value.validity} htmlFor={controlId}>
+      <label data-fml-validity={validity} htmlFor={controlId}>
         {label}
       </label>
       <input
         type='date'
         name={controlId}
         id={controlId}
-        defaultValue={value.value?.toString()}
+        defaultValue={value?.toString()}
         onChange={(e) =>
-          changeHandler({
+          onChange({
             value: new Date(e.target.value),
             validity: 'pending',
           })
         }
-        onBlur={blurHandler}
-        onFocus={focusHandler}
+        onBlur={onBlur}
+        onFocus={onFocus}
       />
       <ValidationMessages validationMessages={validationMessages} />
     </>

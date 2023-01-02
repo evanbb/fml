@@ -10,32 +10,35 @@ export default function Select(props: SelectProps) {
   const { label, options } =
     props.config as unknown as FmlFieldConfiguration<'string'>;
 
-    const {
-      blurHandler,
-      changeHandler,
-      controlId,
-      focusHandler,
-      validationMessages,
-      value,
-    } = useFmlControl<'string'>(props.config as unknown as FmlFieldConfiguration<'string'>);
-  
+  const {
+    onBlur,
+    onChange,
+    controlId,
+    onFocus,
+    validationMessages,
+    value,
+    validity,
+  } = useFmlControl<'string'>(
+    props.config as unknown as FmlFieldConfiguration<'string'>,
+  );
+
   return (
     <>
-      <label data-fml-validity={value.validity} htmlFor={controlId}>
+      <label data-fml-validity={validity} htmlFor={controlId}>
         {label}
       </label>
       <select
         name={controlId}
         id={controlId}
-        defaultValue={value.value}
+        defaultValue={value}
         onChange={(e) =>
-          changeHandler({
+          onChange({
             value: e.target.value as 'string',
             validity: 'pending',
           })
         }
-        onBlur={blurHandler}
-        onFocus={focusHandler}
+        onBlur={onBlur}
+        onFocus={onFocus}
       >
         {Object.keys(options).map((k) => (
           <option key={k} value={k}>

@@ -1,5 +1,6 @@
 import {
-  FmlControlConfigurationBase,  FmlValidityStatus,
+  FmlControlConfigurationBase,
+  FmlValidityStatus,
   FmlValueState,
   FmlValueStateChangeHandler,
   FmlConfiguration,
@@ -9,9 +10,7 @@ import {
 import { FmlContextProvider, useFmlContext } from './common/FmlControlContext';
 import { useFmlControl } from './common/useFmlControl';
 import { useRef, useState, useEffect, useCallback, memo } from 'react';
-import FmlComponent, {
-  getControlConfig,
-} from './common/FmlComponent';
+import FmlComponent, { getControlConfig } from './common/FmlComponent';
 import ValidationMessages from './ValidationMessages';
 
 interface CollectionItem<Value> {
@@ -33,18 +32,17 @@ function useListItemId() {
 
 function useListItemTransform<Value>(props: ListProps<Value>) {
   const {
-    changeHandler: updateList,
-    focusHandler: onFocus,
+    onChange: updateList,
+    onFocus: onFocus,
     value: list,
+    validity,
     validationMessages,
-  } = useFmlControl<Value[]>(
-    props.config as FmlControlConfiguration<Value[]>,
-  );
+  } = useFmlControl<Value[]>(props.config as FmlControlConfiguration<Value[]>);
 
   const { newId } = useListItemId();
 
   const [collection, updateCollection] = useState<CollectionItem<Value>[]>(
-    (list.value || []).map((item) => ({
+    (list || []).map((item) => ({
       value: item,
       fmlListId: newId(),
       validity: 'unknown',
@@ -124,7 +122,7 @@ function useListItemTransform<Value>(props: ListProps<Value>) {
     remove,
     update,
     onFocus,
-    validity: list.validity,
+    validity: validity,
   };
 }
 
@@ -186,9 +184,7 @@ function ListItemComponent<Value>({
         onChange={changeHandler}
         localControlId={String(elementIndex)}
       >
-        <FmlComponent<Value>
-          config={actualConfig as FmlConfiguration<Value>}
-        />
+        <FmlComponent<Value> config={actualConfig as FmlConfiguration<Value>} />
       </FmlContextProvider>
       <button onClick={removeHandler}>-</button>
     </li>
@@ -236,8 +232,8 @@ function List<Value>(props: ListProps<Value>) {
         <li>
           <button
             onClick={(e) => {
-              insert();
               e.preventDefault();
+              insert();
             }}
           >
             +

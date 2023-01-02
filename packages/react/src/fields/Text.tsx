@@ -10,32 +10,33 @@ export default function Text(props: TextProps) {
   const { label } = props.config as FmlFieldConfiguration<string>;
 
   const {
-    blurHandler,
-    changeHandler,
+    onBlur,
+    onChange,
     controlId,
-    focusHandler,
+    onFocus,
     validationMessages,
     value,
+    validity,
   } = useFmlControl<string>(props.config as FmlFieldConfiguration<string>);
 
   return (
     <>
-      <label data-fml-validity={value.validity} htmlFor={controlId}>
+      <label data-fml-validity={validity} htmlFor={controlId}>
         {label}
       </label>
       <input
         type='text'
         name={controlId}
         id={controlId}
-        defaultValue={value.value}
+        defaultValue={value}
         onChange={(e) =>
-          changeHandler({
+          onChange({
             value: e.target.value,
             validity: 'pending',
           })
         }
-        onBlur={blurHandler}
-        onFocus={focusHandler}
+        onBlur={onBlur}
+        onFocus={onFocus}
       />
       <ValidationMessages validationMessages={validationMessages} />
     </>

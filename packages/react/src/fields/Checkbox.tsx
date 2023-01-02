@@ -10,32 +10,33 @@ export default function Checkbox(props: CheckboxProps) {
   const { label } = props.config as FmlFieldConfiguration<boolean>;
 
   const {
-    blurHandler,
-    changeHandler,
+    onBlur,
+    onChange,
     controlId,
-    focusHandler,
+    onFocus,
     validationMessages,
     value,
+    validity
   } = useFmlControl<boolean>(props.config as FmlFieldConfiguration<boolean>);
 
   return (
     <>
-      <label data-fml-validity={value.validity} htmlFor={controlId}>
+      <label data-fml-validity={validity} htmlFor={controlId}>
         {label}
       </label>
       <input
         type='checkbox'
         name={controlId}
         id={controlId}
-        defaultChecked={value.value}
+        defaultChecked={value}
         onChange={(e) =>
-          changeHandler({
+          onChange({
             value: e.target.checked,
             validity: 'pending',
           })
         }
-        onBlur={blurHandler}
-        onFocus={focusHandler}
+        onBlur={onBlur}
+        onFocus={onFocus}
       />
       <ValidationMessages validationMessages={validationMessages} />
     </>

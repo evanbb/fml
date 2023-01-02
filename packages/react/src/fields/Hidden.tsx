@@ -6,17 +6,17 @@ import { useFmlControl } from '../common/useFmlControl';
 type HiddenProps = FmlComponentProps<string>;
 
 export default function Hidden(props: HiddenProps) {
-  const { controlId, value } = useFmlControl<string>(
+  const { controlId, value, validity } = useFmlControl<string>(
     props.config as FmlControlConfiguration<string>,
   );
 
   return (
     <input
-      data-fml-validity={value.validity}
+      data-fml-validity={validity}
       type='hidden'
       name={controlId}
       id={controlId}
-      value={value.value}
+      value={value}
     />
   );
 }

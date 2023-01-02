@@ -34,10 +34,11 @@ export function useFmlControl<Value>(config: FmlControlConfiguration<Value>) {
 
   return {
     controlId,
-    changeHandler,
-    focusHandler,
-    blurHandler,
-    value: currenValue.value,
+    onChange: changeHandler,
+    onFocus: focusHandler,
+    onBlur: blurHandler,
+    value: currenValue.value.value,
+    validity: currenValue.value.validity,
     validationMessages,
   };
 }

@@ -10,19 +10,18 @@ export default function Toggle(props: ToggleProps) {
   const { label } = props.config as FmlFieldConfiguration<boolean>;
 
   const {
-    blurHandler,
-    changeHandler,
+    onBlur,
+    onChange,
     controlId,
-    focusHandler,
+    onFocus,
     validationMessages,
-    value
-  } = useFmlControl<boolean>(
-    props.config as FmlFieldConfiguration<boolean>,
-  );
+    value,
+    validity,
+  } = useFmlControl<boolean>(props.config as FmlFieldConfiguration<boolean>);
 
   return (
     <>
-      <label data-fml-validity={value.validity} htmlFor={controlId}>
+      <label data-fml-validity={validity} htmlFor={controlId}>
         {label}
       </label>
       <input
@@ -30,14 +29,14 @@ export default function Toggle(props: ToggleProps) {
         name={controlId}
         id={controlId}
         onChange={(e) =>
-          changeHandler({
+          onChange({
             value: e.target.checked,
             validity: 'pending',
           })
         }
-        onBlur={blurHandler}
-        onFocus={focusHandler}
-        defaultChecked={value.value}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        defaultChecked={value}
       />
       <ValidationMessages validationMessages={validationMessages} />
     </>
