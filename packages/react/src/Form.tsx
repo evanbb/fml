@@ -4,7 +4,7 @@ import {
   FmlValueStateChangeHandler,
 } from '@fml/core';
 import { FmlContextProvider } from './common/FmlControlContext';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useCallback, useState } from 'react';
 import FmlComponent, { getControlConfig } from './common/FmlComponent';
 
 interface submitCallback<Model> {
@@ -40,10 +40,10 @@ export default function Form<Model>({
     validity: 'unknown',
   });
 
-  const updateValue: FmlValueStateChangeHandler<Model> = (data) => {
+  const updateValue: FmlValueStateChangeHandler<Model> = useCallback((data) => {
     setValue(data);
     onChange?.(data);
-  };
+  }, [onChange]);
 
   const { validity, value: innerValue } = value;
 
