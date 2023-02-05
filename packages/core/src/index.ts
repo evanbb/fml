@@ -167,16 +167,17 @@ export type FmlControlConfiguration<Value> =
 
 //#region fields
 
-export type FmlFieldValueTypes = string | number | boolean | Date | undefined;
+export type FmlFieldValueTypes = string | number | boolean | Date;
 
 /**
  * Basic descriptor of the field to bind a value to.
  */
 export interface FmlFieldConfigurationBase<
   Value,
-  Control extends FmlRegisteredFieldControls,
+  Control extends FmlRegisteredFieldControls = FmlRegisteredFieldControls,
 > extends FmlControlConfigurationBase<Value> {
   control: Control;
+  defaultValue: Value
 }
 
 /**
@@ -369,58 +370,19 @@ export type FmlValidators<Value> = {
  */
 export type FmlValidatorKeys<Value> = keyof FmlValidators<Value>;
 
-/**
- * The actual registry. Don't mess with it.
- */
-const validatorRegistry = {} as FmlValidatorFactoryRegistry;
-
-/**
- * Registers the provided validator factory implementation at the provided name.
- * @param name The name of the validator to enter into the registry
- * @param factory The validator factory implementation
- */
-export function registerValidator<
-  ValidatorKey extends keyof FmlValidatorFactoryRegistry,
->(key: ValidatorKey, factory: FmlValidatorFactoryRegistry[ValidatorKey]): void {
-  validatorRegistry[key] = factory;
-}
-
-/**
- * A means of getting the validator factory registered at the provided name
- * @param name The name of the validator factory to retrieve
- * @returns The validator factory
- */
-export function getValidatorFactory<Validator extends keyof FmlRegisteredValidators>(
-  name: Validator,
-): FmlValidatorFactoryRegistry[Validator] {
-  return validatorRegistry[name];
-}
-
 export type FmlConfiguration<Value> = FmlControlConfiguration<Value>;
 
-export function instantiateValidator<Value>(
-  config: FmlValidatorConfiguration<Value>,
-): FmlControlValidator<Value> {
-  // get the appropriate validator factory for this data type
-  const type = config[0];
-  const factory = getValidatorFactory(type);
+import {
+  registerValidator,
+  // these should go away
+  instantiateValidator,
+  getValidatorFactory
+} from './state/Validators'
+import { createStateFromConfig } from './state/FormState'
+// these should go away
+import { createFieldStateFromConfig } from './state/FieldState'
+import { createListStateFromConfig } from './state/ListState'
+import { createModelStateFromConfig } from './state/ModelState'
 
-  const args = (config as unknown[]).slice(1, (config as unknown[]).length - 1);
-
-  // create the validator function by applying the factory
-  const func = (factory as (...x: unknown[]) => unknown)(
-    ...args,
-  ) as FmlValidator<Value>;
-
-  const invalidMessage = (config as unknown[]).slice(-1)[0] as string;
-
-  // result is an async function that calls the validator above (which may be async itself) with the current value
-  return async function (value: Value) {
-    const valid = await func(value);
-
-    if (!valid) {
-      return invalidMessage;
-    }
-    return;
-  };
-}
+export { registerValidator, instantiateValidator, getValidatorFactory }
+export { createStateFromConfig, createFieldStateFromConfig, createModelStateFromConfig, createListStateFromConfig }
