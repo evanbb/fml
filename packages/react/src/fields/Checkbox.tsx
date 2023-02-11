@@ -1,40 +1,30 @@
-import { FmlFieldConfiguration, registerControl } from '@fml/core';
+import { useId } from 'react';
+import { registerFieldControl } from '@fml/core';
 import CHECKBOX from '@fml/add/controls/checkbox';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
-import { useFmlControl } from '../common/useFmlControl';
 
 type CheckboxProps = FmlComponentProps<boolean>;
 
-export default function Checkbox(props: CheckboxProps) {
-  const { label } = props.config as FmlFieldConfiguration<boolean>;
-
+export default function Checkbox({ formState }: CheckboxProps) {
+  const id = useId();
   const {
-    onBlur,
-    onChange,
-    controlId,
-    onFocus,
-    validationMessages,
+    bindings: { onBlur, onFocus, setValue },
+    state: { label, validationMessages, validity },
     value,
-    validity
-  } = useFmlControl<boolean>(props.config as FmlFieldConfiguration<boolean>);
+  } = formState;
 
   return (
     <>
-      <label data-fml-validity={validity} htmlFor={controlId}>
+      <label data-fml-validity={validity} htmlFor={id}>
         {label}
       </label>
       <input
         type='checkbox'
-        name={controlId}
-        id={controlId}
+        name={id}
+        id={id}
         defaultChecked={value}
-        onChange={(e) =>
-          onChange({
-            value: e.target.checked,
-            validity: 'pending',
-          })
-        }
+        onChange={(e) => setValue(e.target.checked)}
         onBlur={onBlur}
         onFocus={onFocus}
       />
@@ -43,4 +33,4 @@ export default function Checkbox(props: CheckboxProps) {
   );
 }
 
-registerControl(CHECKBOX, Checkbox);
+registerFieldControl(CHECKBOX, Checkbox);

@@ -17,17 +17,6 @@ it.each`
 `('returns false if $value is between $min and $max', ({ value, min, max }) => {
   expect(between({ min, max })(value)).toBe(false);
 });
-it.each`
-  value | min  | max
-  ${7}  | ${4} | ${7}
-  ${3}  | ${3} | ${5}
-  ${1}  | ${0} | ${2}
-`(
-  'returns true if $value is greater than or equal to $min and less than or equal to $max when inclusive is set to true',
-  ({ value, min, max }) => {
-    expect(between({ min, max }, true)(value)).toBe(true);
-  },
-);
 
 it('is in the registry', () => {
   const validator = instantiateValidator(['between', {

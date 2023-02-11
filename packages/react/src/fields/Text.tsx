@@ -1,40 +1,30 @@
-import { FmlFieldConfiguration, registerControl } from '@fml/core';
+import { registerFieldControl } from '@fml/core';
 import TEXT from '@fml/add/controls/text';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
-import { useFmlControl } from '../common/useFmlControl';
+import { useId } from 'react';
 
 type TextProps = FmlComponentProps<string>;
 
-export default function Text(props: TextProps) {
-  const { label } = props.config as FmlFieldConfiguration<string>;
-
+export default function Text({ formState }: TextProps) {
+  const id = useId();
   const {
-    onBlur,
-    onChange,
-    controlId,
-    onFocus,
-    validationMessages,
+    bindings: { onBlur, onFocus, setValue },
+    state: { label, validationMessages, validity },
     value,
-    validity,
-  } = useFmlControl<string>(props.config as FmlFieldConfiguration<string>);
+  } = formState;
 
   return (
     <>
-      <label data-fml-validity={validity} htmlFor={controlId}>
+      <label data-fml-validity={validity} htmlFor={id}>
         {label}
       </label>
       <input
         type='text'
-        name={controlId}
-        id={controlId}
+        name={id}
+        id={id}
         defaultValue={value}
-        onChange={(e) =>
-          onChange({
-            value: e.target.value,
-            validity: 'pending',
-          })
-        }
+        onChange={(e) => setValue(e.target.value)}
         onBlur={onBlur}
         onFocus={onFocus}
       />
@@ -43,4 +33,4 @@ export default function Text(props: TextProps) {
   );
 }
 
-registerControl(TEXT, Text);
+registerFieldControl(TEXT, Text);

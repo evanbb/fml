@@ -1,40 +1,32 @@
-import { FmlFieldConfiguration, registerControl } from '@fml/core';
+import { registerFieldControl } from '@fml/core';
 import NUMBER from '@fml/add/controls/number';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
-import { useFmlControl } from '../common/useFmlControl';
+import { useId } from 'react';
 
 type NumberComponentProps = FmlComponentProps<number>;
 
-export default function NumberComponent(props: NumberComponentProps) {
-  const { label } = props.config as FmlFieldConfiguration<number>;
-
+export default function NumberComponent({ formState }: NumberComponentProps) {
+  const id = useId();
   const {
-    onBlur,
-    onChange,
-    controlId,
-    onFocus,
-    validationMessages,
+    bindings: { onBlur, onFocus, setValue },
+    state: { label, validationMessages, validity },
     value,
-    validity,
-  } = useFmlControl<number>(props.config as FmlFieldConfiguration<number>);
+  } = formState;
 
   return (
     <>
-      <label data-fml-validity={validity} htmlFor={controlId}>
+      <label data-fml-validity={validity} htmlFor={id}>
         {label}
       </label>
       <input
         type='number'
-        name={controlId}
-        id={controlId}
+        name={id}
+        id={id}
         defaultValue={value}
         onChange={(e) =>
           !isNaN(parseFloat(e.target.value)) &&
-          onChange({
-            value: parseFloat(e.target.value),
-            validity: 'pending',
-          })
+          setValue(parseFloat(e.target.value))
         }
         onBlur={onBlur}
         onFocus={onFocus}
@@ -44,4 +36,4 @@ export default function NumberComponent(props: NumberComponentProps) {
   );
 }
 
-registerControl(NUMBER, NumberComponent);
+registerFieldControl(NUMBER, NumberComponent);

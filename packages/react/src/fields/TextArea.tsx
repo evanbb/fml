@@ -1,38 +1,28 @@
-import { FmlFieldConfiguration, registerControl } from '@fml/core';
+import { registerFieldControl } from '@fml/core';
 import TEXTAREA from '@fml/add/controls/textarea';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
-import { useFmlControl } from '../common/useFmlControl';
+import { useId } from 'react';
 
 type TextAreaProps = FmlComponentProps<string>;
 
-export default function TextArea(props: TextAreaProps) {
-  const { label } = props.config as FmlFieldConfiguration<string>;
-
+export default function TextArea({ formState }: TextAreaProps) {
+  const id = useId();
   const {
-    onBlur,
-    onChange,
-    controlId,
-    onFocus,
-    validationMessages,
+    bindings: { onBlur, onFocus, setValue },
+    state: { label, validationMessages, validity },
     value,
-    validity,
-  } = useFmlControl<string>(props.config as FmlFieldConfiguration<string>);
+  } = formState;
 
   return (
     <>
-      <label data-fml-validity={validity} htmlFor={controlId}>
+      <label data-fml-validity={validity} htmlFor={id}>
         {label}
       </label>
       <textarea
-        name={controlId}
-        id={controlId}
-        onChange={(e) =>
-          onChange({
-            value: e.target.value,
-            validity: 'pending',
-          })
-        }
+        name={id}
+        id={id}
+        onChange={(e) => setValue(e.target.value)}
         onBlur={onBlur}
         onFocus={onFocus}
         defaultValue={value}
@@ -42,4 +32,4 @@ export default function TextArea(props: TextAreaProps) {
   );
 }
 
-registerControl(TEXTAREA, TextArea);
+registerFieldControl(TEXTAREA, TextArea);

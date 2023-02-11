@@ -1,39 +1,29 @@
-import { FmlFieldConfiguration, registerControl } from '@fml/core';
+import { registerFieldControl } from '@fml/core';
 import TOGGLE from '@fml/add/controls/toggle';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
-import { useFmlControl } from '../common/useFmlControl';
+import { useId } from 'react';
 
 type ToggleProps = FmlComponentProps<boolean>;
 
-export default function Toggle(props: ToggleProps) {
-  const { label } = props.config as FmlFieldConfiguration<boolean>;
-
+export default function Toggle({ formState }: ToggleProps) {
+  const id = useId();
   const {
-    onBlur,
-    onChange,
-    controlId,
-    onFocus,
-    validationMessages,
+    bindings: { onBlur, onFocus, setValue },
+    state: { label, validationMessages, validity },
     value,
-    validity,
-  } = useFmlControl<boolean>(props.config as FmlFieldConfiguration<boolean>);
+  } = formState;
 
   return (
     <>
-      <label data-fml-validity={validity} htmlFor={controlId}>
+      <label data-fml-validity={validity} htmlFor={id}>
         {label}
       </label>
       <input
         type='checkbox'
-        name={controlId}
-        id={controlId}
-        onChange={(e) =>
-          onChange({
-            value: e.target.checked,
-            validity: 'pending',
-          })
-        }
+        name={id}
+        id={id}
+        onChange={(e) => setValue(e.target.checked)}
         onBlur={onBlur}
         onFocus={onFocus}
         defaultChecked={value}
@@ -43,4 +33,4 @@ export default function Toggle(props: ToggleProps) {
   );
 }
 
-registerControl(TOGGLE, Toggle);
+registerFieldControl(TOGGLE, Toggle);

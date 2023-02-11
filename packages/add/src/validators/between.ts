@@ -9,22 +9,17 @@ declare module '@fml/core' {
   export interface FmlValidatorFactoryRegistry {
     [BETWEEN]: FmlValidatorFactory<
       number,
-      [range: { min: number; max: number }, inclusive?: boolean]
+      [range: { min: number; max: number }]
     >;
   }
 }
 
 const between: FmlRegisteredValidators[typeof BETWEEN] = function between(
   { min, max },
-  inclusive,
 ) {
-  return inclusive
-    ? function (value) {
-        return value >= min && value <= max;
-      }
-    : function (value) {
-        return value > min && value < max;
-      };
+  return function (value) {
+    return value > min && value < max;
+  };
 };
 
 registerValidator(BETWEEN, between);

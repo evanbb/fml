@@ -1,40 +1,30 @@
-import { FmlFieldConfiguration, registerControl } from '@fml/core';
+import { registerFieldControl } from '@fml/core';
 import DATE from '@fml/add/controls/date';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
-import { useFmlControl } from '../common/useFmlControl';
+import { useId } from 'react';
 
 type DateComponentProps = FmlComponentProps<Date>;
 
-export default function DateComponent(props: DateComponentProps) {
-  const { label } = props.config as FmlFieldConfiguration<Date>;
-
+export default function DateComponent({ formState }: DateComponentProps) {
+  const id = useId();
   const {
-    onBlur,
-    onChange,
-    controlId,
-    onFocus,
-    validationMessages,
+    bindings: { onBlur, onFocus, setValue },
+    state: { label, validationMessages, validity },
     value,
-    validity,
-  } = useFmlControl<Date>(props.config as FmlFieldConfiguration<Date>);
+  } = formState;
 
   return (
     <>
-      <label data-fml-validity={validity} htmlFor={controlId}>
+      <label data-fml-validity={validity} htmlFor={id}>
         {label}
       </label>
       <input
         type='date'
-        name={controlId}
-        id={controlId}
+        name={id}
+        id={id}
         defaultValue={value?.toString()}
-        onChange={(e) =>
-          onChange({
-            value: new Date(e.target.value),
-            validity: 'pending',
-          })
-        }
+        onChange={(e) => setValue(new Date(e.target.value))}
         onBlur={onBlur}
         onFocus={onFocus}
       />
@@ -43,4 +33,4 @@ export default function DateComponent(props: DateComponentProps) {
   );
 }
 
-registerControl(DATE, DateComponent);
+registerFieldControl(DATE, DateComponent);

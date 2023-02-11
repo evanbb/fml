@@ -9,28 +9,20 @@ declare module '@fml/core' {
   export interface FmlValidatorFactoryRegistry {
     [WITHIN]: FmlValidatorFactory<
       Date,
-      [dateRange: { after: Date; before: Date }, inclusive?: boolean]
+      [dateRange: { after: Date; before: Date }]
     >;
   }
 }
 
 const within: FmlRegisteredValidators[typeof WITHIN] = function within(
-  { before, after },
-  inclusive,
+  { before, after }
 ) {
-  return inclusive
-    ? function (value) {
-        return (
-          value.valueOf() >= after.valueOf() &&
-          value.valueOf() <= before.valueOf()
-        );
-      }
-    : function (value) {
-        return (
-          value.valueOf() > after.valueOf() &&
-          value.valueOf() < before.valueOf()
-        );
-      };
+  return function (value) {
+    return (
+      value.valueOf() > after.valueOf() &&
+      value.valueOf() < before.valueOf()
+    );
+  };
 };
 
 registerValidator(WITHIN, within);

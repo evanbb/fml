@@ -1,78 +1,62 @@
-import { FmlConfiguration, FmlControlValidatorReturnTypes, FmlListConfiguration, FmlValidityStatus } from '../index';
-import { createStateFromConfig, FmlFormState, FmlFormStateChangeHandler } from './FormState';
+import { instantiateValidator, FmlConfiguration, FmlControlValidatorReturnTypes, FmlListConfiguration, FmlValidityStatus } from '../index';
+import { createStateFromConfig, FmlFormState, FormNodeState, FmlFormStateChangeHandler, FormNodeBindings, FmlFormStateChangeInfo, FmlFormStateClassification } from './FormState';
 import { isModelConfig } from './ModelState';
-import { instantiateValidator } from './Validators';
-
-function listIdFactoryFactory() {
-  let LIST_ITEM_IDENTITY = 0//Number.MIN_SAFE_INTEGER
-
-  return function getNextListItemId(): number {
-    return ++LIST_ITEM_IDENTITY;
-  }
-}
-
-export interface ListStateApi<Value> {
-  fmlType: 'list'
-  initialValue: Value[]
-  initialValidity: FmlValidityStatus
-  addItem: () => void
-  removeItem: (id: number) => void
-  listItemState: (value: Value) => ListItemState<Value>
-}
-
-const LIST_ITEM_SYMBOL: unique symbol = Symbol()
-
-interface ListItemState<Value> {
-  id: number,
-  state: FmlFormState<Value>
-}
-
-type ListItem<Value> = Value & {
-  [LIST_ITEM_SYMBOL]: ListItemState<Value>
-}
 
 export function createListStateFromConfig<Value>(
   config: FmlListConfiguration<Value>,
   handleChange: FmlFormStateChangeHandler<Value[]>
-): ListStateApi<Value> {
-  const listIdFactory = listIdFactoryFactory()
-  let value: ListItem<Value>[] = (config.defaultValue || []).map(createStatefulItem)
+): FmlFormState<Value[]> {
+  let currentListItemId = 0
+  const itemIds: number[] = []
+  const value: Value[] = (config.defaultValue || [])
+  const items: FmlFormState<Value>[] = []
+  const itemStates: FormNodeState<Value>[] = []
+  const itemBindings: FormNodeBindings<Value>[] = []
+
+  value.forEach(instantiateItemState)
+
+  function instantiateItemState(item: Value) {
+    const itemConfig = {
+      ...config.itemConfig
+    }
+    itemConfig.defaultValue = item
+
+    const result = createStateFromConfig(itemConfig, change => {
+      const idx = items.findIndex(state => state === result)
+
+      // this state was removed from the collection before this update
+      if (idx === -1) {
+        return
+      }
+      updateItemInternal(idx, change)
+    })
+
+    itemStates.push(result.state)
+    itemBindings.push(result.bindings)
+    itemIds.push(currentListItemId++)
+
+    return result
+  }
+
   let isDirty = false
   let isTouched = false
   let isValidating = false
   let validationMessages: string[] = []
-  let currentValidationPromise: Promise<FmlControlValidatorReturnTypes[]>
-
-  const itemValidities = value.reduce((result, item) => {
-    const itemState = item[LIST_ITEM_SYMBOL]
-    result[itemState.id] = itemState.state.initialValidity
-    return result
-  }, {} as Record<number, FmlValidityStatus>);
+  let currentValidationPromise: Promise<FmlControlValidatorReturnTypes[]> | null
 
   const validators = (config.validators || []).map(instantiateValidator)
-  const shouldValidate = Boolean(validators.length)
+  const hasValidators = Boolean(validators.length)
 
-  function createStatefulItem(value: Value): ListItem<Value> {
-    const id = listIdFactory()
-    const newConfig: FmlConfiguration<Value> = {
-      ...config.itemConfig,
-      defaultValue: value
-    }
-
-    const api = {
-      id,
-      state: createStateFromConfig<Value>(newConfig, change => {
-        isDirty = true;
-        isTouched = true;
-        itemValidities[id] = change.validity
-        updateItem(id, change.value)
-      })
-    }
-
-    return Object.assign(value as any, { [LIST_ITEM_SYMBOL]: api });
+  function shouldValidate() {
+    // we only need to validate the list if all the items are also valid
+    return !value.length || itemStates.every(state => state.isValid)
   }
 
   function currentValidityStatus(): FmlValidityStatus {
+    if (!hasValidators && !shouldValidate()) {
+      return 'valid'
+    }
+
     if (!isTouched) {
       return 'unknown'
     }
@@ -86,7 +70,7 @@ export function createListStateFromConfig<Value>(
     }
 
     const validities = new Set<FmlValidityStatus>(
-      Object.values(itemValidities)
+      items.map(state => state.state.validity)
     );
 
     return validities.has('invalid')
@@ -101,39 +85,46 @@ export function createListStateFromConfig<Value>(
   }
 
   function addItem() {
-    value.push(createStatefulItem(sensibleDefault(config.itemConfig) as Value))
+    const newValue = sensibleDefaultValueForItem() as Value
+    instantiateItemState(newValue)
 
-    validateCurrentValue(() => { isDirty = true; isTouched = true; })
+    isDirty = true;
+    isTouched = true;
+
+    notifyAndValidate()
   }
 
-  function removeItem(id: number) {
-    const index = value.findIndex(item => item[LIST_ITEM_SYMBOL].id === id)
-    if (index === -1) {
-      return
-    }
-
+  function removeItem(index: number) {
     value.splice(index, 1)
+    itemIds.splice(index, 1)
+    itemStates.splice(index, 1)
+    itemBindings.splice(index, 1)
 
-    validateCurrentValue(() => { isDirty = true; isTouched = true; })
+    isDirty = isDirty || itemStates.some(state => state.isDirty);
+    isTouched = true;
+
+    notifyAndValidate()
   }
 
-  function updateItem(id: number, newValue: Value) {
-    const index = value.findIndex(item => item[LIST_ITEM_SYMBOL].id === id)
-    if (index === -1) {
-      return
+  function updateItemInternal(index: number, change: FmlFormStateChangeInfo<Value>) {
+    const { value: newValue, ...changeState } = change
+    value.splice(index, 1, newValue)
+    itemStates[index] = {
+      ...itemStates[index],
+      ...changeState
     }
 
-    const state = value[index][LIST_ITEM_SYMBOL]
-    const newItem = Object.assign(newValue as any, state)
-    value.splice(index, 1, newItem)
 
-    validateCurrentValue(() => { isDirty = true })
+    isDirty = isDirty || itemStates.some(state => state.isDirty);
+    isTouched = true;
+
+    notifyAndValidate()
   }
 
-  async function validateCurrentValue(preMutation: () => void = () => { }) {
-    preMutation()
-
-    isValidating = shouldValidate
+  async function notifyAndValidate() {
+    isValidating = hasValidators && shouldValidate()
+    currentValidationPromise = null
+    validationMessages = []
 
     notifyChange()
 
@@ -141,7 +132,7 @@ export function createListStateFromConfig<Value>(
       return
     }
 
-    const validationPromises = validators.map(validator => validator(value!))
+    const validationPromises = validators.map(validator => validator(value))
 
     currentValidationPromise = Promise.all(validationPromises)
 
@@ -158,7 +149,13 @@ export function createListStateFromConfig<Value>(
 
     isValidating = false
 
+    currentValidationPromise = null
+
     notifyChange()
+  }
+
+  function keyOf(index: number): string {
+    return itemIds[index].toString()
   }
 
   function notifyChange() {
@@ -172,37 +169,42 @@ export function createListStateFromConfig<Value>(
     })
   }
 
-  function listItemState(item: Value) {
-    const identifiable = item as ListItem<Value>
-    const result = value.find(x => x[LIST_ITEM_SYMBOL] === identifiable[LIST_ITEM_SYMBOL])
-    if (!result) {
-      throw new Error('ITEM NOT FOUND IN LIST WHAT DO WE DO?!?!?!?!')
+  function sensibleDefaultValueForItem() {
+    if (isModelConfig(config.itemConfig)) {
+      return {
+        ...config.itemConfig.defaultValue || {}
+      }
     }
-    return result[LIST_ITEM_SYMBOL]
+    if (isListConfig(config.itemConfig)) {
+      return [...(config.itemConfig.defaultValue || [])]
+    }
+    return config.itemConfig.defaultValue
+  }
+
+  const state: FmlFormStateClassification<Value, 'list'>['state'] = {
+    label: config.label,
+    isDirty,
+    isTouched,
+    isValid: isCurrentlyValid(),
+    validationMessages,
+    validity: currentValidityStatus(),
+    items: itemStates
+  }
+
+  const bindings: FmlFormStateClassification<Value, 'list'>['bindings'] = {
+    addItem,
+    removeItem,
+    items: itemBindings,
+    keyOf
   }
 
   return {
-    fmlType: 'list',
-    initialValue: value,
-    initialValidity: currentValidityStatus(),
-    addItem,
-    removeItem,
-    listItemState
-  }
+    value,
+    state,
+    bindings,
+  } as FmlFormState<Value[]>
 }
 
 export function isListConfig<Value>(config: FmlConfiguration<Value> | FmlListConfiguration<Value>): config is FmlListConfiguration<Value> {
   return Boolean((config as FmlListConfiguration<Value>).itemConfig);
-}
-
-function sensibleDefault<Value>(config: FmlConfiguration<Value>) {
-  if (isListConfig(config)) {
-    return config.defaultValue || []
-  }
-  if (isModelConfig(config)) {
-    return config.defaultValue || {}
-  }
-
-  // field configs require a defaultValue, so this will always have *something*
-  return config.defaultValue
 }

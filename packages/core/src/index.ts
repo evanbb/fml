@@ -42,6 +42,8 @@ export type KnownKeys<T> = keyof {
 
 export type IsPartial<T> = Partial<T> extends T ? true : false;
 
+export type ListItem<Value> = Value extends ReadonlyArray<infer Item> ? Item : never
+
 //#endregion
 
 //#region controls
@@ -251,7 +253,7 @@ const controlRegistry = new Map<FmlRegisteredFieldControls, unknown>();
  * @param key The string key of the registered field control
  * @param impl The field control's implementation
  */
-export function registerControl(
+export function registerFieldControl(
   key: FmlRegisteredFieldControls,
   impl: unknown,
 ): void {
@@ -263,7 +265,7 @@ export function registerControl(
  * @param key The string key of the registered field control
  * @returns The implmementation of the field control
  */
-export function getFieldImplementation(
+export function getFieldControl(
   key: FmlRegisteredFieldControls,
 ): unknown {
   return controlRegistry.get(key);
@@ -372,17 +374,62 @@ export type FmlValidatorKeys<Value> = keyof FmlValidators<Value>;
 
 export type FmlConfiguration<Value> = FmlControlConfiguration<Value>;
 
-import {
-  registerValidator,
-  // these should go away
-  instantiateValidator,
-  getValidatorFactory
-} from './state/Validators'
-import { createStateFromConfig } from './state/FormState'
-// these should go away
-import { createFieldStateFromConfig } from './state/FieldState'
-import { createListStateFromConfig } from './state/ListState'
-import { createModelStateFromConfig } from './state/ModelState'
 
-export { registerValidator, instantiateValidator, getValidatorFactory }
-export { createStateFromConfig, createFieldStateFromConfig, createModelStateFromConfig, createListStateFromConfig }
+export function instantiateValidator<Value>(
+  config: FmlValidatorConfiguration<Value>,
+): FmlControlValidator<Value> {
+  // get the appropriate validator factory for this data type
+  const type = config[0];
+  const factory = getValidatorFactory(type);
+
+  const args = (config as unknown[]).slice(1, (config as unknown[]).length - 1);
+
+  // create the validator function by applying the factory
+  const func = (factory as (...x: unknown[]) => unknown)(
+    ...args,
+  ) as FmlValidator<Value>;
+
+  const invalidMessage = (config as unknown[]).slice(-1)[0] as string;
+
+  // result is an async function that calls the validator above (which may be async itself) with the current value
+  return async function (value: Value) {
+    const valid = await func(value);
+
+    if (!valid) {
+      return invalidMessage;
+    }
+    return;
+  };
+}
+
+/**
+ * A means of getting the validator factory registered at the provided name
+ * @param name The name of the validator factory to retrieve
+ * @returns The validator factory
+ */
+export function getValidatorFactory<Validator extends keyof FmlRegisteredValidators>(
+  name: Validator,
+): FmlValidatorFactoryRegistry[Validator] {
+  return validatorRegistry[name];
+}
+
+/**
+ * The actual registry. Don't mess with it.
+ */
+const validatorRegistry = {} as FmlValidatorFactoryRegistry;
+
+/**
+ * Registers the provided validator factory implementation at the provided name.
+ * @param name The name of the validator to enter into the registry
+ * @param factory The validator factory implementation
+ */
+export function registerValidator<
+  ValidatorKey extends keyof FmlValidatorFactoryRegistry,
+>(key: ValidatorKey, factory: FmlValidatorFactoryRegistry[ValidatorKey]): void {
+  validatorRegistry[key] = factory;
+}
+
+export { createStateFromConfig, type FmlFormState, type FmlFormStateClassification, isFieldState, isModelState, isListState } from './state/FormState'
+export { isFieldConfig } from './state/FieldState'
+export { isModelConfig } from './state/ModelState'
+export { isListConfig } from './state/ListState'

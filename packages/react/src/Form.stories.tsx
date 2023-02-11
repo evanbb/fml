@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   FmlConfiguration,
   createStateFromConfig,
-  createFieldStateFromConfig,
-  createListStateFromConfig,
   FmlFieldConfiguration,
   FmlListConfiguration,
   FmlModelConfiguration,
-  createModelStateFromConfig,
 } from '@fml/core';
 import '@fml/add/validators/required';
 import Form from './Form';
@@ -38,12 +35,17 @@ function useFmlField(config: FmlFieldConfiguration<string>) {
     setValue,
   ] = useState(() => {
     const {
-      initialValue,
-      initialValidity,
-      onBlur,
-      onFocus,
-      setValue: setInternalValue,
-    } = createFieldStateFromConfig<string>(config, (change) =>
+      value,
+      state: {
+        isDirty,
+        isTouched,
+        isValid,
+        validationMessages,
+        validity,
+        control,
+      },
+      bindings: { onBlur, onFocus, setValue: setInternalValue },
+    } = createStateFromConfig<string>(config, (change) =>
       setValue((state) => ({
         ...state,
         ...change,
@@ -51,15 +53,16 @@ function useFmlField(config: FmlFieldConfiguration<string>) {
     );
 
     return {
-      value: initialValue,
+      value,
       setValue: setInternalValue,
       onBlur,
       onFocus,
-      validity: initialValidity,
-      validationMessages: [] as string[],
-      isValid: false,
-      isDirty: false,
-      isTouched: false,
+      validity,
+      validationMessages,
+      isValid,
+      isDirty,
+      isTouched,
+      control,
     };
   });
 
@@ -118,17 +121,24 @@ function useListStateFromConfig<V>(config: FmlListConfiguration<V>) {
       isValid,
       validationMessages,
       validity,
-      listItemState,
+      itemBindings,
+      itemState,
+      keyOf,
     },
     setValue,
   ] = useState(() => {
     const {
-      initialValue,
-      addItem,
-      removeItem,
-      listItemState,
-      initialValidity,
-    } = createListStateFromConfig<V>(config, (change) => {
+      value,
+      state: {
+        isDirty,
+        isTouched,
+        isValid,
+        validationMessages,
+        validity,
+        items: itemState,
+      },
+      bindings: { addItem, items: itemBindings, removeItem, keyOf },
+    } = createStateFromConfig<V[]>(config, (change) => {
       setValue((state) => ({
         ...state,
         ...change,
@@ -136,15 +146,17 @@ function useListStateFromConfig<V>(config: FmlListConfiguration<V>) {
     });
 
     return {
-      value: initialValue,
+      value,
       addItem,
       removeItem,
-      validity: initialValidity,
-      validationMessages: [] as string[],
-      isValid: false,
-      isDirty: false,
-      isTouched: false,
-      listItemState,
+      validity,
+      validationMessages,
+      isValid,
+      isDirty,
+      isTouched,
+      itemBindings,
+      itemState,
+      keyOf,
     };
   });
 
@@ -157,7 +169,9 @@ function useListStateFromConfig<V>(config: FmlListConfiguration<V>) {
     isValid,
     validationMessages,
     validity,
-    listItemState,
+    itemBindings,
+    itemState,
+    keyOf,
   };
 }
 
@@ -168,7 +182,8 @@ export function TestingList() {
     validationMessages,
     validity,
     value,
-    listItemState,
+    itemBindings,
+    keyOf,
   } = useListStateFromConfig<string>({
     itemConfig: {
       label: 'Thing',
@@ -186,6 +201,13 @@ export function TestingList() {
       // },
     },
     label: 'Items',
+    defaultValue: [
+      '1',
+      '23',
+      '',
+      '5',
+      '99',
+    ]
   });
 
   return (
@@ -198,16 +220,16 @@ export function TestingList() {
       >
         Add Item
       </button>
-      {value.map((item) => {
-        const id = listItemState(item).id;
+      {value.map((item, idx) => {
+        const id = keyOf(idx);
         return (
           <div key={id}>
             {JSON.stringify(item, null, 2)}
-            {JSON.stringify(listItemState(item), null, 2)}
+            {JSON.stringify(keyOf(idx), null, 2)}
             <button
               onClick={(e) => {
                 e.preventDefault();
-                removeItem(listItemState(item).id);
+                removeItem(idx);
               }}
             >
               delete me!
@@ -228,25 +250,37 @@ function useFmlModel(config: FmlModelConfiguration<{ value: string }>) {
       isValid,
       isDirty,
       isTouched,
-      setPropertyValue,
+      schemaState,
+      schemaBindings,
     },
     setValue,
   ] = useState(() => {
-    const { initialValue, initialValidity, setPropertyValue } =
-      createModelStateFromConfig(config, (change) => {
-        setValue((state) => ({
-          ...state,
-          ...change,
-        }));
-      });
+    const {
+      value,
+      bindings: { schema: schemaBindings },
+      state: {
+        isDirty,
+        isTouched,
+        isValid,
+        schema: schemaState,
+        validationMessages,
+        validity,
+      },
+    } = createStateFromConfig(config, (change) => {
+      setValue((state) => ({
+        ...state,
+        ...change,
+      }));
+    });
     return {
-      value: initialValue,
-      validity: initialValidity,
-      validationMessages: [] as string[],
-      isValid: false,
-      isDirty: false,
-      isTouched: false,
-      setPropertyValue,
+      value,
+      validity,
+      validationMessages,
+      isValid,
+      isDirty,
+      isTouched,
+      schemaState,
+      schemaBindings,
     };
   });
 
@@ -257,7 +291,8 @@ function useFmlModel(config: FmlModelConfiguration<{ value: string }>) {
     isValid,
     validationMessages,
     validity,
-    setPropertyValue,
+    schemaState,
+    schemaBindings,
   };
 }
 
@@ -269,7 +304,8 @@ export function TestingModel() {
     isValid,
     validationMessages,
     validity,
-    setPropertyValue,
+    schemaState,
+    schemaBindings,
   } = useFmlModel({
     label: 'Model',
     schema: {
@@ -278,9 +314,9 @@ export function TestingModel() {
   });
 
   useEffect(() => {
-    setTimeout(() => {
-      setPropertyValue('value', 'newValue');
-    }, 2000);
+    // setInterval(() => {
+    //   setPropertyValue('value', (performance.now() / 10).toFixed());
+    // }, 150);
   }, []);
 
   return <>{JSON.stringify(value)}</>;

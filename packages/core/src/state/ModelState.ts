@@ -1,68 +1,42 @@
-import { FmlConfiguration, FmlControlValidatorReturnTypes, FmlModelConfiguration, FmlValidityStatus } from '../index';
-import { createStateFromConfig, FmlFormState, FmlFormStateChangeHandler, FmlFormStateChangeInfo } from './FormState';
-import { instantiateValidator } from './Validators';
+import { instantiateValidator, FmlConfiguration, FmlControlValidatorReturnTypes, FmlModelConfiguration, FmlValidityStatus } from '../index';
+import { createStateFromConfig, FmlFormState, FmlFormStateChangeHandler, FmlFormStateChangeInfo, FormNodeBindings, FormNodeState, FormNodeStateBase } from './FormState';
 
+export function createModelStateFromConfig<Value extends object>(config: FmlModelConfiguration<Value>,
+  handleChange: FmlFormStateChangeHandler<Value>
+): FmlFormState<Value> {
+  const value: Value = {} as Value
+  const valueState = {} as { [K in keyof Value]: FormNodeState<Value[K]> }
+  const valueBindings = {} as { [K in keyof Value]: FormNodeBindings<Value[K]> }
 
-export interface ModelStateApi<Value> {
-  fmlType: 'model'
-  initialValue: Value | {}
-  initialValidity: FmlValidityStatus
-  setPropertyValue: <Property extends keyof Value>(property: Property, propertyValue: Value[Property]) => void
-}
+  for (const key of Object.keys(config.schema)) {
+    type Property = keyof Value
+    const property = key as Property
+    const propertyState = createStateFromConfig(config.schema[property] as FmlConfiguration<Value[Property]>, setPropertyValueInternal(property))
 
-const MODEL_PROPERTY_SYMBOL: unique symbol = Symbol()
-
-interface ModelPropertyState<Value> {
-  state: FmlFormState<Value>
-}
-
-type ModelProperty<Value> = Value & {
-  [MODEL_PROPERTY_SYMBOL]: ModelPropertyState<Value>
-}
-
-type Model<Value> = Value & {
-  [K in keyof Value]: ModelProperty<Value[K]>
-}
-
-interface OnChangeFactory<Value> {
-  <Property extends keyof Value>(prop: Property): FmlFormStateChangeHandler<Value[Property]>
-}
-
-
-function makeStatefulObject<Value>(model: Value, config: FmlModelConfiguration<Value>, onChangeFactory: OnChangeFactory<Value>) {
-  type Property = keyof Value;
-  for (const property of Object.keys(config.schema as {})) {
-    const prop = property as Property
-    const state = createStateFromConfig(config.schema[prop] as FmlConfiguration<Value[Property]>, onChangeFactory(prop));
-
-    // todo: fix this typing mess...
-    model[prop] = Object.assign(state.initialValue as {}, { [MODEL_PROPERTY_SYMBOL]: state }) as any
+    value[property] = propertyState.value
+    valueState[property] = propertyState.state
+    valueBindings[property] = propertyState.bindings
   }
 
-  return model as Model<Value>;
-}
-
-export function createModelStateFromConfig<Value>(config: FmlModelConfiguration<Value>,
-  handleChange: FmlFormStateChangeHandler<Value>
-): ModelStateApi<Value> {
-  const propertyValidities = {} as Record<keyof Value, FmlValidityStatus>
-  let value: Model<Value> = makeStatefulObject((config.defaultValue || {} as Value), config, (prop) => (change: FmlFormStateChangeInfo<Value[keyof Value]>) => {
-    isDirty = true
-    isTouched = true
-    propertyValidities[prop] = change.validity
-    setPropertyValue(prop, change.value)
-  })
   let isDirty = false
   let isTouched = false
   let isValidating = false
   let validationMessages: string[] = []
-  let currentValidationPromise: Promise<FmlControlValidatorReturnTypes[]>
-
+  let currentValidationPromise: Promise<FmlControlValidatorReturnTypes[]> | null
 
   const validators = (config.validators || []).map(instantiateValidator)
-  const shouldValidate = Boolean(validators.length)
+  const hasValidators = Boolean(validators.length)
+
+  function shouldValidate() {
+    // we only need to validate if every property is also valid
+    return Object.values(valueState).every((state) => (state as FormNodeStateBase).isValid)
+  }
 
   function currentValidityStatus(): FmlValidityStatus {
+    if (!hasValidators && !shouldValidate()) {
+      return 'valid'
+    }
+
     if (!isTouched) {
       return 'unknown'
     }
@@ -82,16 +56,27 @@ export function createModelStateFromConfig<Value>(config: FmlModelConfiguration<
     return currentValidityStatus() === 'valid'
   }
 
-  function setPropertyValue<Property extends keyof Value>(property: Property, propertyValue: Value[Property]) {
-    const state = value[property][MODEL_PROPERTY_SYMBOL];
-    (value as any)[property] = Object.assign(propertyValue as {}, { [MODEL_PROPERTY_SYMBOL]: state })
-    validateCurrentValue(() => { isDirty = true; isTouched = true; })
+  function setPropertyValueInternal<Property extends keyof Value>(property: Property) {
+    return function (change: FmlFormStateChangeInfo<Value[Property]>) {
+      const { value: newValue, ...changeState } = change
+      value[property] = newValue
+
+      valueState[property] = {
+        ...valueState[property],
+        ...changeState
+      }
+
+      isDirty = isDirty || Object.values(valueState).some(state => (state as FormNodeState<Value[Property]>).isDirty);
+      isTouched = true;
+
+      notifyAndValidate()
+    }
   }
 
-  async function validateCurrentValue(preMutation: () => void = () => { }) {
-    preMutation()
-
-    isValidating = shouldValidate
+  async function notifyAndValidate() {
+    isValidating = hasValidators && shouldValidate()
+    currentValidationPromise = null
+    validationMessages = []
 
     notifyChange()
 
@@ -99,7 +84,7 @@ export function createModelStateFromConfig<Value>(config: FmlModelConfiguration<
       return
     }
 
-    const validationPromises = validators.map(validator => validator(value!))
+    const validationPromises = validators.map(validator => validator(value))
 
     currentValidationPromise = Promise.all(validationPromises)
 
@@ -116,6 +101,8 @@ export function createModelStateFromConfig<Value>(config: FmlModelConfiguration<
 
     isValidating = false
 
+    currentValidationPromise = null
+
     notifyChange()
   }
 
@@ -130,11 +117,24 @@ export function createModelStateFromConfig<Value>(config: FmlModelConfiguration<
     })
   }
 
+  const state: FormNodeState<object> = {
+    label: config.label,
+    isDirty,
+    isTouched,
+    isValid: isCurrentlyValid(),
+    validationMessages,
+    validity: currentValidityStatus(),
+    schema: valueState
+  }
+
+  const bindings: FormNodeBindings<object> = {
+    schema: valueBindings
+  }
+
   return {
-    fmlType: 'model',
-    initialValue: value,
-    initialValidity: currentValidityStatus(),
-    setPropertyValue
+    value,
+    state: state as unknown as FmlFormState<Value>['state'],
+    bindings: bindings as unknown as FmlFormState<Value>['bindings']
   }
 }
 

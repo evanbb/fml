@@ -22,7 +22,7 @@ const config: FmlModelConfiguration<MyModel> = {
   },
 };
 
-export const ExampleModel = () => <Model config={config} />;
+// export const ExampleModel = () => <Model config={config} />;
 
 const stories = {
   title: 'Stories/Fml/Model',

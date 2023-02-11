@@ -26,18 +26,6 @@ it.each`
   },
 );
 
-it.each`
-  date                 | after                | before
-  ${new Date(2021, 0)} | ${new Date(2021, 0)} | ${new Date(2021, 2)}
-  ${new Date(1901, 0)} | ${new Date(1900, 0)} | ${new Date(1901, 0)}
-  ${new Date(2020, 0)} | ${new Date(2020, 0)} | ${new Date(2020, 0)}
-`(
-  'returns true if $date is after or on $after and before or on $before when inclusive is set to true',
-  ({ date, after, before }) => {
-    expect(within({ after, before }, true)(date)).toBe(true);
-  },
-);
-
 it('is in the registry', () => {
   const validator = instantiateValidator(['within', {
     after: new Date(),

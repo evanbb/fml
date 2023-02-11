@@ -9,7 +9,7 @@
     "module": "esnext"
   },
   "include": ["src"],
-  "exclude": ["lib", "src/**/*.test.*"],
+  "exclude": ["lib"],
   "references": [
     {
       "path": "../core"

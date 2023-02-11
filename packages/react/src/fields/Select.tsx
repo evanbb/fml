@@ -1,54 +1,41 @@
-import { FmlFieldConfiguration, registerControl } from '@fml/core';
-import SELECT from '@fml/add/controls/select';
+// import { registerFieldControl } from '@fml/core';
+// import SELECT from '@fml/add/controls/select';
 import ValidationMessages from '../ValidationMessages';
 import { FmlComponentProps } from '../common/FmlComponent';
-import { useFmlControl } from '../common/useFmlControl';
+import { useId } from 'react';
 
 type SelectProps = FmlComponentProps<string>;
 
-export default function Select(props: SelectProps) {
-  const { label, options } =
-    props.config as unknown as FmlFieldConfiguration<'string'>;
-
+export default function Select({ formState }: SelectProps) {
+  const id = useId();
   const {
-    onBlur,
-    onChange,
-    controlId,
-    onFocus,
-    validationMessages,
+    bindings: { onBlur, onFocus, setValue },
+    state: { label, validationMessages, validity },
     value,
-    validity,
-  } = useFmlControl<'string'>(
-    props.config as unknown as FmlFieldConfiguration<'string'>,
-  );
+  } = formState;
 
   return (
     <>
-      <label data-fml-validity={validity} htmlFor={controlId}>
+      <label data-fml-validity={validity} htmlFor={id}>
         {label}
       </label>
       <select
-        name={controlId}
-        id={controlId}
+        name={id}
+        id={id}
         defaultValue={value}
-        onChange={(e) =>
-          onChange({
-            value: e.target.value as 'string',
-            validity: 'pending',
-          })
-        }
+        onChange={(e) => setValue(e.target.value as 'string')}
         onBlur={onBlur}
         onFocus={onFocus}
       >
-        {Object.keys(options).map((k) => (
+        {/* {Object.keys(options).map((k) => (
           <option key={k} value={k}>
             {options[k as keyof typeof options]}
           </option>
-        ))}
+        ))} */}
       </select>
       <ValidationMessages validationMessages={validationMessages} />
     </>
   );
 }
 
-registerControl(SELECT, Select);
+// registerFieldControl(SELECT, Select);

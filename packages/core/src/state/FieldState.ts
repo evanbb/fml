@@ -1,33 +1,23 @@
-import { FmlConfiguration, FmlControlValidatorReturnTypes, FmlFieldConfiguration, FmlFieldConfigurationBase, FmlValidityStatus } from '../index';
-import { FmlFormStateChangeHandler } from './FormState';
-import { instantiateValidator } from './Validators';
+import { instantiateValidator, FmlFieldValueTypes, FmlConfiguration, FmlControlValidatorReturnTypes, FmlFieldConfiguration, FmlFieldConfigurationBase, FmlValidityStatus } from '../index';
+import { FmlFormState, FmlFormStateChangeHandler } from './FormState';
 
-export interface FieldStateApi<Value> {
-  fmlType: 'field'
-  initialValue: Value | undefined
-  initialValidity: FmlValidityStatus
-  setValue: (value: Value) => void
-  onFocus: () => void
-  onBlur: () => void
-}
-
-export function createFieldStateFromConfig<Value>(
+export function createFieldStateFromConfig<Value extends FmlFieldValueTypes>(
   config: FmlFieldConfigurationBase<Value>,
   handleChange: FmlFormStateChangeHandler<Value>
-): FieldStateApi<Value> {
+): FmlFormState<Value> {
   let value: Value = config.defaultValue
   let isDirty = false
   let isTouched = false
   let hasBlurred = false
   let isValidating = false
   let validationMessages: string[] = []
-  let currentValidationPromise: Promise<FmlControlValidatorReturnTypes[]>
+  let currentValidationPromise: Promise<FmlControlValidatorReturnTypes[]> | null
 
   const validators = (config.validators || []).map(instantiateValidator)
-  const shouldValidate = Boolean(validators.length)
+  const hasValidators = Boolean(validators.length)
 
   function currentValidityStatus(): FmlValidityStatus {
-    if (!shouldValidate) {
+    if (!hasValidators) {
       return 'valid'
     }
 
@@ -56,24 +46,25 @@ export function createFieldStateFromConfig<Value>(
       return;
     }
 
-    validateCurrentValue(() => {
-      isDirty = true
-      value = newValue
-    })
+    isDirty = true
+    isTouched = true
+    value = newValue
+
+    notifyAndValidate()
   }
 
-  async function validateCurrentValue(preMutation: () => void = () => { }) {
-    preMutation()
+  async function notifyAndValidate() {
+    isValidating = hasValidators
 
-    isValidating = shouldValidate
+    currentValidationPromise = null
 
     notifyChange()
 
-    if (!shouldValidate) {
+    if (!hasValidators) {
       return;
     }
 
-    const validationPromises = validators.map(validator => validator(value!))
+    const validationPromises = validators.map(validator => validator(value))
 
     currentValidationPromise = Promise.all(validationPromises)
 
@@ -90,11 +81,12 @@ export function createFieldStateFromConfig<Value>(
 
     isValidating = false
 
+    currentValidationPromise = null
+
     notifyChange()
   }
 
   function onBlur() {
-    debugger;
     const isFirstBlur = hasBlurred === false
 
     // no need to notify of this change
@@ -102,8 +94,8 @@ export function createFieldStateFromConfig<Value>(
 
     // iff it's the first time interacting with the field, validate the initial value
     // otherwise, let the change handler handle changes :)
-    if (!isDirty && isFirstBlur && shouldValidate) {
-      validateCurrentValue()
+    if (!isDirty && isFirstBlur && hasValidators) {
+      notifyAndValidate()
     }
   }
 
@@ -118,10 +110,8 @@ export function createFieldStateFromConfig<Value>(
   }
 
   function notifyChange() {
-    // todo: shallow compare to reduce unnecessary notifications
-
     handleChange({
-      value: value!,
+      value,
       validationMessages,
       validity: currentValidityStatus(),
       isValid: isCurrentlyValid(),
@@ -130,13 +120,26 @@ export function createFieldStateFromConfig<Value>(
     })
   }
 
-  return {
-    fmlType: 'field',
-    initialValue: value,
-    initialValidity: currentValidityStatus(),
+  const state: FmlFormState<FmlFieldValueTypes>['state'] = {
+    label: config.label,
+    control: config.control,
+    isDirty,
+    isTouched,
+    isValid: isCurrentlyValid(),
+    validationMessages,
+    validity: currentValidityStatus(),
+  };
+
+  const bindings: FmlFormState<FmlFieldValueTypes>['bindings'] = {
     setValue,
     onBlur,
-    onFocus,
+    onFocus
+  }
+
+  return {
+    value,
+    state: state as unknown as FmlFormState<Value>['state'],
+    bindings: bindings as unknown as FmlFormState<Value>['bindings']
   }
 }
 

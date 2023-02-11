@@ -9,20 +9,16 @@ declare module '@fml/core' {
   export interface FmlValidatorFactoryRegistry {
     [GREATER_THAN]: FmlValidatorFactory<
       number,
-      [minimum: number, inclusive?: boolean]
+      [minimum: number]
     >;
   }
 }
 
 const greaterThan: FmlRegisteredValidators[typeof GREATER_THAN] =
-  function greaterThan(min, inclusive) {
-    return inclusive
-      ? function (value) {
-          return value >= min;
-        }
-      : function (value) {
-          return value > min;
-        };
+  function greaterThan(min) {
+    return function (value) {
+      return value > min;
+    };
   };
 
 registerValidator(GREATER_THAN, greaterThan);

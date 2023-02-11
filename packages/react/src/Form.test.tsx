@@ -4,7 +4,7 @@
 import { waitFor, fireEvent, render } from '@testing-library/react';
 import userEvents from '@testing-library/user-event';
 import Form from './Form';
-import '@fml/add/validators/required'
+import '@fml/add/validators/required';
 
 it('does not allow to submit if form is invalid', async () => {
   const submitSpy = jest.fn();

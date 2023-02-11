@@ -10,7 +10,7 @@ const config: FmlListConfiguration<string> = {
   },
 };
 
-export const ListOfStrings = () => <List<string> config={config} />;
+// export const ListOfStrings = () => <List<string> config={config} />;
 
 const stories = {
   title: 'Stories/Fml/List',
