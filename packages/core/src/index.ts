@@ -429,7 +429,621 @@ export function registerValidator<
   validatorRegistry[key] = factory;
 }
 
-export { createStateFromConfig, type FmlFormState, type FmlFormStateClassification, isFieldState, isModelState, isListState } from './state/FormState'
-export { isFieldConfig } from './state/FieldState'
-export { isModelConfig } from './state/ModelState'
-export { isListConfig } from './state/ListState'
+//#region FormState
+
+interface FormNodeStateBase {
+  label: string
+  isDirty: boolean,
+  isTouched: boolean,
+  isValid: boolean,
+  validationMessages: string[],
+  validity: FmlValidityStatus,
+}
+
+interface FieldFormState<Value> extends FormNodeStateBase {
+  control: FmlRegisteredFieldControls & FmlFieldControlsFor<Value>
+}
+
+interface ModelFormState<Value> extends FormNodeStateBase {
+  schema: {
+    [K in keyof Value]: FormNodeState<Value[K]>
+  }
+}
+
+interface ListFormState<Value> extends FormNodeStateBase {
+  items: FormNodeState<Value>[]
+}
+
+export type FormNodeState<Value> = FormNodeStateBase & (
+  FmlControlClassification<Value> extends 'model' ? ModelFormState<Value>
+  : FmlControlClassification<Value> extends 'list' ? ListFormState<Value>
+  : FieldFormState<Value>)
+
+
+interface FieldFormBindings<Value> {
+  setValue(value: Value): void
+  onFocus(): void
+  onBlur(): void
+}
+
+interface ModelFormBindings<Value> {
+  schema: {
+    [K in keyof Value]: FormNodeBindings<Value[K]>
+  }
+}
+
+interface ListFormBindings<Value> {
+  addItem(): void,
+  removeItem(index: number): void
+  keyOf(index: number): string
+  items: FormNodeBindings<Value>[]
+}
+
+export type FormNodeBindings<Value> = (
+  FmlControlClassification<Value> extends 'model' ? ModelFormBindings<Value>
+  : FmlControlClassification<Value> extends 'list' ? ListFormBindings<Value>
+  : FieldFormBindings<Value>)
+
+interface FmlFormStateChangeInfo<Value> {
+  value: Value
+  validity: FmlValidityStatus
+  validationMessages: string[]
+  isValid: boolean
+  isDirty: boolean
+  isTouched: boolean
+}
+
+interface FmlFormStateChangeHandler<Value> {
+  (change: FmlFormStateChangeInfo<Value>): void
+}
+
+export interface FmlFormState<Value, State = FormNodeState<Value>, Bindings = FormNodeBindings<Value>> {
+  value: Value,
+  state: State
+  bindings: Bindings
+}
+
+export type FmlFormStateClassification<Value, Classification extends FmlControlClassifications> =
+  Classification extends 'field' ? FmlFormState<Value, FieldFormState<Value>, FieldFormBindings<Value>>
+  : Classification extends 'model' ? FmlFormState<Value, ModelFormState<Value>, ModelFormBindings<Value>>
+  : FmlFormState<Value[], ListFormState<Value>, ListFormBindings<Value>>
+
+export function createStateFromConfig<Value>(
+  config: FmlConfiguration<Value>,
+  onChange: FmlFormStateChangeHandler<Value>
+): FmlFormState<Value> {
+  if (isModelConfig(config)) {
+    return createModelStateFromConfig(config as FmlConfiguration<object>, onChange as never) as unknown as FmlFormState<Value>
+  }
+  if (isListConfig(config)) {
+    return createListStateFromConfig(config, onChange as never) as unknown as FmlFormState<Value>
+  }
+  if (isFieldConfig(config)) {
+    return createFieldStateFromConfig(config, onChange as never) as unknown as FmlFormState<Value>
+  }
+
+  throw new Error('unsupported configuration')
+}
+
+export function isFieldState<Value>(state: FmlFormState<Value> | FmlFormStateClassification<Value, 'field'>): state is FmlFormStateClassification<Value, 'field'> {
+  return Boolean((state as FmlFormStateClassification<Value, 'field'>).state.control)
+}
+
+export function isModelState<Value>(state: FmlFormState<Value> | FmlFormStateClassification<Value, 'model'>): state is FmlFormStateClassification<Value, 'model'> {
+  return Boolean((state as FmlFormStateClassification<Value, 'model'>).state.schema)
+}
+
+export function isListState<Value>(state: FmlFormState<Value> | FmlFormStateClassification<Value, 'list'>): state is FmlFormStateClassification<Value, 'list'> {
+  return Boolean((state as FmlFormStateClassification<Value, 'list'>).state.items)
+}
+
+//#endregion
+
+//#region ModelState
+
+function createModelStateFromConfig<Value extends object>(config: FmlModelConfiguration<Value>,
+  handleChange: FmlFormStateChangeHandler<Value>
+): FmlFormState<Value> {
+  const value: Value = {} as Value
+  const valueState = {} as { [K in keyof Value]: FormNodeState<Value[K]> }
+  const valueBindings = {} as { [K in keyof Value]: FormNodeBindings<Value[K]> }
+
+  for (const key of Object.keys(config.schema)) {
+    type Property = keyof Value
+    const property = key as Property
+    const propertyState = createStateFromConfig(config.schema[property] as FmlConfiguration<Value[Property]>, setPropertyValueInternal(property))
+
+    value[property] = propertyState.value
+    valueState[property] = propertyState.state
+    valueBindings[property] = propertyState.bindings
+  }
+
+  let isDirty = false
+  let isTouched = false
+  let isValidating = false
+  let validationMessages: string[] = []
+  let currentValidationPromise: Promise<FmlControlValidatorReturnTypes[]> | null
+
+  const validators = (config.validators || []).map(instantiateValidator)
+  const hasValidators = Boolean(validators.length)
+
+  function shouldValidate() {
+    // we only need to validate if every property is also valid
+    return Object.values(valueState).every((state) => (state as FormNodeStateBase).isValid)
+  }
+
+  function currentValidityStatus(): FmlValidityStatus {
+    if (!hasValidators && !shouldValidate()) {
+      return 'valid'
+    }
+
+    if (!isTouched) {
+      return 'unknown'
+    }
+
+    if (isValidating) {
+      return 'pending'
+    }
+
+    if (validationMessages.length) {
+      return 'invalid'
+    }
+
+    return 'valid'
+  }
+
+  function isCurrentlyValid() {
+    return currentValidityStatus() === 'valid'
+  }
+
+  function setPropertyValueInternal<Property extends keyof Value>(property: Property) {
+    return function (change: FmlFormStateChangeInfo<Value[Property]>) {
+      const { value: newValue, ...changeState } = change
+      value[property] = newValue
+
+      valueState[property] = {
+        ...valueState[property],
+        ...changeState
+      }
+
+      isDirty = isDirty || Object.values(valueState).some(state => (state as FormNodeState<Value[Property]>).isDirty);
+      isTouched = true;
+
+      notifyAndValidate()
+    }
+  }
+
+  async function notifyAndValidate() {
+    isValidating = hasValidators && shouldValidate()
+    currentValidationPromise = null
+    validationMessages = []
+
+    notifyChange()
+
+    if (!isValidating) {
+      return
+    }
+
+    const validationPromises = validators.map(validator => validator(value))
+
+    currentValidationPromise = Promise.all(validationPromises)
+
+    const thisValidationPromise = currentValidationPromise
+
+    const results = await thisValidationPromise
+
+    // if another validation was kicked off while this one was running, bail
+    if (thisValidationPromise !== currentValidationPromise) {
+      return
+    }
+
+    validationMessages = results.filter(Boolean).flat() as string[]
+
+    isValidating = false
+
+    currentValidationPromise = null
+
+    notifyChange()
+  }
+
+  function notifyChange() {
+    handleChange({
+      value,
+      validationMessages,
+      validity: currentValidityStatus(),
+      isValid: isCurrentlyValid(),
+      isDirty,
+      isTouched,
+    })
+  }
+
+  const state: FormNodeState<object> = {
+    label: config.label,
+    isDirty,
+    isTouched,
+    isValid: isCurrentlyValid(),
+    validationMessages,
+    validity: currentValidityStatus(),
+    schema: valueState
+  }
+
+  const bindings: FormNodeBindings<object> = {
+    schema: valueBindings
+  }
+
+  return {
+    value,
+    state: state as unknown as FmlFormState<Value>['state'],
+    bindings: bindings as unknown as FmlFormState<Value>['bindings']
+  }
+}
+
+function isModelConfig<Value>(config: FmlConfiguration<Value> | FmlModelConfiguration<Value>): config is FmlModelConfiguration<Value> {
+  return Boolean((config as FmlModelConfiguration<Value>).schema);
+}
+
+//#endregion
+
+//#region ListState
+
+function createListStateFromConfig<Value>(
+  config: FmlListConfiguration<Value>,
+  handleChange: FmlFormStateChangeHandler<Value[]>
+): FmlFormState<Value[]> {
+  let currentListItemId = 0
+  const itemIds: number[] = []
+  const value: Value[] = (config.defaultValue || [])
+  const items: FmlFormState<Value>[] = []
+  const itemStates: FormNodeState<Value>[] = []
+  const itemBindings: FormNodeBindings<Value>[] = []
+
+  value.forEach(instantiateItemState)
+
+  function instantiateItemState(item: Value) {
+    const itemConfig = {
+      ...config.itemConfig
+    }
+    itemConfig.defaultValue = item
+
+    const result = createStateFromConfig(itemConfig, change => {
+      const idx = items.findIndex(state => state === result)
+
+      // this state was removed from the collection before this update
+      if (idx === -1) {
+        return
+      }
+      updateItemInternal(idx, change)
+    })
+
+    items.push(result)
+    itemStates.push(result.state)
+    itemBindings.push(result.bindings)
+    itemIds.push(currentListItemId++)
+
+    return result
+  }
+
+  let isDirty = false
+  let isTouched = false
+  let isValidating = false
+  let validationMessages: string[] = []
+  let currentValidationPromise: Promise<FmlControlValidatorReturnTypes[]> | null
+
+  const validators = (config.validators || []).map(instantiateValidator)
+  const hasValidators = Boolean(validators.length)
+
+  function shouldValidate() {
+    // we only need to validate the list if all the items are also valid
+    return !value.length || itemStates.every(state => state.isValid)
+  }
+
+  function currentValidityStatus(): FmlValidityStatus {
+    if (!hasValidators && !shouldValidate()) {
+      return 'valid'
+    }
+
+    if (!isTouched) {
+      return 'unknown'
+    }
+
+    if (isValidating) {
+      return 'pending'
+    }
+
+    if (validationMessages.length) {
+      return 'invalid'
+    }
+
+    const validities = new Set<FmlValidityStatus>(
+      items.map(state => state.state.validity)
+    );
+
+    return validities.has('invalid')
+      ? 'invalid'
+      : validities.has('unknown') || validities.has('pending')
+        ? 'unknown'
+        : 'valid'
+  }
+
+  function isCurrentlyValid() {
+    return currentValidityStatus() === 'valid'
+  }
+
+  function addItem() {
+    const newValue = sensibleDefaultValueForItem() as Value
+    value.push(newValue)
+    instantiateItemState(newValue)
+
+    isDirty = true;
+    isTouched = true;
+
+    notifyAndValidate()
+  }
+
+  function removeItem(index: number) {
+    value.splice(index, 1)
+    items.splice(index, 1)
+    itemIds.splice(index, 1)
+    itemStates.splice(index, 1)
+    itemBindings.splice(index, 1)
+
+    isDirty = isDirty || itemStates.some(state => state.isDirty);
+    isTouched = true;
+
+    notifyAndValidate()
+  }
+
+  function updateItemInternal(index: number, change: FmlFormStateChangeInfo<Value>) {
+    const { value: newValue, ...changeState } = change
+    value.splice(index, 1, newValue)
+    itemStates[index] = {
+      ...itemStates[index],
+      ...changeState
+    }
+
+
+    isDirty = isDirty || itemStates.some(state => state.isDirty);
+    isTouched = true;
+
+    notifyAndValidate()
+  }
+
+  async function notifyAndValidate() {
+    isValidating = hasValidators && shouldValidate()
+    currentValidationPromise = null
+    validationMessages = []
+
+    notifyChange()
+
+    if (!isValidating) {
+      return
+    }
+
+    const validationPromises = validators.map(validator => validator(value))
+
+    currentValidationPromise = Promise.all(validationPromises)
+
+    const thisValidationPromise = currentValidationPromise
+
+    const results = await thisValidationPromise
+
+    // if another validation was kicked off while this one was running, bail
+    if (thisValidationPromise !== currentValidationPromise) {
+      return
+    }
+
+    validationMessages = results.filter(Boolean).flat() as string[]
+
+    isValidating = false
+
+    currentValidationPromise = null
+
+    notifyChange()
+  }
+
+  function keyOf(index: number): string {
+    return itemIds[index].toString()
+  }
+
+  function notifyChange() {
+    handleChange({
+      value,
+      validationMessages,
+      validity: currentValidityStatus(),
+      isValid: isCurrentlyValid(),
+      isDirty,
+      isTouched,
+    })
+  }
+
+  function sensibleDefaultValueForItem() {
+    if (isModelConfig(config.itemConfig)) {
+      return {
+        ...config.itemConfig.defaultValue || {}
+      }
+    }
+    if (isListConfig(config.itemConfig)) {
+      return [...(config.itemConfig.defaultValue || [])]
+    }
+    return config.itemConfig.defaultValue
+  }
+
+  const state: FmlFormStateClassification<Value, 'list'>['state'] = {
+    label: config.label,
+    isDirty,
+    isTouched,
+    isValid: isCurrentlyValid(),
+    validationMessages,
+    validity: currentValidityStatus(),
+    items: itemStates
+  }
+
+  const bindings: FmlFormStateClassification<Value, 'list'>['bindings'] = {
+    addItem,
+    removeItem,
+    items: itemBindings,
+    keyOf
+  }
+
+  return {
+    value,
+    state,
+    bindings,
+  } as FmlFormState<Value[]>
+}
+
+function isListConfig<Value>(config: FmlConfiguration<Value> | FmlListConfiguration<Value>): config is FmlListConfiguration<Value> {
+  return Boolean((config as FmlListConfiguration<Value>).itemConfig);
+}
+
+//#endregion
+
+//#region FieldState
+
+function createFieldStateFromConfig<Value extends FmlFieldValueTypes>(
+  config: FmlFieldConfigurationBase<Value>,
+  handleChange: FmlFormStateChangeHandler<Value>
+): FmlFormState<Value> {
+  let value: Value = config.defaultValue
+  let isDirty = false
+  let isTouched = false
+  let hasBlurred = false
+  let isValidating = false
+  let validationMessages: string[] = []
+  let currentValidationPromise: Promise<FmlControlValidatorReturnTypes[]> | null
+
+  const validators = (config.validators || []).map(instantiateValidator)
+  const hasValidators = Boolean(validators.length)
+
+  function currentValidityStatus(): FmlValidityStatus {
+    if (!hasValidators) {
+      return 'valid'
+    }
+
+    if (!isTouched) {
+      return 'unknown'
+    }
+
+    if (isValidating) {
+      return 'pending'
+    }
+
+    if (validationMessages.length) {
+      return 'invalid'
+    }
+
+    return 'valid'
+  }
+
+  function isCurrentlyValid() {
+    return currentValidityStatus() === 'valid'
+  }
+
+  function setValue(newValue: Value) {
+    // no need to notify change if setting to the same value...
+    if (value === newValue) {
+      return;
+    }
+
+    isDirty = true
+    isTouched = true
+    value = newValue
+
+    notifyAndValidate()
+  }
+
+  async function notifyAndValidate() {
+    isValidating = hasValidators
+
+    currentValidationPromise = null
+
+    notifyChange()
+
+    if (!hasValidators) {
+      return;
+    }
+
+    const validationPromises = validators.map(validator => validator(value))
+
+    currentValidationPromise = Promise.all(validationPromises)
+
+    const thisValidationPromise = currentValidationPromise
+
+    const results = await thisValidationPromise
+
+    // if another validation was kicked off while this one was running, bail
+    if (thisValidationPromise !== currentValidationPromise) {
+      return
+    }
+
+    validationMessages = results.filter(Boolean).flat() as string[]
+
+    isValidating = false
+
+    currentValidationPromise = null
+
+    notifyChange()
+  }
+
+  function onBlur() {
+    const isFirstBlur = hasBlurred === false
+
+    // no need to notify of this change
+    hasBlurred = true
+
+    // iff it's the first time interacting with the field, validate the initial value
+    // otherwise, let the change handler handle changes :)
+    if (!isDirty && isFirstBlur && hasValidators) {
+      notifyAndValidate()
+    }
+  }
+
+  function onFocus() {
+    const changing = isTouched === false
+
+    isTouched = true
+
+    if (changing) {
+      notifyChange()
+    }
+  }
+
+  function notifyChange() {
+    handleChange({
+      value,
+      validationMessages,
+      validity: currentValidityStatus(),
+      isValid: isCurrentlyValid(),
+      isDirty,
+      isTouched,
+    })
+  }
+
+  const state: FmlFormState<FmlFieldValueTypes>['state'] = {
+    label: config.label,
+    control: config.control,
+    isDirty,
+    isTouched,
+    isValid: isCurrentlyValid(),
+    validationMessages,
+    validity: currentValidityStatus(),
+  };
+
+  const bindings: FmlFormState<FmlFieldValueTypes>['bindings'] = {
+    setValue,
+    onBlur,
+    onFocus
+  }
+
+  return {
+    value,
+    state: state as unknown as FmlFormState<Value>['state'],
+    bindings: bindings as unknown as FmlFormState<Value>['bindings']
+  }
+}
+
+function isFieldConfig<Value>(config: FmlConfiguration<Value> | FmlFieldConfiguration<Value>): config is FmlFieldConfiguration<Value> {
+  return Boolean((config as unknown as FmlFieldConfigurationBase<Value>).control);
+}
+
+//#endregion
